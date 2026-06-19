@@ -1,55 +1,35 @@
-# 📊 Portal FinQuant
+# Portal FinQuant
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
-  <img src="https://img.shields.io/badge/Streamlit-1.35+-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" />
-  <img src="https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" />
-  <img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow?style=for-the-badge" />
-</p>
-
-> **Portal Educacional de Finanças Quantitativas — Trabalho de Conclusão de Curso**
-
-Aplicação web educacional desenvolvida como TCC para democratizar o acesso ao conhecimento em **Finanças Quantitativas**. O portal guia o usuário por uma jornada de aprendizado estruturada em 6 etapas, coletando dados de pesquisa no início e avaliando o aprendizado ao final.
+Portal Educacional de Finanças Quantitativas — Trabalho de Conclusão de Curso
 
 ---
 
-## ✨ Funcionalidades
+## Sobre o Projeto
 
-- 🔐 **Autenticação segura** via Supabase (e-mail/senha)
-- 📝 **Questionário de perfil** para coleta de dados de pesquisa acadêmica
-- 📚 **Conteúdo didático** sobre Finanças Quantitativas com exemplos práticos
-- 📊 **Visualizações interativas** com dados reais da B3 (Bolsa do Brasil) via `yfinance`
-- 🧪 **Estudo de caso real**: Otimização de Carteira com Simulação de Monte Carlo
-- ⭐ **Avaliação do portal** com coleta de feedback acadêmico
-- 🔄 **Navegação condicional**: cada etapa só é liberada após o pré-requisito anterior
-- 🌙 **Dark mode** com tema customizado
+O **Portal FinQuant** é uma aplicação web educacional desenvolvida como TCC, com o objetivo de tornar os conceitos de Finanças Quantitativas acessíveis ao público geral. O portal guia o usuário por uma jornada de aprendizado estruturada, coletando dados de pesquisa no início e avaliando o aprendizado ao final.
 
----
-
-## 🛠️ Tecnologias
+## Tecnologias Utilizadas
 
 | Componente | Tecnologia |
 |---|---|
-| Frontend / Deploy | [Streamlit](https://streamlit.io) |
-| Banco de dados | [Supabase](https://supabase.com) (PostgreSQL) |
+| Frontend / Deploy | Streamlit |
+| Banco de dados | Supabase (PostgreSQL) |
 | Linguagem | Python 3.11+ |
-| Visualizações | [Plotly](https://plotly.com) |
-| Dados de mercado | [yfinance](https://github.com/ranaroussi/yfinance) (B3) |
-| Análise numérica | Pandas, NumPy |
+| Visualizações | Plotly |
+| Dados de mercado | yfinance (B3) |
+| Análise | Pandas, NumPy |
 
----
-
-## 🗂️ Estrutura de Arquivos
+## Estrutura de Arquivos
 
 ```
-portal-finquant/
+Portal FinQuant/
 ├── app.py                       # Entry point — navegação e sidebar
 ├── requirements.txt             # Dependências Python
 ├── .gitignore
 │
 ├── .streamlit/
 │   ├── config.toml             # Tema visual (dark mode)
-│   └── secrets.toml            # Credenciais Supabase (❌ NÃO commitar!)
+│   └── secrets.toml            # Credenciais Supabase (NÃO commitar!)
 │
 ├── pages/
 │   ├── 1_Apresentacao.py       # Página 1 — Apresentação e Disclaimer
@@ -69,29 +49,27 @@ portal-finquant/
     └── schema.sql              # Script SQL para criar as tabelas no Supabase
 ```
 
----
-
-## 🦭 Fluxo da Aplicação
+## Fluxo da Aplicação
 
 ```
-🏠 Página 1 — Apresentação e Disclaimer
-        ↓ [Aceitar disclaimer obrigatório]
-👤 Página 2 — Cadastro / Login + Questionário de Perfil
-        ↓ [Autenticado + Perfil preenchido]
-📚 Página 3 — Conceitos de Finanças Quantitativas
-        ↓
-📈 Página 4 — Estudo de Caso Real (B3)
-        ↓
-⭐ Página 5 — Avaliação do Portal
-        ↓ [Avaliação enviada]
-🙏 Página 6 — Agradecimento
+Página 1 — Apresentação e Disclaimer
+    ↓ [Aceitar disclaimer obrigatório]
+Página 2 — Cadastro / Login + Questionário de Perfil
+    ↓ [Autenticado + Perfil preenchido]
+Página 3 — Conceitos de Finanças Quantitativas
+    ↓
+Página 4 — Estudo de Caso Real (B3)
+    ↓
+Página 5 — Avaliação do Portal
+    ↓ [Avaliação enviada]
+Página 6 — Agradecimento
 ```
 
-> 🔐 Cada página só fica visível na barra lateral após o usuário cumprir o pré-requisito da etapa anterior.
+> Cada página só fica visível na barra lateral após o usuário cumprir o pré-requisito da etapa anterior.
 
 ---
 
-## 🚀 Configuração e Execução Local
+## Configuração e Execução Local
 
 ### 1. Clonar o repositório e instalar dependências
 
@@ -110,7 +88,7 @@ pip install -r requirements.txt
 
 ### 3. Configurar as credenciais
 
-Crie o arquivo `.streamlit/secrets.toml` (já está no `.gitignore`):
+Edite o arquivo `.streamlit/secrets.toml`:
 
 ```toml
 [supabase]
@@ -118,7 +96,7 @@ url = "https://SEU-PROJETO.supabase.co"
 anon_key = "SUA-CHAVE-ANONIMA-AQUI"
 ```
 
-> ⚠️ **NUNCA commite o arquivo `secrets.toml`!** Ele já está no `.gitignore`.
+> ⚠️ **IMPORTANTE:** O arquivo `secrets.toml` já está no `.gitignore`. Nunca o comite!
 
 ### 4. Executar localmente
 
@@ -130,7 +108,7 @@ Acesse em: `http://localhost:8501`
 
 ---
 
-## ☁️ Deploy no Streamlit Community Cloud
+## Deploy no Streamlit Community Cloud (gratuito)
 
 1. Suba o projeto para um repositório **GitHub público** (sem o `secrets.toml`)
 2. Acesse [share.streamlit.io](https://share.streamlit.io) e conecte sua conta GitHub
@@ -140,25 +118,35 @@ Acesse em: `http://localhost:8501`
 
 ---
 
-## 🗄️ Banco de Dados
+## Configuração do OAuth (Google / GitHub) — Opcional
 
-O Supabase gerencia duas tabelas principais com **Row Level Security (RLS)** habilitado:
+Para habilitar o login social, configure no painel do Supabase:
 
-| Tabela | Descrição |
-|---|---|
-| `usuarios_perfil` | Dados do questionário de perfil (Página 2) |
-| `avaliacoes` | Avaliações do portal (Página 5) |
+1. **Authentication → Providers**
+2. Habilite **Google** ou **GitHub**
+3. Preencha as credenciais OAuth (client ID e secret) obtidas no Google Cloud Console ou GitHub Settings
+4. Configure a URL de callback: `https://SEU-PROJETO.supabase.co/auth/v1/callback`
 
-### Exportar dados para análise
+> Para o protótipo local, o login com e-mail e senha funciona sem configuração adicional.
+
+---
+
+## Análise dos Dados da Pesquisa
+
+Os dados coletados podem ser exportados via:
 
 - **Supabase Dashboard → Table Editor** → selecione a tabela → Export CSV
 - **SQL Editor** usando as queries comentadas em `database/schema.sql`
 
+Tabelas disponíveis:
+- `usuarios_perfil` — Dados do questionário de perfil (Página 2)
+- `avaliacoes` — Avaliações do portal (Página 5)
+
 ---
 
-## 🔧 Personalização do Estudo de Caso
+## Personalização da Página 4 (Estudo de Caso)
 
-Edite as variáveis no topo de `pages/4_Estudo_de_Caso.py`:
+Para adaptar o estudo de caso ao seu conteúdo específico, edite as variáveis no topo de `pages/4_Estudo_de_Caso.py`:
 
 ```python
 TITULO_CASO = "Seu título aqui"
@@ -167,21 +155,6 @@ TICKERS = ["XXXX.SA", "YYYY.SA", ...]  # Tickers da B3
 DATA_INICIO = "AAAA-MM-DD"
 DATA_FIM = "AAAA-MM-DD"
 ```
-
----
-
-## 🛡️ Segurança
-
-- Credenciais armazenadas em `secrets.toml` (fora do controle de versão)
-- Row Level Security habilitado em todas as tabelas do Supabase
-- Cada usuário só acessa seus próprios dados
-- Passwords gerenciadas pelo Supabase Auth (hash seguro)
-
----
-
-## ⚠️ Disclaimer
-
-Este portal foi desenvolvido **exclusivamente para fins acadêmicos e educacionais** como parte de um TCC. Nenhuma informação aqui presente constitui recomendação de investimento. Consulte sempre um profissional habilitado antes de tomar decisões financeiras.
 
 ---
 

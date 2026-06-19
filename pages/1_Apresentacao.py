@@ -7,7 +7,7 @@ import streamlit as st
 
 
 def main():
-    # ── Cabeçalho ───────────────────────────────────────────────────────
+    # ── Cabeçalho ──────────────────────────────────────────────────────────
     col_esq, col_centro, col_dir = st.columns([1, 4, 1])
     with col_centro:
         st.markdown(
@@ -22,7 +22,7 @@ def main():
 
     st.divider()
 
-    # ── Apresentação do Projeto ───────────────────────────────────────────
+    # ── Apresentação do Projeto ─────────────────────────────────────────────
     st.markdown("## 🎓 Bem-vindo ao Portal FinQuant")
 
     col_texto, col_jornada = st.columns([3, 2])
@@ -64,7 +64,7 @@ def main():
 
     st.divider()
 
-    # ── Disclaimer ────────────────────────────────────────────────
+    # ── Disclaimer ─────────────────────────────────────────────────────────
     st.markdown("## ⚠️ Aviso Importante — Leia com atenção antes de continuar")
 
     st.warning("""
@@ -94,7 +94,7 @@ def main():
 
     st.divider()
 
-    # ── Confirmação e Botão de Avanço ────────────────────────────────────
+    # ── Confirmação e Botão de Avanço ───────────────────────────────────────
     st.markdown("### Para continuar, confirme que leu e compreendeu o aviso acima:")
 
     aceito = st.checkbox(
@@ -116,7 +116,7 @@ def main():
         st.session_state.disclaimer_aceito = False
         st.info("☝️ Marque a caixa acima para habilitar o acesso ao conteúdo do portal.")
 
-    # ── Rodapé ───────────────────────────────────────────────────
+    # ── Rodapé ─────────────────────────────────────────────────────────────
     st.divider()
     st.caption(
         "Portal FinQuant © 2025 | Trabalho de Conclusão de Curso | Fins Acadêmicos e Educacionais"
