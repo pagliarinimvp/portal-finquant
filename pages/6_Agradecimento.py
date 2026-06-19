@@ -22,7 +22,7 @@ def main():
 
     nome = st.session_state.get("usuario_nome", "Participante")
 
-    # ── Cabeçalho ───────────────────────────────────────────────────
+    # ── Cabeçalho ───────────────────────────────────────────────────────────────
     st.markdown(
         f"<h1 style='text-align:center; font-size:2.5rem;'>🎉 Muito Obrigado, {nome}!</h1>",
         unsafe_allow_html=True
@@ -34,7 +34,7 @@ def main():
     """)
     st.divider()
 
-    # ── Mensagem do autor e Recursos ───────────────────────────────────
+    # ── Mensagem do autor e Recursos ─────────────────────────────────────────
     col_msg, col_recursos = st.columns([3, 2])
 
     with col_msg:
@@ -92,7 +92,7 @@ def main():
 
     st.divider()
 
-    # ── Informações do Projeto ──────────────────────────────────────
+    # ── Informações do Projeto ──────────────────────────────────────────────
     st.markdown("### 📋 Sobre este Projeto")
     col_i1, col_i2, col_i3, col_i4 = st.columns(4)
     with col_i1:
@@ -106,7 +106,7 @@ def main():
 
     st.divider()
 
-    # ── Botões de Ação ─────────────────────────────────────────────
+    # ── Botões de Ação ──────────────────────────────────────────────────────
     col_btn1, col_btn2 = st.columns(2)
 
     with col_btn1:

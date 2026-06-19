@@ -29,6 +29,11 @@ def mostrar_resumo_perfil():
         st.metric("📊 Status", "✅ Conteúdo concluído")
 
 
+def legenda_escala(valor: int, descricoes: dict) -> str:
+    """Formata a legenda para os sliders de avaliação."""
+    return descricoes.get(valor, str(valor))
+
+
 def main():
     verificar_acesso()
 
@@ -52,7 +57,7 @@ def main():
 
     with st.form("form_avaliacao"):
 
-        # ── Pergunta 1: Facilidade de uso ─────────────────────────────
+        # ── Pergunta 1: Facilidade de uso ─────────────────────────────────
         st.markdown("### 1. Como você avalia a **facilidade de uso** do portal?")
         facilidade = st.select_slider(
             "Facilidade de uso",
@@ -70,7 +75,7 @@ def main():
 
         st.markdown("---")
 
-        # ── Pergunta 2: Clareza do conteúdo ───────────────────────────
+        # ── Pergunta 2: Clareza do conteúdo ───────────────────────────────
         st.markdown("### 2. Como você avalia a **clareza e qualidade do conteúdo** apresentado?")
         clareza = st.select_slider(
             "Clareza do conteúdo",
@@ -88,7 +93,7 @@ def main():
 
         st.markdown("---")
 
-        # ── Pergunta 3: Aprendizado percebido ─────────────────────────
+        # ── Pergunta 3: Aprendizado percebido ─────────────────────────────
         st.markdown("### 3. O quanto você **aprendeu** sobre Finanças Quantitativas com este portal?")
         aprendizado = st.select_slider(
             "Aprendizado percebido",
@@ -106,7 +111,7 @@ def main():
 
         st.markdown("---")
 
-        # ── Pergunta 4: Confiança após o portal ────────────────────────
+        # ── Pergunta 4: Confiança após o portal ───────────────────────────
         st.markdown(
             "### 4. Após usar o portal, você se sente mais **preparado para "
             "estudar o tema** de Finanças Quantitativas?"
@@ -127,7 +132,7 @@ def main():
 
         st.markdown("---")
 
-        # ── Pergunta 5: Recomendação ─────────────────────────────────
+        # ── Pergunta 5: Recomendação ─────────────────────────────────────
         st.markdown("### 5. Você **recomendaria** este portal para outras pessoas?")
         recomendaria = st.radio(
             "Recomendaria?",
@@ -138,7 +143,7 @@ def main():
 
         st.markdown("---")
 
-        # ── Campo livre ─────────────────────────────────────────────
+        # ── Campo livre ────────────────────────────────────────────────────
         st.markdown("### 6. Deixe um comentário ou sugestão *(opcional)*")
         comentario = st.text_area(
             "Comentário",

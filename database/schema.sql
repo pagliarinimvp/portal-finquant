@@ -7,7 +7,7 @@
 -- ============================================================
 
 
--- ── Tabela: usuarios_perfil ─────────────────────────────────────────────────────────────
+-- ── Tabela: usuarios_perfil ─────────────────────────────────────────────────
 -- Armazena os dados do questionário de perfil preenchido na Página 2.
 
 CREATE TABLE IF NOT EXISTS public.usuarios_perfil (
@@ -47,7 +47,7 @@ CREATE POLICY "Atualizar proprio perfil"
     WITH CHECK (auth.uid() = id);
 
 
--- ── Tabela: avaliacoes ────────────────────────────────────────────────────────────────
+-- ── Tabela: avaliacoes ──────────────────────────────────────────────────────
 -- Armazena as avaliações do portal preenchidas na Página 5.
 
 CREATE TABLE IF NOT EXISTS public.avaliacoes (
@@ -78,12 +78,12 @@ CREATE POLICY "Ler propria avaliacao"
     USING (auth.uid() = usuario_id);
 
 
--- ── Índices de Performance ───────────────────────────────────────────────────────────
+-- ── Índices de Performance ────────────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_usuarios_perfil_created_at ON public.usuarios_perfil(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_avaliacoes_created_at ON public.avaliacoes(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_avaliacoes_usuario_id ON public.avaliacoes(usuario_id);
 
--- ── Trigger: updated_at automático em usuarios_perfil ──────────────────────────────────
+-- ── Trigger: updated_at automático em usuarios_perfil ─────────────────────────
 CREATE OR REPLACE FUNCTION public.set_updated_at()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN NEW.updated_at = NOW(); RETURN NEW; END;

@@ -58,7 +58,7 @@ def calcular_metricas(precos: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]
     return metricas, retornos
 
 
-# ── Seções de Conteúdo ──────────────────────────────────────────────
+# ── Seções de Conteúdo ────────────────────────────────────────────────────────────
 
 def secao_o_que_e():
     st.markdown("## 🎯 O que são Finanças Quantitativas?")
@@ -104,7 +104,7 @@ def secao_quant_vs_tradicional():
         ### 🧠 Investidor Tradicional
         - Lê balanços, notícias e relatórios de analistas
         - Baseia decisões em intuição e experiência
-        - Sujeito a viês emocionais (medo e ganância)
+        - Sujeito a vieses emocionais (medo e ganância)
         - Monitora poucos ativos manualmente
         - Tempo de reação limitado em momentos de crise
         """)
@@ -209,7 +209,7 @@ def secao_demo_b3():
 
     metricas, retornos = calcular_metricas(precos)
 
-    # ── Gráfico 1: Evolução de Preços Normalizados ───────────────────────
+    # ── Gráfico 1: Evolução de Preços Normalizados ─────────────────────────
     st.markdown("### 📈 Evolução dos Preços (base 100)")
     st.caption(
         "Normalizamos os preços para comparar ativos com valores diferentes "
@@ -228,7 +228,7 @@ def secao_demo_b3():
     )
     st.plotly_chart(fig_precos, use_container_width=True)
 
-    # ── Gráfico 2: Risco vs. Retorno ─────────────────────────────────
+    # ── Gráfico 2: Risco vs. Retorno ───────────────────────────────────────
     st.markdown("### ⚖️ Risco vs. Retorno")
     st.caption(
         "Cada ponto é um ativo. O ideal é estar no canto superior esquerdo: "
@@ -254,7 +254,7 @@ def secao_demo_b3():
     st.markdown("**Tabela de métricas calculadas:**")
     st.dataframe(metricas, use_container_width=True)
 
-    # ── Gráfico 3: Matriz de Correlação ─────────────────────────────
+    # ── Gráfico 3: Matriz de Correlação ───────────────────────────────────
     st.markdown("### 🔗 Matriz de Correlação entre os Ativos")
     st.caption(
         "Valores próximos de +1 = ativos se movem juntos | "
@@ -273,7 +273,7 @@ def secao_demo_b3():
     )
     st.plotly_chart(fig_corr, use_container_width=True)
 
-    # ── Gráfico 4: Poder da Diversificação ──────────────────────────
+    # ── Gráfico 4: Poder da Diversificação ────────────────────────────────
     st.markdown("### 💼 O Poder da Diversificação")
     st.caption(
         "Comparamos uma carteira concentrada em um único ativo "
@@ -333,7 +333,7 @@ def secao_demo_b3():
 
 
 def secao_brasil():
-    st.markdown("## 🇪🇧 Finanças Quantitativas no Brasil")
+    st.markdown("## 🇧🇷 Finanças Quantitativas no Brasil")
 
     col_br1, col_br2 = st.columns(2)
     with col_br1:
@@ -381,7 +381,7 @@ def main():
     secao_demo_b3()
     secao_brasil()
 
-    # ── Próximo Passo ─────────────────────────────────────────────
+    # ── Próximo Passo ───────────────────────────────────────────────────────
     st.markdown("## ✅ Pronto para o próximo passo?")
     st.markdown(
         "Agora que você conhece os fundamentos, veja como eles se aplicam "

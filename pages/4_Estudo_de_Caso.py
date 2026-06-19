@@ -71,7 +71,7 @@ def main():
     Todos os dados utilizados são públicos e foram obtidos via B3 / Yahoo Finance.
     """)
 
-    # ── Seção 1: Contextualização ─────────────────────────────────────────
+    # ── Seção 1: Contextualização ───────────────────────────────────────────
     st.markdown("## 1. Contextualização")
     st.markdown(f"""
     **Problema:** Um investidor deseja alocar seu capital entre ações da B3, mas
@@ -88,7 +88,7 @@ def main():
     """)
     st.divider()
 
-    # ── Seção 2: Dados Utilizados ──────────────────────────────────────────
+    # ── Seção 2: Dados Utilizados ────────────────────────────────────────────
     st.markdown("## 2. Dados Utilizados")
 
     with st.spinner("Carregando dados do estudo de caso..."):
@@ -124,7 +124,7 @@ def main():
     st.dataframe(desc, use_container_width=True)
     st.divider()
 
-    # ── Seção 3: Metodologia ──────────────────────────────────────────────
+    # ── Seção 3: Metodologia ─────────────────────────────────────────────────
     st.markdown("## 3. Metodologia Aplicada")
     st.markdown("""
     Utilizamos a abordagem de **Simulação de Monte Carlo** para gerar milhares de
@@ -198,7 +198,7 @@ def main():
     st.plotly_chart(fig_mc, use_container_width=True)
     st.divider()
 
-    # ── Seção 4: Resultados ───────────────────────────────────────────────
+    # ── Seção 4: Resultados ──────────────────────────────────────────────────
     st.markdown("## 4. Resultados")
 
     pesos_otimos = pesos_simulados[:, idx_melhor]
@@ -250,7 +250,7 @@ def main():
     st.dataframe(df_comp.set_index("Estratégia"), use_container_width=True)
     st.divider()
 
-    # ── Seção 5: Conclusões ───────────────────────────────────────────────
+    # ── Seção 5: Conclusões ──────────────────────────────────────────────────
     st.markdown("## 5. Conclusões")
     st.markdown(f"""
     Este estudo de caso demonstrou que a aplicação da **Teoria Moderna do Portfólio**,
@@ -277,7 +277,7 @@ def main():
     )
     st.divider()
 
-    # ── Próximo Passo ────────────────────────────────────────────────
+    # ── Próximo Passo ───────────────────────────────────────────────────────
     if st.button("Ir para a Avaliação →", type="primary", use_container_width=True):
         st.switch_page("pages/5_Avaliacao.py")
 
