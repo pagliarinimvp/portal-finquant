@@ -31,11 +31,6 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'avaliacoes:avaliar' %}">Avalie o site</a></li>
                 </ul>
                 <ul class="navbar-nav align-items-lg-center">
-                    <li class="nav-item">
-                        <button type="button" id="toggle-tema" class="btn btn-link nav-link" title="Alternar modo noturno" aria-label="Alternar modo noturno">
-                            <span id="toggle-tema-icone" aria-hidden="true">🌙</span>
-                        </button>
-                    </li>
                     {% if user.is_authenticated %}
                         <li class="nav-item"><span class="nav-link">Olá, {{ user.username }}</span></li>
                         <li class="nav-item">
@@ -48,6 +43,11 @@
                         <li class="nav-item"><a class="nav-link" href="{% url 'contas:login' %}">Entrar</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'contas:cadastro' %}">Cadastrar</a></li>
                     {% endif %}
+                    <li class="nav-item ms-lg-3 my-2 my-lg-0">
+                        <button type="button" id="toggle-tema" class="btn btn-outline-light btn-sm rounded-circle" title="Alternar modo noturno" aria-label="Alternar modo noturno">
+                            <span id="toggle-tema-icone" aria-hidden="true">🌙</span>
+                        </button>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -83,6 +83,9 @@
                 document.documentElement.setAttribute('data-bs-theme', novo);
                 localStorage.setItem('theme', novo);
                 atualizarIcone();
+                // Remove o foco após o toque para não deixar o botão com
+                // aparência de "pressionado" em telas touch.
+                botao.blur();
             });
 
             atualizarIcone();
