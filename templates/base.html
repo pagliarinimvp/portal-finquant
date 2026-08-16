@@ -26,9 +26,16 @@
             </button>
             <div class="collapse navbar-collapse" id="navMenu">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="{% url 'conteudo:lista' %}">Artigos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'simuladores:juros_compostos' %}">Simulador</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'avaliacoes:avaliar' %}">Avalie o site</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="menuConteudo" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Menu
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="menuConteudo">
+                            <li><a class="dropdown-item" href="{% url 'conteudo:lista' %}">Artigos</a></li>
+                            <li><a class="dropdown-item" href="{% url 'simuladores:juros_compostos' %}">Simulador</a></li>
+                            <li><a class="dropdown-item" href="{% url 'avaliacoes:avaliar' %}">Avalie o site</a></li>
+                        </ul>
+                    </li>
                 </ul>
                 <ul class="navbar-nav align-items-lg-center">
                     {% if user.is_authenticated %}
