@@ -1,1 +1,18 @@
 .claude/scheduled_tasks.lock
+
+# Ambiente virtual Python
+venv/
+__pycache__/
+*.pyc
+
+# Segredos e configuração local
+.env
+
+# Banco de dados local
+db.sqlite3
+
+# Arquivos estáticos coletados para produção
+staticfiles/
+
+# Editor/IDE
+.vscode/

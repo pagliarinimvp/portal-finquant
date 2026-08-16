@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Artigos — Portal FinQuant{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Artigos</h1>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for artigo in artigos %}
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <span class="badge bg-secondary mb-2">{{ artigo.get_categoria_display }}</span>
+                <h2 class="h5 card-title">{{ artigo.titulo }}</h2>
+                <p class="card-text text-muted">{{ artigo.resumo }}</p>
+                <a href="{% url 'conteudo:detalhe' artigo.slug %}" class="btn btn-sm btn-outline-primary">Ler artigo</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">Nenhum artigo publicado ainda. Volte em breve!</p>
+    {% endfor %}
+</div>
+
+{% if is_paginated %}
+<nav class="mt-4" aria-label="Paginação de artigos">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

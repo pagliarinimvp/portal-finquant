@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Criar conta — Portal FinQuant{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card p-4">
+            <h1 class="h4 mb-3">Criar conta</h1>
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field.errors }}
+                    <input type="{% if 'password' in field.name %}password{% else %}text{% endif %}"
+                           name="{{ field.html_name }}" class="form-control" id="{{ field.id_for_label }}">
+                    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary w-100">Criar conta</button>
+            </form>
+            <p class="mt-3 mb-0 text-center">
+                Já tem conta? <a href="{% url 'contas:login' %}">Entrar</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

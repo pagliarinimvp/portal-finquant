@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Avalie o site — Portal FinQuant{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h1 class="h4 mb-3">O que você achou do Portal FinQuant?</h1>
+            <p class="text-muted">Sua avaliação ajuda a melhorar o site e será usada na análise final deste projeto.</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label d-block">{{ form.nota.label }}</label>
+                    {% for radio in form.nota %}
+                        <div class="form-check">
+                            {{ radio.tag }}
+                            <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                        </div>
+                    {% endfor %}
+                    {% if form.nota.errors %}<div class="text-danger small">{{ form.nota.errors }}</div>{% endif %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.comentario.id_for_label }}">{{ form.comentario.label }}</label>
+                    {{ form.comentario }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Enviar avaliação</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

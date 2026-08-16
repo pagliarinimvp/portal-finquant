@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Portal FinQuant — Finanças quantitativas para todos{% endblock %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-white rounded-3 shadow-sm">
+    <h1 class="display-6">Finanças quantitativas, explicadas de forma simples</h1>
+    <p class="lead">
+        O Portal FinQuant traduz conceitos de finanças quantitativas para quem está começando,
+        com artigos em linguagem acessível e simuladores interativos.
+    </p>
+    <a class="btn btn-primary btn-lg" href="{% url 'conteudo:lista' %}">Ver artigos</a>
+    <a class="btn btn-outline-secondary btn-lg" href="{% url 'simuladores:juros_compostos' %}">Testar simulador</a>
+</div>
+
+<h2 class="h4 mb-3">Artigos recentes</h2>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for artigo in artigos_recentes %}
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3 class="h5 card-title">{{ artigo.titulo }}</h3>
+                <p class="card-text text-muted">{{ artigo.resumo }}</p>
+                <a href="{% url 'conteudo:detalhe' artigo.slug %}" class="btn btn-sm btn-outline-primary">Ler artigo</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">Nenhum artigo publicado ainda.</p>
+    {% endfor %}
+</div>
+{% endblock %}

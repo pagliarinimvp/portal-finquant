@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Entrar — Portal FinQuant{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card p-4">
+            <h1 class="h4 mb-3">Entrar</h1>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.username.id_for_label }}">Usuário</label>
+                    {{ form.username.errors }}
+                    <input type="text" name="{{ form.username.html_name }}" class="form-control" id="{{ form.username.id_for_label }}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.password.id_for_label }}">Senha</label>
+                    {{ form.password.errors }}
+                    <input type="password" name="{{ form.password.html_name }}" class="form-control" id="{{ form.password.id_for_label }}" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Entrar</button>
+            </form>
+            <p class="mt-3 mb-0 text-center">
+                Ainda não tem conta? <a href="{% url 'contas:cadastro' %}">Cadastre-se</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

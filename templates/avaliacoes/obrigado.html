@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Obrigado! — Portal FinQuant{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="h3">Obrigado pela sua avaliação!</h1>
+    <p class="text-muted">Seu feedback foi registrado e vai nos ajudar a melhorar o Portal FinQuant.</p>
+    <a href="{% url 'core:home' %}" class="btn btn-primary mt-3">Voltar para a página inicial</a>
+</div>
+{% endblock %}
