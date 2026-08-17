@@ -13,8 +13,11 @@ services:
     plan: free
     name: portal-finquant
     runtime: python
-    buildCommand: 'pip install -r requirements.txt && python manage.py collectstatic --noinput'
-    preDeployCommand: 'python manage.py migrate && python manage.py bootstrap_admin'
+    # preDeployCommand não é suportado no plano free — migrate e
+    # bootstrap_admin ficam no buildCommand mesmo (ver histórico do
+    # commit que tentou mover para pre-deploy: o Blueprint Sync rejeitou
+    # com "pre-deploy command is not supported for free tier services").
+    buildCommand: 'pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py bootstrap_admin'
     startCommand: 'gunicorn config.wsgi'
     envVars:
       - key: SECRET_KEY
@@ -29,7 +32,7 @@ services:
         fromDatabase:
           name: portal-finquant-db
           property: connectionString
-      # Superusuário de admin, criado pelo bootstrap_admin no pre-deploy
+      # Superusuário de admin, criado pelo bootstrap_admin no build
       # (veja contas/management/commands/bootstrap_admin.py). Preencha uma
       # vez no formulário do Render; ele nunca sobrescreve a senha depois
       # que o usuário já existe, então trocar a senha aqui não tem efeito —
