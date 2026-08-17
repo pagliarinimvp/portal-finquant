@@ -1,4 +1,5 @@
 from django.test import TestCase, override_settings
+from django.urls import reverse
 
 GOOGLE_CONFIGURADO = {
     "google": {
@@ -26,3 +27,23 @@ class LoginSocialUrlsTests(TestCase):
         response = self.client.post("/contas/social/github/login/")
         self.assertEqual(response.status_code, 302)
         self.assertIn("github.com", response.url)
+
+
+class LoginSocialBotoesTests(TestCase):
+    @override_settings(SOCIALACCOUNT_PROVIDERS=GOOGLE_CONFIGURADO)
+    def test_login_mostra_botao_google_quando_configurado(self):
+        response = self.client.get(reverse('contas:login'))
+        self.assertContains(response, 'Entrar com Google')
+        self.assertNotContains(response, 'Entrar com GitHub')
+
+    @override_settings(SOCIALACCOUNT_PROVIDERS={})
+    def test_login_nao_mostra_botoes_quando_nada_configurado(self):
+        response = self.client.get(reverse('contas:login'))
+        self.assertNotContains(response, 'Entrar com Google')
+        self.assertNotContains(response, 'Entrar com GitHub')
+
+    @override_settings(SOCIALACCOUNT_PROVIDERS=GITHUB_CONFIGURADO)
+    def test_cadastro_mostra_botao_github_quando_configurado(self):
+        response = self.client.get(reverse('contas:cadastro'))
+        self.assertContains(response, 'Entrar com GitHub')
+        self.assertNotContains(response, 'Entrar com Google')
