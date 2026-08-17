@@ -14,7 +14,7 @@ services:
     name: portal-finquant
     runtime: python
     buildCommand: 'pip install -r requirements.txt && python manage.py collectstatic --noinput'
-    preDeployCommand: 'python manage.py migrate'
+    preDeployCommand: 'python manage.py migrate && python manage.py bootstrap_admin'
     startCommand: 'gunicorn config.wsgi'
     envVars:
       - key: SECRET_KEY
@@ -29,6 +29,17 @@ services:
         fromDatabase:
           name: portal-finquant-db
           property: connectionString
+      # Superusuário de admin, criado pelo bootstrap_admin no pre-deploy
+      # (veja contas/management/commands/bootstrap_admin.py). Preencha uma
+      # vez no formulário do Render; ele nunca sobrescreve a senha depois
+      # que o usuário já existe, então trocar a senha aqui não tem efeito —
+      # troque pelo próprio /admin/ ou por `manage.py changepassword`.
+      - key: DJANGO_SUPERUSER_USERNAME
+        sync: false
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false
       # Login social (opcional). Deixe em branco no formulário do Render
       # para não mostrar os botões, ou preencha com as credenciais de
       # produção (veja docs/superpowers/specs/2026-08-17-login-social-design.md).
