@@ -97,6 +97,18 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
   GitHub via flag `verified` da API `/user/emails`) — não é necessário forçar
   `VERIFIED_EMAIL: True` manualmente pra esses dois provedores.
 
+Cuidado descoberto na revisão final: com
+`SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT`, o allauth chama
+`wipe_password()` na conta local ao conectar automaticamente por e-mail, a
+menos que aquele usuário já tenha um registro `EmailAddress` verificado. Como
+a tabela `account_emailaddress` é nova neste projeto, nenhum usuário existente
+tinha esse registro — o primeiro a logar com Google/GitHub usando um e-mail já
+cadastrado (o superusuário, por exemplo) teria a senha local apagada em
+silêncio. Para evitar isso, a migração de dados
+`contas/migrations/0001_verifica_emails_existentes.py` cria uma `EmailAddress`
+verificada e primária para todo usuário existente com e-mail preenchido. Ela
+usa `get_or_create`, então rodar de novo é inofensivo.
+
 Nota: usuários locais sem e-mail cadastrado (ex.: o usuário de teste
 `teste_9466` criado durante os testes manuais) simplesmente não vinculam com
 nada — comportamento esperado, não é um caso a tratar especialmente. Um bom
@@ -110,6 +122,18 @@ e-mail deve conectar automaticamente à conta existente, não criar uma nova.
   endpoints de OAuth que isso expõe (`.../google/login/`,
   `.../github/login/`, `.../google/login/callback/`,
   `.../github/login/callback/`) — não usamos as telas de conta do allauth.
+- Só que esse `include` monta o app de contas **inteiro** do allauth: login,
+  cadastro, logout, gestão de e-mail, troca/reset de senha. Recortar o include
+  para deixar passar só as rotas dos provedores não é seguro (fluxos internos
+  de erro do allauth fazem `reverse()` de views de conta dele e quebrariam com
+  `NoReverseMatch`). Então blindamos as duas rotas mais problemáticas —
+  `contas/social/login/` e `contas/social/signup/`, que seriam uma segunda tela
+  de login e um segundo formulário de cadastro (esse contornando a
+  `contas.views.CadastroView`) — com `RedirectView` para `contas:login` e
+  `contas:cadastro`. Elas ficam **antes** do include na `urlpatterns`, porque o
+  resolvedor do Django testa os padrões na ordem da lista. Os botões OAuth não
+  são afetados: eles apontam para `contas/social/google/login/` e
+  `contas/social/github/login/`, caminhos distintos dos blindados.
 
 ### Templates
 
@@ -154,9 +178,16 @@ Fluxo do GitHub é idêntico, trocando o provedor.
 
 - Credencial de um provedor ausente/vazia no `.env` → botão daquele provedor
   não aparece (checado no template, ver acima). Sem erro pro usuário final.
-- Provedor não devolve e-mail verificado (raro; GitHub permite e-mail privado,
-  mas o allauth já pede o escopo `user:email` por padrão para conseguir o
-  e-mail mesmo assim) → não vincula automaticamente; allauth cai no
+- Provedor não devolve e-mail verificado (raro; GitHub permite e-mail privado).
+  Atenção: o allauth **não** pede o escopo `user:email` por padrão — ele só
+  solicita esse escopo e consulta o endpoint `/user/emails` do GitHub quando
+  `SOCIALACCOUNT_QUERY_EMAIL = True`, que hoje está definido no
+  `config/settings.py` justamente por isso. Sem essa configuração, o login com
+  GitHub nunca receberia um e-mail verificado e a vinculação automática por
+  e-mail não funcionaria para esse provedor (o Google não depende disso: já
+  devolve o e-mail verificado no token OpenID Connect). Quando ainda assim o
+  provedor não devolver e-mail verificado → não vincula automaticamente;
+  allauth cai no
   comportamento padrão dele (tela de erro "e-mail já em uso" pedindo login
   manual, se o e-mail bater com um usuário existente mas não-verificado; ou
   cria conta nova, se o e-mail não bater com ninguém).
@@ -226,3 +257,9 @@ Quando o domínio de produção existir (ex. `portal-finquant.onrender.com`):
   mesmo jeito que `SECRET_KEY` e `DATABASE_URL` já são.
 - Sair do modo "Testing" na tela de consentimento OAuth do Google (senão só
   usuários explicitamente adicionados como testadores conseguem logar).
+- Manter `SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')` ativo
+  quando `DEBUG=False` (já está no `config/settings.py`). O Render termina o
+  TLS no proxy dele e repassa o esquema original no cabeçalho
+  `X-Forwarded-Proto`; sem informar isso ao Django, `request.is_secure()`
+  devolve `False` em produção e o allauth monta as URLs de callback do OAuth
+  como `http://`, que Google e GitHub rejeitam fora de `localhost`.

@@ -28,6 +28,17 @@ class LoginSocialUrlsTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn("github.com", response.url)
 
+    def test_telas_de_conta_do_allauth_redirecionam_para_as_nossas(self):
+        """As rotas de login/cadastro do allauth sao blindadas em
+        config/urls.py (antes do include) para nao expor uma segunda tela de
+        login nem um cadastro que contorna a CadastroView do projeto."""
+        self.assertRedirects(
+            self.client.get("/contas/social/login/"), reverse('contas:login')
+        )
+        self.assertRedirects(
+            self.client.get("/contas/social/signup/"), reverse('contas:cadastro')
+        )
+
 
 class LoginSocialBotoesTests(TestCase):
     @override_settings(SOCIALACCOUNT_PROVIDERS=GOOGLE_CONFIGURADO)
@@ -35,15 +46,23 @@ class LoginSocialBotoesTests(TestCase):
         response = self.client.get(reverse('contas:login'))
         self.assertContains(response, 'Entrar com Google')
         self.assertNotContains(response, 'Entrar com GitHub')
+        # O botao precisa ser um form POST, nao um link GET: com
+        # SOCIALACCOUNT_LOGIN_ON_GET no padrao (False), um <a href> quebraria.
+        self.assertContains(response, 'action="/contas/social/google/login/"')
+        self.assertContains(response, 'method="post"')
 
     @override_settings(SOCIALACCOUNT_PROVIDERS={})
     def test_login_nao_mostra_botoes_quando_nada_configurado(self):
         response = self.client.get(reverse('contas:login'))
         self.assertNotContains(response, 'Entrar com Google')
         self.assertNotContains(response, 'Entrar com GitHub')
+        self.assertNotContains(response, 'action="/contas/social/google/login/"')
+        self.assertNotContains(response, 'action="/contas/social/github/login/"')
 
     @override_settings(SOCIALACCOUNT_PROVIDERS=GITHUB_CONFIGURADO)
     def test_cadastro_mostra_botao_github_quando_configurado(self):
         response = self.client.get(reverse('contas:cadastro'))
         self.assertContains(response, 'Entrar com GitHub')
         self.assertNotContains(response, 'Entrar com Google')
+        self.assertContains(response, 'action="/contas/social/github/login/"')
+        self.assertContains(response, 'method="post"')

@@ -35,6 +35,12 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 # Necessário quando o Render (ou outro PaaS) fica atrás de proxy HTTPS.
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
 
+# Necessario atras do proxy TLS do Render (ou outro PaaS): sem isso,
+# request.is_secure() retorna False em producao e o allauth constroi as
+# URLs de callback do OAuth como http://, que Google/GitHub rejeitam.
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Definição da aplicação
 
@@ -139,8 +145,8 @@ AUTHENTICATION_BACKENDS = [
 # no template quando o provedor não está configurado (ver contas/login.html).
 SOCIALACCOUNT_PROVIDERS = {}
 
-GOOGLE_CLIENT_ID = env('GOOGLE_CLIENT_ID', default='')
-GOOGLE_CLIENT_SECRET = env('GOOGLE_CLIENT_SECRET', default='')
+GOOGLE_CLIENT_ID = env('GOOGLE_CLIENT_ID', default='').strip()
+GOOGLE_CLIENT_SECRET = env('GOOGLE_CLIENT_SECRET', default='').strip()
 if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET:
     SOCIALACCOUNT_PROVIDERS['google'] = {
         'APPS': [{
@@ -151,8 +157,8 @@ if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET:
         'SCOPE': ['profile', 'email'],
     }
 
-GITHUB_CLIENT_ID = env('GITHUB_CLIENT_ID', default='')
-GITHUB_CLIENT_SECRET = env('GITHUB_CLIENT_SECRET', default='')
+GITHUB_CLIENT_ID = env('GITHUB_CLIENT_ID', default='').strip()
+GITHUB_CLIENT_SECRET = env('GITHUB_CLIENT_SECRET', default='').strip()
 if GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET:
     SOCIALACCOUNT_PROVIDERS['github'] = {
         'APPS': [{
@@ -171,6 +177,13 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 # conecta a conta social a ela automaticamente.
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
+# Sem isso, o allauth nao pede o escopo `user:email` nem consulta
+# /user/emails do GitHub -- o login com GitHub nunca recebe um e-mail
+# verificado, quebrando a vinculacao automatica por e-mail para esse
+# provedor especificamente (o Google nao precisa disso, ja retorna o
+# e-mail verificado no token OpenID Connect).
+SOCIALACCOUNT_QUERY_EMAIL = True
 
 
 # Internacionalização
@@ -204,11 +217,6 @@ STORAGES = {
         ),
     },
 }
-
-# Evita erro "Missing staticfiles manifest entry" quando os testes ou o
-# ambiente de desenvolvimento rodam sem "collectstatic" ter sido executado
-# antes (o manifesto do WhiteNoise só existe após esse comando).
-WHITENOISE_MANIFEST_STRICT = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
