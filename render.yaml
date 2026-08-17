@@ -1,0 +1,41 @@
+# Blueprint do Render para o Portal FinQuant.
+# Uso: no dashboard do Render, "New +" -> "Blueprint" -> conecte este
+# repositório. O Render lê este arquivo e cria o Web Service e o banco
+# Postgres automaticamente. Veja o README ("Deploy (Render.com)") para o
+# passo a passo completo, incluindo o login social.
+
+databases:
+  - name: portal-finquant-db
+    plan: free
+
+services:
+  - type: web
+    plan: free
+    name: portal-finquant
+    runtime: python
+    buildCommand: 'pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate'
+    startCommand: 'gunicorn config.wsgi'
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: 'False'
+      - key: ALLOWED_HOSTS
+        value: '.onrender.com'
+      - key: CSRF_TRUSTED_ORIGINS
+        value: 'https://*.onrender.com'
+      - key: DATABASE_URL
+        fromDatabase:
+          name: portal-finquant-db
+          property: connectionString
+      # Login social (opcional). Deixe em branco no formulário do Render
+      # para não mostrar os botões, ou preencha com as credenciais de
+      # produção (veja docs/superpowers/specs/2026-08-17-login-social-design.md).
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false

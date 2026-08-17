@@ -59,6 +59,21 @@ static/         # CSS
 
 ## Deploy (Render.com)
 
+### Opção rápida: Blueprint
+
+O repositório já tem um `render.yaml`. No dashboard do Render: **New +** →
+**Blueprint** → conecte este repositório no GitHub. O Render cria o Web
+Service e o banco PostgreSQL automaticamente, já com `SECRET_KEY` gerada e
+`DATABASE_URL` ligada ao banco. Se for usar login social, preencha
+`GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET`
+no formulário do Blueprint (pode deixar em branco e configurar depois pelo
+painel do serviço) — veja o passo a passo das credenciais em
+`docs/superpowers/specs/2026-08-17-login-social-design.md`, que também
+inclui as URLs de callback de produção a cadastrar no Google e no GitHub
+depois que a URL final do serviço existir.
+
+### Opção manual
+
 1. Suba o repositório no GitHub.
 2. Crie um "Web Service" no Render apontando para o repositório.
 3. Build command: `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate`
