@@ -30,20 +30,24 @@ class JurosCompostosView(FormView):
 
         total_aportado = dados['valor_inicial']
         linhas = []
+        pontos_grafico = [{'mes': 0, 'saldo': float(saldo.quantize(Decimal('0.01')))}]
         for mes in range(1, meses + 1):
             saldo += aporte
             juros_do_mes = saldo * taxa
             saldo += juros_do_mes
             total_aportado += aporte
+            saldo_arredondado = saldo.quantize(Decimal('0.01'))
             linhas.append({
                 'mes': mes,
                 'juros_do_mes': juros_do_mes.quantize(Decimal('0.01')),
-                'saldo': saldo.quantize(Decimal('0.01')),
+                'saldo': saldo_arredondado,
             })
+            pontos_grafico.append({'mes': mes, 'saldo': float(saldo_arredondado)})
 
         total_juros = saldo - total_aportado
         return {
             'linhas': linhas,
+            'pontos_grafico': pontos_grafico,
             'saldo_final': saldo.quantize(Decimal('0.01')),
             'total_aportado': total_aportado.quantize(Decimal('0.01')),
             'total_juros': total_juros.quantize(Decimal('0.01')),

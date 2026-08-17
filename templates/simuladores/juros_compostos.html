@@ -35,6 +35,14 @@
                 <li><strong>Total em juros:</strong> R$ {{ resultado.total_juros }}</li>
             </ul>
         </div>
+        <figure class="card p-4 mb-3 grafico-evolucao">
+            <figcaption class="h6 text-secondary-emphasis mb-3">Evolução do capital ao longo do tempo</figcaption>
+            {{ resultado.pontos_grafico|json_script:"pontos-grafico" }}
+            <div class="grafico-corpo">
+                <svg id="grafico-evolucao-svg" viewBox="0 0 800 320" role="img" aria-label="Gráfico do saldo acumulado mês a mês" tabindex="0"></svg>
+                <div id="grafico-evolucao-tooltip" class="grafico-tooltip" hidden></div>
+            </div>
+        </figure>
         <div class="table-responsive" style="max-height: 400px;">
             <table class="table table-sm table-striped">
                 <thead class="table-dark">
@@ -56,4 +64,267 @@
         {% endif %}
     </div>
 </div>
+
+<style>
+    .grafico-evolucao {
+        --series-1: #2a78d6;
+        --series-1-fill: rgba(42, 120, 214, 0.10);
+        --gridline: #e1e0d9;
+        --baseline: #c3c2b7;
+        --muted: #898781;
+        --tooltip-bg: #fcfcfb;
+        --tooltip-border: rgba(11, 11, 11, 0.10);
+        --tooltip-fg: #0b0b0b;
+    }
+    [data-bs-theme="dark"] .grafico-evolucao {
+        --series-1: #3987e5;
+        --series-1-fill: rgba(57, 135, 229, 0.10);
+        --gridline: #2c2c2a;
+        --baseline: #383835;
+        --muted: #898781;
+        --tooltip-bg: #1a1a19;
+        --tooltip-border: rgba(255, 255, 255, 0.10);
+        --tooltip-fg: #ffffff;
+    }
+    .grafico-corpo {
+        position: relative;
+    }
+    .grafico-corpo svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 800 / 320;
+    }
+    .grafico-evolucao .linha-saldo {
+        fill: none;
+        stroke: var(--series-1);
+        stroke-width: 2;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+    }
+    .grafico-evolucao .area-saldo {
+        fill: var(--series-1-fill);
+        stroke: none;
+    }
+    .grafico-evolucao .marcador-final {
+        fill: var(--series-1);
+        stroke: var(--tooltip-bg);
+        stroke-width: 2;
+    }
+    .grafico-evolucao .grade,
+    .grafico-evolucao .eixo {
+        stroke: var(--gridline);
+        stroke-width: 1;
+    }
+    .grafico-evolucao .eixo {
+        stroke: var(--baseline);
+    }
+    .grafico-evolucao .rotulo {
+        fill: var(--muted);
+        font-size: 11px;
+        font-family: inherit;
+    }
+    .grafico-evolucao .crosshair-linha {
+        stroke: var(--baseline);
+        stroke-width: 1;
+        stroke-dasharray: 3 3;
+    }
+    .grafico-evolucao .crosshair-ponto {
+        fill: var(--series-1);
+        stroke: var(--tooltip-bg);
+        stroke-width: 2;
+    }
+    .grafico-evolucao .grafico-overlay {
+        fill: transparent;
+        cursor: crosshair;
+    }
+    .grafico-tooltip {
+        position: absolute;
+        transform: translate(-50%, calc(-100% - 10px));
+        background: var(--tooltip-bg);
+        color: var(--tooltip-fg);
+        border: 1px solid var(--tooltip-border);
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        pointer-events: none;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+    .grafico-tooltip strong {
+        color: var(--tooltip-fg);
+    }
+    .grafico-tooltip span {
+        color: var(--muted);
+    }
+</style>
+<script>
+    (function () {
+        var dadosEl = document.getElementById('pontos-grafico');
+        var svg = document.getElementById('grafico-evolucao-svg');
+        var tooltip = document.getElementById('grafico-evolucao-tooltip');
+        if (!dadosEl || !svg || !tooltip) return;
+
+        var pontos = JSON.parse(dadosEl.textContent);
+        if (!pontos.length) return;
+
+        var NS = 'http://www.w3.org/2000/svg';
+        var largura = 800;
+        var altura = 320;
+        var margem = { topo: 12, direita: 16, baixo: 28, esquerda: 68 };
+        var areaLargura = largura - margem.esquerda - margem.direita;
+        var areaAltura = altura - margem.topo - margem.baixo;
+
+        function criarEl(tag, atributos) {
+            var el = document.createElementNS(NS, tag);
+            for (var chave in atributos) {
+                el.setAttribute(chave, atributos[chave]);
+            }
+            return el;
+        }
+
+        function passoAgradavel(valorMax, numTicks) {
+            var passoBruto = valorMax / numTicks;
+            if (passoBruto <= 0) return 1;
+            var expoente = Math.floor(Math.log(passoBruto) / Math.LN10);
+            var fracao = passoBruto / Math.pow(10, expoente);
+            var fracaoAgradavel = fracao <= 1 ? 1 : fracao <= 2 ? 2 : fracao <= 5 ? 5 : 10;
+            return fracaoAgradavel * Math.pow(10, expoente);
+        }
+
+        function formatarReais(valor, comCentavos) {
+            return 'R$ ' + valor.toLocaleString('pt-BR', {
+                minimumFractionDigits: comCentavos ? 2 : 0,
+                maximumFractionDigits: comCentavos ? 2 : 0,
+            });
+        }
+
+        var maxSaldo = Math.max.apply(null, pontos.map(function (p) { return p.saldo; }));
+        var passoY = passoAgradavel(maxSaldo, 4);
+        var eixoMaxY = Math.max(passoY, Math.ceil(maxSaldo / passoY) * passoY);
+
+        function escalaX(i) {
+            return margem.esquerda + (pontos.length === 1 ? 0 : (i / (pontos.length - 1)) * areaLargura);
+        }
+        function escalaY(v) {
+            return margem.topo + areaAltura - (v / eixoMaxY) * areaAltura;
+        }
+
+        // Grade e rótulos do eixo Y
+        for (var v = 0; v <= eixoMaxY + 0.01; v += passoY) {
+            var y = escalaY(v);
+            svg.appendChild(criarEl('line', {
+                class: 'grade', x1: margem.esquerda, x2: largura - margem.direita, y1: y, y2: y,
+            }));
+            var rotuloY = criarEl('text', {
+                class: 'rotulo', x: margem.esquerda - 8, y: y + 3, 'text-anchor': 'end',
+            });
+            rotuloY.textContent = formatarReais(v, false);
+            svg.appendChild(rotuloY);
+        }
+
+        // Rótulos do eixo X (até ~6 marcações)
+        var numTicksXDesejado = 6;
+        var passoX = Math.max(1, Math.round((pontos.length - 1) / numTicksXDesejado) || 1);
+        var indicesX = [];
+        for (var i = 0; i < pontos.length; i += passoX) indicesX.push(i);
+        if (indicesX[indicesX.length - 1] !== pontos.length - 1) indicesX.push(pontos.length - 1);
+        indicesX.forEach(function (i) {
+            var rotuloX = criarEl('text', {
+                class: 'rotulo', x: escalaX(i), y: altura - margem.baixo + 18, 'text-anchor': 'middle',
+            });
+            rotuloX.textContent = 'Mês ' + pontos[i].mes;
+            svg.appendChild(rotuloX);
+        });
+
+        // Eixo base (mês 0)
+        svg.appendChild(criarEl('line', {
+            class: 'eixo', x1: margem.esquerda, x2: largura - margem.direita,
+            y1: altura - margem.baixo, y2: altura - margem.baixo,
+        }));
+
+        // Área e linha do saldo
+        var coordenadas = pontos.map(function (p, i) { return escalaX(i) + ',' + escalaY(p.saldo); });
+        var yBase = altura - margem.baixo;
+        var dArea = 'M' + escalaX(0) + ',' + yBase + ' L' + coordenadas.join(' L') + ' L' + escalaX(pontos.length - 1) + ',' + yBase + ' Z';
+        var dLinha = 'M' + coordenadas.join(' L');
+        svg.appendChild(criarEl('path', { class: 'area-saldo', d: dArea }));
+        svg.appendChild(criarEl('path', { class: 'linha-saldo', d: dLinha }));
+
+        // Marcador no ponto final
+        var ultimo = pontos[pontos.length - 1];
+        svg.appendChild(criarEl('circle', {
+            class: 'marcador-final', cx: escalaX(pontos.length - 1), cy: escalaY(ultimo.saldo), r: 5,
+        }));
+
+        // Crosshair (escondido até interação)
+        var crosshairLinha = criarEl('line', { class: 'crosshair-linha', y1: margem.topo, y2: yBase });
+        var crosshairPonto = criarEl('circle', { class: 'crosshair-ponto', r: 5 });
+        var crosshairGrupo = criarEl('g', { style: 'display:none' });
+        crosshairGrupo.appendChild(crosshairLinha);
+        crosshairGrupo.appendChild(crosshairPonto);
+        svg.appendChild(crosshairGrupo);
+
+        function indiceMaisProximo(xSvg) {
+            var proporcao = (xSvg - margem.esquerda) / areaLargura;
+            var i = Math.round(proporcao * (pontos.length - 1));
+            return Math.max(0, Math.min(pontos.length - 1, i));
+        }
+
+        function mostrarCrosshair(i) {
+            var p = pontos[i];
+            var x = escalaX(i);
+            var y = escalaY(p.saldo);
+            crosshairLinha.setAttribute('x1', x);
+            crosshairLinha.setAttribute('x2', x);
+            crosshairPonto.setAttribute('cx', x);
+            crosshairPonto.setAttribute('cy', y);
+            crosshairGrupo.style.display = '';
+
+            tooltip.innerHTML = '';
+            var valorEl = document.createElement('strong');
+            valorEl.textContent = formatarReais(p.saldo, true);
+            var mesEl = document.createElement('span');
+            mesEl.textContent = 'Mês ' + p.mes;
+            tooltip.appendChild(valorEl);
+            tooltip.appendChild(document.createElement('br'));
+            tooltip.appendChild(mesEl);
+            tooltip.hidden = false;
+            tooltip.style.left = ((x / largura) * 100) + '%';
+            tooltip.style.top = ((y / altura) * 100) + '%';
+        }
+
+        function esconderCrosshair() {
+            crosshairGrupo.style.display = 'none';
+            tooltip.hidden = true;
+        }
+
+        var overlay = criarEl('rect', {
+            class: 'grafico-overlay', x: margem.esquerda, y: margem.topo, width: areaLargura, height: areaAltura,
+        });
+        overlay.addEventListener('pointermove', function (evento) {
+            var retangulo = svg.getBoundingClientRect();
+            var escalaViewBox = largura / retangulo.width;
+            var xSvg = (evento.clientX - retangulo.left) * escalaViewBox;
+            mostrarCrosshair(indiceMaisProximo(xSvg));
+        });
+        overlay.addEventListener('pointerleave', esconderCrosshair);
+        svg.appendChild(overlay);
+
+        var indiceFoco = pontos.length - 1;
+        svg.addEventListener('keydown', function (evento) {
+            if (evento.key === 'ArrowLeft') {
+                indiceFoco = Math.max(0, indiceFoco - 1);
+                mostrarCrosshair(indiceFoco);
+                evento.preventDefault();
+            } else if (evento.key === 'ArrowRight') {
+                indiceFoco = Math.min(pontos.length - 1, indiceFoco + 1);
+                mostrarCrosshair(indiceFoco);
+                evento.preventDefault();
+            }
+        });
+        svg.addEventListener('focus', function () { mostrarCrosshair(indiceFoco); });
+        svg.addEventListener('blur', esconderCrosshair);
+    })();
+</script>
 {% endblock %}
