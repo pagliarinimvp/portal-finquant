@@ -197,9 +197,18 @@ STORAGES = {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
     },
     'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        'BACKEND': (
+            'django.contrib.staticfiles.storage.StaticFilesStorage'
+            if DEBUG else
+            'whitenoise.storage.CompressedManifestStaticFilesStorage'
+        ),
     },
 }
+
+# Evita erro "Missing staticfiles manifest entry" quando os testes ou o
+# ambiente de desenvolvimento rodam sem "collectstatic" ter sido executado
+# antes (o manifesto do WhiteNoise só existe após esse comando).
+WHITENOISE_MANIFEST_STRICT = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
