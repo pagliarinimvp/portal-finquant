@@ -13,7 +13,8 @@ services:
     plan: free
     name: portal-finquant
     runtime: python
-    buildCommand: 'pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate'
+    buildCommand: 'pip install -r requirements.txt && python manage.py collectstatic --noinput'
+    preDeployCommand: 'python manage.py migrate'
     startCommand: 'gunicorn config.wsgi'
     envVars:
       - key: SECRET_KEY

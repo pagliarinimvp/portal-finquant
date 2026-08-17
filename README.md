@@ -76,10 +76,11 @@ depois que a URL final do serviço existir.
 
 1. Suba o repositório no GitHub.
 2. Crie um "Web Service" no Render apontando para o repositório.
-3. Build command: `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate`
-4. Start command: `gunicorn config.wsgi`
-5. Provisione um banco PostgreSQL gerenciado gratuito no Render e copie a `DATABASE_URL` gerada.
-6. Configure as variáveis de ambiente no painel do Render: `SECRET_KEY`, `DEBUG=False`, `ALLOWED_HOSTS` (com o domínio `.onrender.com`), `CSRF_TRUSTED_ORIGINS` (com `https://` + o mesmo domínio), `DATABASE_URL` e, se for usar login social, `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET` (veja o passo a passo em `docs/superpowers/specs/2026-08-17-login-social-design.md`, que inclui as URLs de callback de produção a cadastrar no Google e GitHub).
+3. Build command: `pip install -r requirements.txt && python manage.py collectstatic --noinput`
+4. Pre-deploy command: `python manage.py migrate`
+5. Start command: `gunicorn config.wsgi`
+6. Provisione um banco PostgreSQL gerenciado gratuito no Render e copie a `DATABASE_URL` gerada.
+7. Configure as variáveis de ambiente no painel do Render: `SECRET_KEY`, `DEBUG=False`, `ALLOWED_HOSTS` (com o domínio `.onrender.com`), `CSRF_TRUSTED_ORIGINS` (com `https://` + o mesmo domínio), `DATABASE_URL` e, se for usar login social, `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET` (veja o passo a passo em `docs/superpowers/specs/2026-08-17-login-social-design.md`, que inclui as URLs de callback de produção a cadastrar no Google e GitHub).
 
 ## Próximos passos (fase 2)
 
