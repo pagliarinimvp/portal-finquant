@@ -133,6 +133,45 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+# Login social (Google e GitHub)
+# Cada provedor só entra no dicionário se as duas variáveis de ambiente dele
+# estiverem preenchidas — é isso que faz o botão correspondente não aparecer
+# no template quando o provedor não está configurado (ver contas/login.html).
+SOCIALACCOUNT_PROVIDERS = {}
+
+GOOGLE_CLIENT_ID = env('GOOGLE_CLIENT_ID', default='')
+GOOGLE_CLIENT_SECRET = env('GOOGLE_CLIENT_SECRET', default='')
+if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET:
+    SOCIALACCOUNT_PROVIDERS['google'] = {
+        'APPS': [{
+            'client_id': GOOGLE_CLIENT_ID,
+            'secret': GOOGLE_CLIENT_SECRET,
+            'key': '',
+        }],
+        'SCOPE': ['profile', 'email'],
+    }
+
+GITHUB_CLIENT_ID = env('GITHUB_CLIENT_ID', default='')
+GITHUB_CLIENT_SECRET = env('GITHUB_CLIENT_SECRET', default='')
+if GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET:
+    SOCIALACCOUNT_PROVIDERS['github'] = {
+        'APPS': [{
+            'client_id': GITHUB_CLIENT_ID,
+            'secret': GITHUB_CLIENT_SECRET,
+            'key': '',
+        }],
+    }
+
+# Pula a tela extra de confirmacao do allauth: clicar no botao -> autorizar
+# no provedor -> volta logado, sem passo intermediario.
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
+# Se o e-mail vindo do provedor (verificado) ja pertence a um usuario local
+# existente, loga nessa conta em vez de dar erro de e-mail duplicado, e
+# conecta a conta social a ela automaticamente.
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
 
 # Internacionalização
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
