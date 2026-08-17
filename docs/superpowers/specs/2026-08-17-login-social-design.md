@@ -29,8 +29,9 @@ GitHub", sem remover o fluxo de usuário/senha existente.
 
 ### Dependência nova
 
-- `django-allauth` — adicionar ao `requirements.txt` (pin de versão exata, sem
-  extras de outros provedores).
+- `django-allauth[socialaccount]==65.19.1` — adicionar ao `requirements.txt`
+  (versão mais recente no momento deste spec; o extra `[socialaccount]` traz
+  as dependências dos provedores OAuth).
 
 ### `config/settings.py`
 
@@ -46,33 +47,62 @@ GitHub", sem remover o fluxo de usuário/senha existente.
 - `LOGIN_REDIRECT_URL` já é `'core:home'` — não muda, allauth respeita essa
   configuração.
 - Credenciais dos provedores via `.env` (mesmo padrão do `django-environ` já
-  usado no projeto), lidas em `SOCIALACCOUNT_PROVIDERS`:
-  - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
-  - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`
-  - Isso evita depender de `SocialApp` cadastrado via Django Admin — as
-    credenciais moram só no `.env`, igual `SECRET_KEY`/`DATABASE_URL`.
+  usado no projeto): `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+  `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`. Lidas em `SOCIALACCOUNT_PROVIDERS`
+  no formato `APPS` (formato atual recomendado pela documentação do allauth,
+  evita depender de `SocialApp` cadastrado via Django Admin):
+
+  ```python
+  SOCIALACCOUNT_PROVIDERS = {
+      "google": {
+          "APPS": [{
+              "client_id": env("GOOGLE_CLIENT_ID", default=""),
+              "secret": env("GOOGLE_CLIENT_SECRET", default=""),
+              "key": "",
+          }],
+          "SCOPE": ["profile", "email"],
+      },
+      "github": {
+          "APPS": [{
+              "client_id": env("GITHUB_CLIENT_ID", default=""),
+              "secret": env("GITHUB_CLIENT_SECRET", default=""),
+              "key": "",
+          }],
+      },
+  }
+  ```
 - `SOCIALACCOUNT_AUTO_SIGNUP = True` — pula a tela extra de confirmação que o
   allauth mostraria por padrão; login social vira um passo só (clicar no botão
   → autorizar no provedor → volta logado).
-- `SOCIALACCOUNT_ADAPTER = 'contas.adapters.SocialAccountAdapter'` — adapter
-  próprio (ver seção seguinte).
 
-### `contas/adapters.py` (novo arquivo)
+### Vinculação automática por e-mail: sem adapter customizado
 
-Um `DefaultSocialAccountAdapter` customizado que sobrescreve `pre_social_login`:
+Pesquisando a documentação atual do allauth (via Context7), descobri que ele já
+tem configurações prontas pra exatamente o comportamento que queríamos (item 3
+das decisões), sem precisar escrever um adapter próprio:
 
-- Se já existe um `SocialAccount` para esse login (usuário já conectou antes),
-  segue o fluxo padrão do allauth.
-- Senão, se o e-mail retornado pelo provedor **é marcado como verificado** pelo
-  provedor E bate (case-insensitive) com o `email` de um `User` local
-  existente, conecta a `SocialLogin` a esse usuário (`sociallogin.connect`) em
-  vez de deixar o allauth tentar criar um usuário novo com e-mail duplicado.
-- Caso contrário, comportamento padrão do allauth (cria conta nova, ou mostra
-  erro de e-mail já em uso se não for verificado).
+```python
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+```
+
+- `SOCIALACCOUNT_EMAIL_AUTHENTICATION`: quando um login social traz um e-mail
+  verificado que já pertence a um usuário local sem conta social conectada,
+  permite logar nessa conta existente em vez de dar erro de e-mail duplicado.
+- `SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT`: além de permitir o login,
+  conecta a conta social à conta local automaticamente (assim, da próxima vez,
+  o login funciona mesmo que o e-mail mude no provedor).
+- Google e GitHub já reportam e-mail verificado nativamente através do
+  provider do allauth (Google via claim `email_verified` do OpenID Connect;
+  GitHub via flag `verified` da API `/user/emails`) — não é necessário forçar
+  `VERIFIED_EMAIL: True` manualmente pra esses dois provedores.
 
 Nota: usuários locais sem e-mail cadastrado (ex.: o usuário de teste
 `teste_9466` criado durante os testes manuais) simplesmente não vinculam com
-nada — comportamento esperado, não é um caso a tratar especialmente.
+nada — comportamento esperado, não é um caso a tratar especialmente. Um bom
+caso de teste manual real: o usuário `pagliarinimvp` (superusuário) já tem
+`pagliarinimvp@gmail.com` cadastrado — logar com Google usando esse mesmo
+e-mail deve conectar automaticamente à conta existente, não criar uma nova.
 
 ### `config/urls.py`
 
@@ -110,9 +140,11 @@ nada — comportamento esperado, não é um caso a tratar especialmente.
 4. Google redireciona de volta pra
    `/contas/social/google/login/callback/` com um código.
 5. Allauth troca o código por token, busca e-mail/perfil.
-6. `SocialAccountAdapter.pre_social_login` roda: acha usuário local com esse
-   e-mail? Conecta. Não acha? Segue fluxo padrão (cria usuário novo, via
-   `SOCIALACCOUNT_AUTO_SIGNUP`).
+6. Allauth verifica: já existe usuário local com esse e-mail verificado e
+   ainda sem conta social conectada? Com `SOCIALACCOUNT_EMAIL_AUTHENTICATION`
+   + `SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT` ativados, loga nessa
+   conta e conecta a conta social a ela. Não existe? Cria usuário novo, via
+   `SOCIALACCOUNT_AUTO_SIGNUP`.
 7. Usuário é autenticado e redirecionado pra `core:home` (via
    `LOGIN_REDIRECT_URL`), igual ao fluxo de cadastro atual.
 
@@ -137,19 +169,21 @@ Fluxo do GitHub é idêntico, trocando o provedor.
 **Automatizáveis (parte do plano de implementação):**
 - `python manage.py check` sem erros com as novas apps/settings.
 - Migração roda limpa.
-- Teste unitário do adapter: simula um `SocialLogin` com e-mail verificado
-  batendo um `User` existente → confirma que conecta em vez de tentar criar
-  duplicado (e o inverso: e-mail não bate → não conecta).
 - Teste de template: botão de um provedor sem credencial configurada não
-  aparece no HTML renderizado da página de login.
+  aparece no HTML renderizado da página de login; com credencial configurada,
+  aparece com o `href` correto.
 
 **Não automatizável (manual, com você, depois das credenciais reais no
 `.env`):**
 - O handshake OAuth de verdade exige consentimento numa tela real do Google/
   GitHub (às vezes com 2FA) — isso não dá pra dirigir por Playwright/script.
-  Depois que as credenciais estiverem no `.env`, testamos juntos: clicar no
-  botão, autorizar, confirmar que volta logado e que a conta aparece em
-  `/admin/auth/user/`.
+  Depois que as credenciais estiverem no `.env`, testamos juntos:
+  1. Clicar no botão, autorizar, confirmar que volta logado.
+  2. Conferir em `/admin/auth/user/` e `/admin/socialaccount/socialaccount/`
+     que a conta foi criada/conectada corretamente.
+  3. Testar o caso de vinculação automática: logar com Google usando
+     `pagliarinimvp@gmail.com` (e-mail do superusuário já existente) e
+     confirmar que conecta à conta existente em vez de criar uma nova.
 
 ## Apêndice: criar as credenciais OAuth
 
