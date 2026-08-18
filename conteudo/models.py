@@ -9,11 +9,16 @@ class Artigo(models.Model):
         RENDA_VARIAVEL = 'RENDA_VARIAVEL', 'Renda variável'
         ANALISE_QUANTITATIVA = 'ANALISE_QUANTITATIVA', 'Análise quantitativa'
 
+    class Status(models.TextChoices):
+        RASCUNHO = 'RASCUNHO', 'Rascunho'
+        PUBLICADO = 'PUBLICADO', 'Publicado'
+
     titulo = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True, help_text='Usado na URL do artigo, gerado a partir do título.')
     resumo = models.CharField(max_length=300, help_text='Texto curto exibido na listagem.')
-    corpo = models.TextField(help_text='Conteúdo completo do artigo (aceita texto simples).')
+    corpo = models.TextField(help_text='Conteúdo completo do artigo (aceita um subconjunto seguro de HTML).')
     categoria = models.CharField(max_length=30, choices=Categoria.choices, default=Categoria.FUNDAMENTOS)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.RASCUNHO)
     publicado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 

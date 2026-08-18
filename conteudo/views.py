@@ -9,6 +9,9 @@ class ArtigoListView(ListView):
     context_object_name = 'artigos'
     paginate_by = 9
 
+    def get_queryset(self):
+        return Artigo.objects.filter(status=Artigo.Status.PUBLICADO)
+
 
 class ArtigoDetailView(DetailView):
     model = Artigo
@@ -16,3 +19,8 @@ class ArtigoDetailView(DetailView):
     context_object_name = 'artigo'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Artigo.objects.all()
+        return Artigo.objects.filter(status=Artigo.Status.PUBLICADO)

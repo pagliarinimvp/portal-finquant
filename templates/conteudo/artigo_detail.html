@@ -1,14 +1,18 @@
 {% extends "base.html" %}
+{% load conteudo_extras %}
 
 {% block title %}{{ artigo.titulo }} — Portal FinQuant{% endblock %}
 
 {% block content %}
+{% if artigo.status == artigo.Status.RASCUNHO %}
+<div class="fq-aviso-rascunho mb-3">Rascunho — não publicado. Visível apenas para a equipe do site.</div>
+{% endif %}
 <article class="card p-4">
     {% include "conteudo/_categoria_badge.html" with categoria=artigo.categoria label=artigo.get_categoria_display %}
     <h1 class="h3 mt-2">{{ artigo.titulo }}</h1>
     <p class="fq-eyebrow d-block mb-0">Publicado em {{ artigo.publicado_em|date:"d/m/Y" }}</p>
     <div class="fq-regua"></div>
-    <div style="white-space: pre-line;">{{ artigo.corpo }}</div>
+    <div class="fq-artigo-corpo">{{ artigo.corpo|corpo_seguro }}</div>
 </article>
 
 <a href="{% url 'conteudo:lista' %}" class="btn btn-link mt-3">&larr; Voltar para artigos</a>

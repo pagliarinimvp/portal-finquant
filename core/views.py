@@ -8,5 +8,7 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['artigos_recentes'] = Artigo.objects.order_by('-publicado_em')[:3]
+        context['artigos_recentes'] = Artigo.objects.filter(
+            status=Artigo.Status.PUBLICADO
+        ).order_by('-publicado_em')[:3]
         return context

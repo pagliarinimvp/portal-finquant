@@ -17,7 +17,7 @@ services:
     # bootstrap_admin ficam no buildCommand mesmo (ver histórico do
     # commit que tentou mover para pre-deploy: o Blueprint Sync rejeitou
     # com "pre-deploy command is not supported for free tier services").
-    buildCommand: 'pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py bootstrap_admin'
+    buildCommand: 'pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py bootstrap_admin && python manage.py bootstrap_site'
     startCommand: 'gunicorn config.wsgi'
     envVars:
       - key: SECRET_KEY
@@ -28,6 +28,11 @@ services:
         value: '.onrender.com'
       - key: CSRF_TRUSTED_ORIGINS
         value: 'https://*.onrender.com'
+      # Domínio real do Site (django.contrib.sites), aplicado no build pelo
+      # bootstrap_site — sem isso, o "Ver no site" do admin e o login social
+      # apontam para o "example.com" padrão do Django.
+      - key: SITE_DOMAIN
+        value: 'portal-finquant.onrender.com'
       - key: DATABASE_URL
         fromDatabase:
           name: portal-finquant-db
