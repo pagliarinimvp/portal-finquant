@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+
+{% block title %}Calculadora de Meta Financeira — Portal FinQuant{% endblock %}
+
+{% block content %}
+<span class="fq-eyebrow">Simulador</span>
+<h1 class="h3 mb-2">Calculadora de meta financeira</h1>
+<div class="fq-regua"></div>
+<p class="text-muted">
+    Descubra quanto precisa guardar por mês, a partir do que já tem hoje, para atingir uma meta num prazo definido.
+</p>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="card p-4">
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary w-100">Calcular</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        {% if resultado %}
+        {% if resultado.meta_ja_atingida %}
+        <div class="card p-4 mb-3" style="border-color: var(--fq-gold);">
+            <h2 class="h5" style="color: var(--fq-gold);">Boas notícias: você já vai bater a meta</h2>
+            <p class="mb-0">
+                Só com o valor que você já tem guardado, rendendo a essa taxa, você atinge a meta de
+                R$ {{ resultado.valor_meta }} antes mesmo do prazo informado — não precisa aportar nada a mais.
+                O gráfico abaixo mostra como esse valor cresce sozinho até lá.
+            </p>
+        </div>
+        {% else %}
+        <div class="card p-4 mb-3">
+            <h2 class="h5">Resultado</h2>
+            <ul class="list-unstyled mb-0 fq-numeros">
+                <li><strong>Aporte mensal necessário:</strong> R$ {{ resultado.aporte_necessario }}</li>
+                <li><strong>Total a aportar:</strong> R$ {{ resultado.total_aportado }}</li>
+                <li><strong>Total em juros:</strong> R$ {{ resultado.total_juros_projetado }}</li>
+            </ul>
+        </div>
+        {% endif %}
+        <figure class="card p-4 mb-3 grafico-evolucao">
+            <figcaption class="h6 text-secondary-emphasis mb-3">Evolução do valor guardado até a meta</figcaption>
+            {{ resultado.pontos_grafico|json_script:"pontos-grafico" }}
+            <div class="grafico-corpo">
+                <svg id="grafico-evolucao-svg" viewBox="0 0 800 320" role="img" aria-label="Gráfico do valor acumulado projetado mês a mês" tabindex="0"></svg>
+                <div id="grafico-evolucao-tooltip" class="grafico-tooltip" hidden></div>
+            </div>
+        </figure>
+        <div class="table-responsive fq-numeros" style="max-height: 400px;">
+            <table class="table table-sm table-striped">
+                <thead class="table-dark">
+                    <tr><th>Mês</th><th>Juros no mês (R$)</th><th>Saldo acumulado (R$)</th></tr>
+                </thead>
+                <tbody>
+                    {% for linha in resultado.linhas %}
+                    <tr>
+                        <td>{{ linha.mes }}</td>
+                        <td>{{ linha.juros_do_mes }}</td>
+                        <td>{{ linha.saldo }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <details class="card p-4 mb-3">
+            <summary class="h6 mb-0" style="cursor: pointer;">Como calculamos isso?</summary>
+            <div class="mt-3">
+                <p>
+                    Usamos a fórmula de valor futuro de uma série de aportes mensais (a mesma matemática financeira
+                    de "prestações"/anuidades), resolvida para o valor do aporte, na mesma convenção do simulador de
+                    juros compostos do site (o aporte entra antes dos juros do mês).
+                </p>
+                <p class="fq-numeros mb-3">
+                    fator = (1 + taxa)<sup>meses</sup><br>
+                    se taxa = 0: aporte = (meta − valor inicial) / meses<br>
+                    se taxa &ne; 0: aporte = (meta − valor inicial × fator) / [((fator − 1) / taxa) × (1 + taxa)]
+                </p>
+                <p>Dois exemplos para conferência manual:</p>
+                <ul>
+                    <li>
+                        <strong>Sem juros:</strong> valor inicial R$ 0, meta R$ 1.000,00, taxa 0%, prazo 10 meses
+                        &rarr; aporte = 1.000 / 10 = <strong>R$ 100,00</strong> (uma divisão simples).
+                    </li>
+                    <li>
+                        <strong>Com juros:</strong> valor inicial R$ 0, meta R$ 1.000,00, taxa 1% ao mês, prazo 12
+                        meses &rarr; fator = 1,01<sup>12</sup> &asymp; 1,126825, aporte &asymp; <strong>R$ 78,07</strong>.
+                        Para conferir: rode esse aporte no simulador de juros compostos (valor inicial 0, aporte
+                        mensal R$ 78,07, taxa 1%, 12 meses) — o saldo final deve bater com R$ 1.000,00, dentro de
+                        centavos de arredondamento.
+                    </li>
+                </ul>
+            </div>
+        </details>
+        {% else %}
+        <div class="card p-4 text-center">
+            <div class="mx-auto" style="max-width: 200px;">
+                {% include "ilustracoes/cofrinho.svg" %}
+            </div>
+            <p class="text-muted mb-0 mt-2">Preencha o formulário ao lado para simular.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .grafico-evolucao {
+        --series-1: #35506B;
+        --series-1-fill: rgba(53, 80, 107, 0.10);
+        --gridline: #e2e4e8;
+        --baseline: #c1c5cb;
+        --muted: #7d8794;
+        --tooltip-bg: #FFFFFF;
+        --tooltip-border: rgba(20, 22, 26, 0.12);
+        --tooltip-fg: #14161A;
+    }
+    [data-bs-theme="dark"] .grafico-evolucao {
+        --series-1: #6C93B8;
+        --series-1-fill: rgba(108, 147, 184, 0.14);
+        --gridline: #262b33;
+        --baseline: #3a4149;
+        --muted: #8b93a0;
+        --tooltip-bg: #1B1F26;
+        --tooltip-border: rgba(244, 245, 247, 0.12);
+        --tooltip-fg: #F4F5F7;
+    }
+    .grafico-corpo {
+        position: relative;
+    }
+    .grafico-corpo svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 800 / 320;
+    }
+    .grafico-evolucao .linha-saldo {
+        fill: none;
+        stroke: var(--series-1);
+        stroke-width: 2;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+    }
+    .grafico-evolucao .area-saldo {
+        fill: var(--series-1-fill);
+        stroke: none;
+    }
+    .grafico-evolucao .marcador-final {
+        fill: var(--series-1);
+        stroke: var(--tooltip-bg);
+        stroke-width: 2;
+    }
+    .grafico-evolucao .grade,
+    .grafico-evolucao .eixo {
+        stroke: var(--gridline);
+        stroke-width: 1;
+    }
+    .grafico-evolucao .eixo {
+        stroke: var(--baseline);
+    }
+    .grafico-evolucao .rotulo {
+        fill: var(--muted);
+        font-size: 11px;
+        font-family: inherit;
+    }
+    .grafico-evolucao .crosshair-linha {
+        stroke: var(--baseline);
+        stroke-width: 1;
+        stroke-dasharray: 3 3;
+    }
+    .grafico-evolucao .crosshair-ponto {
+        fill: var(--series-1);
+        stroke: var(--tooltip-bg);
+        stroke-width: 2;
+    }
+    .grafico-evolucao .grafico-overlay {
+        fill: transparent;
+        cursor: crosshair;
+    }
+    .grafico-tooltip {
+        position: absolute;
+        transform: translate(-50%, calc(-100% - 10px));
+        background: var(--tooltip-bg);
+        color: var(--tooltip-fg);
+        border: 1px solid var(--tooltip-border);
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        pointer-events: none;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+    .grafico-tooltip strong {
+        color: var(--tooltip-fg);
+    }
+    .grafico-tooltip span {
+        color: var(--muted);
+    }
+</style>
+<script>
+    (function () {
+        var dadosEl = document.getElementById('pontos-grafico');
+        var svg = document.getElementById('grafico-evolucao-svg');
+        var tooltip = document.getElementById('grafico-evolucao-tooltip');
+        if (!dadosEl || !svg || !tooltip) return;
+
+        var pontos = JSON.parse(dadosEl.textContent);
+        if (!pontos.length) return;
+
+        var NS = 'http://www.w3.org/2000/svg';
+        var largura = 800;
+        var altura = 320;
+        var margem = { topo: 12, direita: 16, baixo: 28, esquerda: 68 };
+        var areaLargura = largura - margem.esquerda - margem.direita;
+        var areaAltura = altura - margem.topo - margem.baixo;
+
+        function criarEl(tag, atributos) {
+            var el = document.createElementNS(NS, tag);
+            for (var chave in atributos) {
+                el.setAttribute(chave, atributos[chave]);
+            }
+            return el;
+        }
+
+        function passoAgradavel(valorMax, numTicks) {
+            var passoBruto = valorMax / numTicks;
+            if (passoBruto <= 0) return 1;
+            var expoente = Math.floor(Math.log(passoBruto) / Math.LN10);
+            var fracao = passoBruto / Math.pow(10, expoente);
+            var fracaoAgradavel = fracao <= 1 ? 1 : fracao <= 2 ? 2 : fracao <= 5 ? 5 : 10;
+            return fracaoAgradavel * Math.pow(10, expoente);
+        }
+
+        function formatarReais(valor, comCentavos) {
+            return 'R$ ' + valor.toLocaleString('pt-BR', {
+                minimumFractionDigits: comCentavos ? 2 : 0,
+                maximumFractionDigits: comCentavos ? 2 : 0,
+            });
+        }
+
+        var maxSaldo = Math.max.apply(null, pontos.map(function (p) { return p.saldo; }));
+        var passoY = passoAgradavel(maxSaldo, 4);
+        var eixoMaxY = Math.max(passoY, Math.ceil(maxSaldo / passoY) * passoY);
+
+        function escalaX(i) {
+            return margem.esquerda + (pontos.length === 1 ? 0 : (i / (pontos.length - 1)) * areaLargura);
+        }
+        function escalaY(v) {
+            return margem.topo + areaAltura - (v / eixoMaxY) * areaAltura;
+        }
+
+        // Grade e rótulos do eixo Y
+        for (var v = 0; v <= eixoMaxY + 0.01; v += passoY) {
+            var y = escalaY(v);
+            svg.appendChild(criarEl('line', {
+                class: 'grade', x1: margem.esquerda, x2: largura - margem.direita, y1: y, y2: y,
+            }));
+            var rotuloY = criarEl('text', {
+                class: 'rotulo', x: margem.esquerda - 8, y: y + 3, 'text-anchor': 'end',
+            });
+            rotuloY.textContent = formatarReais(v, false);
+            svg.appendChild(rotuloY);
+        }
+
+        // Rótulos do eixo X (até ~6 marcações)
+        var numTicksXDesejado = 6;
+        var passoX = Math.max(1, Math.round((pontos.length - 1) / numTicksXDesejado) || 1);
+        var indicesX = [];
+        for (var i = 0; i < pontos.length; i += passoX) indicesX.push(i);
+        if (indicesX[indicesX.length - 1] !== pontos.length - 1) indicesX.push(pontos.length - 1);
+        indicesX.forEach(function (i) {
+            var rotuloX = criarEl('text', {
+                class: 'rotulo', x: escalaX(i), y: altura - margem.baixo + 18, 'text-anchor': 'middle',
+            });
+            rotuloX.textContent = 'Mês ' + pontos[i].mes;
+            svg.appendChild(rotuloX);
+        });
+
+        // Eixo base (mês 0)
+        svg.appendChild(criarEl('line', {
+            class: 'eixo', x1: margem.esquerda, x2: largura - margem.direita,
+            y1: altura - margem.baixo, y2: altura - margem.baixo,
+        }));
+
+        // Área e linha do saldo
+        var coordenadas = pontos.map(function (p, i) { return escalaX(i) + ',' + escalaY(p.saldo); });
+        var yBase = altura - margem.baixo;
+        var dArea = 'M' + escalaX(0) + ',' + yBase + ' L' + coordenadas.join(' L') + ' L' + escalaX(pontos.length - 1) + ',' + yBase + ' Z';
+        var dLinha = 'M' + coordenadas.join(' L');
+        svg.appendChild(criarEl('path', { class: 'area-saldo', d: dArea }));
+        svg.appendChild(criarEl('path', { class: 'linha-saldo', d: dLinha }));
+
+        // Marcador no ponto final
+        var ultimo = pontos[pontos.length - 1];
+        svg.appendChild(criarEl('circle', {
+            class: 'marcador-final', cx: escalaX(pontos.length - 1), cy: escalaY(ultimo.saldo), r: 5,
+        }));
+
+        // Crosshair (escondido até interação)
+        var crosshairLinha = criarEl('line', { class: 'crosshair-linha', y1: margem.topo, y2: yBase });
+        var crosshairPonto = criarEl('circle', { class: 'crosshair-ponto', r: 5 });
+        var crosshairGrupo = criarEl('g', { style: 'display:none' });
+        crosshairGrupo.appendChild(crosshairLinha);
+        crosshairGrupo.appendChild(crosshairPonto);
+        svg.appendChild(crosshairGrupo);
+
+        function indiceMaisProximo(xSvg) {
+            var proporcao = (xSvg - margem.esquerda) / areaLargura;
+            var i = Math.round(proporcao * (pontos.length - 1));
+            return Math.max(0, Math.min(pontos.length - 1, i));
+        }
+
+        function mostrarCrosshair(i) {
+            var p = pontos[i];
+            var x = escalaX(i);
+            var y = escalaY(p.saldo);
+            crosshairLinha.setAttribute('x1', x);
+            crosshairLinha.setAttribute('x2', x);
+            crosshairPonto.setAttribute('cx', x);
+            crosshairPonto.setAttribute('cy', y);
+            crosshairGrupo.style.display = '';
+
+            tooltip.innerHTML = '';
+            var valorEl = document.createElement('strong');
+            valorEl.textContent = formatarReais(p.saldo, true);
+            var mesEl = document.createElement('span');
+            mesEl.textContent = 'Mês ' + p.mes;
+            tooltip.appendChild(valorEl);
+            tooltip.appendChild(document.createElement('br'));
+            tooltip.appendChild(mesEl);
+            tooltip.hidden = false;
+            tooltip.style.left = ((x / largura) * 100) + '%';
+            tooltip.style.top = ((y / altura) * 100) + '%';
+        }
+
+        function esconderCrosshair() {
+            crosshairGrupo.style.display = 'none';
+            tooltip.hidden = true;
+        }
+
+        var overlay = criarEl('rect', {
+            class: 'grafico-overlay', x: margem.esquerda, y: margem.topo, width: areaLargura, height: areaAltura,
+        });
+        overlay.addEventListener('pointermove', function (evento) {
+            var retangulo = svg.getBoundingClientRect();
+            var escalaViewBox = largura / retangulo.width;
+            var xSvg = (evento.clientX - retangulo.left) * escalaViewBox;
+            mostrarCrosshair(indiceMaisProximo(xSvg));
+        });
+        overlay.addEventListener('pointerleave', esconderCrosshair);
+        svg.appendChild(overlay);
+
+        var indiceFoco = pontos.length - 1;
+        svg.addEventListener('keydown', function (evento) {
+            if (evento.key === 'ArrowLeft') {
+                indiceFoco = Math.max(0, indiceFoco - 1);
+                mostrarCrosshair(indiceFoco);
+                evento.preventDefault();
+            } else if (evento.key === 'ArrowRight') {
+                indiceFoco = Math.min(pontos.length - 1, indiceFoco + 1);
+                mostrarCrosshair(indiceFoco);
+                evento.preventDefault();
+            }
+        });
+        svg.addEventListener('focus', function () { mostrarCrosshair(indiceFoco); });
+        svg.addEventListener('blur', esconderCrosshair);
+    })();
+</script>
+{% endblock %}

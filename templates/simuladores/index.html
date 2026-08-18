@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Simuladores — Portal FinQuant{% endblock %}
+
+{% block content %}
+<span class="fq-eyebrow">Simuladores</span>
+<h1 class="h3 mb-2">Simuladores interativos</h1>
+<div class="fq-regua"></div>
+<p class="text-muted">
+    Ferramentas para você visualizar, na prática, como decisões financeiras do dia a dia evoluem ao longo do tempo.
+</p>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body d-flex flex-column">
+                <h2 class="h5 card-title">Juros compostos</h2>
+                <p class="card-text text-muted flex-grow-1">
+                    Veja como aportes mensais e juros compostos fazem seu patrimônio crescer ao longo do tempo.
+                </p>
+                <a href="{% url 'simuladores:juros_compostos' %}" class="btn btn-sm btn-outline-primary align-self-start">Simular</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body d-flex flex-column">
+                <h2 class="h5 card-title">Dívida no rotativo do cartão</h2>
+                <p class="card-text text-muted flex-grow-1">
+                    Veja como a dívida do rotativo pode sair de controle quando o pagamento mensal só cobre os juros.
+                </p>
+                <a href="{% url 'simuladores:divida_cartao' %}" class="btn btn-sm btn-outline-primary align-self-start">Simular</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body d-flex flex-column">
+                <h2 class="h5 card-title">Meta financeira</h2>
+                <p class="card-text text-muted flex-grow-1">
+                    Descubra quanto precisa guardar por mês para atingir uma meta financeira num prazo definido.
+                </p>
+                <a href="{% url 'simuladores:meta_financeira' %}" class="btn btn-sm btn-outline-primary align-self-start">Simular</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
