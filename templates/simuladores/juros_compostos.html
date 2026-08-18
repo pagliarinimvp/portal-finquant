@@ -61,6 +61,33 @@
                 </tbody>
             </table>
         </div>
+        <details class="card p-4 mb-3">
+            <summary class="h6 mb-0" style="cursor: pointer;">Como calculamos isso?</summary>
+            <div class="mt-3">
+                <p>
+                    A cada mês, o aporte entra antes de o saldo render juros, e os juros incidem sobre o saldo já
+                    com o aporte somado — por isso um aporte feito hoje já rende no próprio mês.
+                </p>
+                <p class="fq-numeros mb-3">saldo(mês) = (saldo(mês anterior) + aporte) × (1 + taxa)</p>
+                <p>Exemplo para conferência manual (valor inicial R$ 1.000,00, aporte de R$ 100,00/mês, taxa de 1% ao mês):</p>
+                <div class="table-responsive fq-numeros">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr><th>Mês</th><th>Juros do mês</th><th>Saldo acumulado</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>11,00</td><td>1.111,00</td></tr>
+                            <tr><td>2</td><td>12,11</td><td>1.223,11</td></tr>
+                            <tr><td>3</td><td>13,23</td><td>1.336,34</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-muted mb-0">
+                    Em 3 meses, R$ 1.300,00 investidos (R$ 1.000,00 iniciais + 3 aportes de R$ 100,00) viram
+                    R$ 1.336,34 — R$ 36,34 em juros. Você pode conferir mês a mês com uma calculadora comum.
+                </p>
+            </div>
+        </details>
         {% else %}
         <div class="card p-4 text-center">
             <div class="mx-auto" style="max-width: 200px;">

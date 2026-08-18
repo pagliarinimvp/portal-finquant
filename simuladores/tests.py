@@ -5,6 +5,20 @@ from django.test import TestCase
 from .views import DividaCartaoView, JurosCompostosView, MetaFinanceiraView
 
 
+class JurosCompostosCalculoTests(TestCase):
+    def test_exemplo_do_painel_como_calculamos_isso(self):
+        resultado = JurosCompostosView._calcular({
+            'valor_inicial': Decimal('1000'),
+            'aporte_mensal': Decimal('100'),
+            'taxa_mensal': Decimal('1'),
+            'periodo_meses': 3,
+        })
+
+        self.assertEqual(resultado['saldo_final'], Decimal('1336.34'))
+        self.assertEqual(resultado['total_aportado'], Decimal('1300.00'))
+        self.assertEqual(resultado['total_juros'], Decimal('36.34'))
+
+
 class DividaCartaoCalculoTests(TestCase):
     def test_quita_em_quatro_meses(self):
         resultado = DividaCartaoView._calcular({
