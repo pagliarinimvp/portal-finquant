@@ -1,0 +1,13 @@
+<svg width="220" height="140" viewBox="0 0 220 140" class="fq-ilustracao" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fqMedidorTitulo">
+    <title id="fqMedidorTitulo">Ilustração de um medidor de avaliação segmentado</title>
+    <g class="fq-ilustracao-acento" fill="currentColor">
+        <path d="M110 26 L118 44 L100 44 Z"/>
+    </g>
+    <g stroke="currentColor" stroke-width="1.5">
+        <rect x="18" y="58" width="32" height="36" rx="4" fill="none" opacity="0.5"/>
+        <rect x="58" y="58" width="32" height="36" rx="4" fill="none" opacity="0.5"/>
+        <rect x="98" y="58" width="32" height="36" rx="4" fill="currentColor" fill-opacity="0.14"/>
+        <rect x="138" y="58" width="32" height="36" rx="4" fill="none" opacity="0.5"/>
+        <rect x="178" y="58" width="32" height="36" rx="4" fill="none" opacity="0.5"/>
+    </g>
+</svg>

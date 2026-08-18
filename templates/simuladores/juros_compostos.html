@@ -3,7 +3,9 @@
 {% block title %}Simulador de Juros Compostos — Portal FinQuant{% endblock %}
 
 {% block content %}
-<h1 class="h3 mb-4">Simulador de juros compostos</h1>
+<span class="fq-eyebrow">Simulador</span>
+<h1 class="h3 mb-2">Simulador de juros compostos</h1>
+<div class="fq-regua"></div>
 <p class="text-muted">
     Veja como aportes mensais e juros compostos fazem seu patrimônio crescer ao longo do tempo.
 </p>
@@ -29,7 +31,7 @@
         {% if resultado %}
         <div class="card p-4 mb-3">
             <h2 class="h5">Resultado</h2>
-            <ul class="list-unstyled mb-0">
+            <ul class="list-unstyled mb-0 fq-numeros">
                 <li><strong>Valor final:</strong> R$ {{ resultado.saldo_final }}</li>
                 <li><strong>Total investido (aportes):</strong> R$ {{ resultado.total_aportado }}</li>
                 <li><strong>Total em juros:</strong> R$ {{ resultado.total_juros }}</li>
@@ -43,7 +45,7 @@
                 <div id="grafico-evolucao-tooltip" class="grafico-tooltip" hidden></div>
             </div>
         </figure>
-        <div class="table-responsive" style="max-height: 400px;">
+        <div class="table-responsive fq-numeros" style="max-height: 400px;">
             <table class="table table-sm table-striped">
                 <thead class="table-dark">
                     <tr><th>Mês</th><th>Juros no mês (R$)</th><th>Saldo acumulado (R$)</th></tr>
@@ -60,31 +62,36 @@
             </table>
         </div>
         {% else %}
-        <p class="text-muted">Preencha o formulário ao lado para simular.</p>
+        <div class="card p-4 text-center">
+            <div class="mx-auto" style="max-width: 200px;">
+                {% include "ilustracoes/cofrinho.svg" %}
+            </div>
+            <p class="text-muted mb-0 mt-2">Preencha o formulário ao lado para simular.</p>
+        </div>
         {% endif %}
     </div>
 </div>
 
 <style>
     .grafico-evolucao {
-        --series-1: #2a78d6;
-        --series-1-fill: rgba(42, 120, 214, 0.10);
-        --gridline: #e1e0d9;
-        --baseline: #c3c2b7;
-        --muted: #898781;
-        --tooltip-bg: #fcfcfb;
-        --tooltip-border: rgba(11, 11, 11, 0.10);
-        --tooltip-fg: #0b0b0b;
+        --series-1: #35506B;
+        --series-1-fill: rgba(53, 80, 107, 0.10);
+        --gridline: #e2e4e8;
+        --baseline: #c1c5cb;
+        --muted: #7d8794;
+        --tooltip-bg: #FFFFFF;
+        --tooltip-border: rgba(20, 22, 26, 0.12);
+        --tooltip-fg: #14161A;
     }
     [data-bs-theme="dark"] .grafico-evolucao {
-        --series-1: #3987e5;
-        --series-1-fill: rgba(57, 135, 229, 0.10);
-        --gridline: #2c2c2a;
-        --baseline: #383835;
-        --muted: #898781;
-        --tooltip-bg: #1a1a19;
-        --tooltip-border: rgba(255, 255, 255, 0.10);
-        --tooltip-fg: #ffffff;
+        --series-1: #6C93B8;
+        --series-1-fill: rgba(108, 147, 184, 0.14);
+        --gridline: #262b33;
+        --baseline: #3a4149;
+        --muted: #8b93a0;
+        --tooltip-bg: #1B1F26;
+        --tooltip-border: rgba(244, 245, 247, 0.12);
+        --tooltip-fg: #F4F5F7;
     }
     .grafico-corpo {
         position: relative;

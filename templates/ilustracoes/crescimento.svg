@@ -1,0 +1,34 @@
+<svg width="480" height="320" viewBox="0 0 480 320" class="fq-ilustracao" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fqCrescimentoTitulo">
+    <title id="fqCrescimentoTitulo">Ilustração de um painel de indicadores financeiros com gráfico de barras e linha de tendência</title>
+    <rect x="20" y="20" width="440" height="280" rx="10" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
+
+    <g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.5">
+        <line x1="48" y1="54" x2="100" y2="54"/>
+        <line x1="48" y1="70" x2="80" y2="70"/>
+    </g>
+    <g class="fq-ilustracao-acento" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.75">
+        <line x1="332" y1="54" x2="384" y2="54"/>
+        <line x1="332" y1="70" x2="412" y2="70"/>
+    </g>
+
+    <line x1="48" y1="248" x2="432" y2="248" stroke="currentColor" stroke-width="1" opacity="0.3"/>
+
+    <g fill="currentColor" opacity="0.15">
+        <rect x="70" y="200" width="26" height="48"/>
+        <rect x="130" y="176" width="26" height="72"/>
+        <rect x="190" y="150" width="26" height="98"/>
+        <rect x="250" y="188" width="26" height="60"/>
+        <rect x="310" y="130" width="26" height="118"/>
+        <rect x="370" y="100" width="26" height="148"/>
+    </g>
+
+    <path d="M83 210 L143 188 L203 158 L263 198 L323 140 L383 108" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="currentColor">
+        <circle cx="83" cy="210" r="3.2"/>
+        <circle cx="143" cy="188" r="3.2"/>
+        <circle cx="203" cy="158" r="3.2"/>
+        <circle cx="263" cy="198" r="3.2"/>
+        <circle cx="323" cy="140" r="3.2"/>
+    </g>
+    <circle class="fq-ilustracao-acento" cx="383" cy="108" r="5" fill="currentColor"/>
+</svg>

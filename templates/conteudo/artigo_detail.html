@@ -3,11 +3,12 @@
 {% block title %}{{ artigo.titulo }} — Portal FinQuant{% endblock %}
 
 {% block content %}
-<article class="bg-white p-4 rounded-3 shadow-sm">
-    <span class="badge bg-secondary mb-2">{{ artigo.get_categoria_display }}</span>
-    <h1 class="h3">{{ artigo.titulo }}</h1>
-    <p class="text-muted">Publicado em {{ artigo.publicado_em|date:"d/m/Y" }}</p>
-    <div class="mt-4" style="white-space: pre-line;">{{ artigo.corpo }}</div>
+<article class="card p-4">
+    {% include "conteudo/_categoria_badge.html" with categoria=artigo.categoria label=artigo.get_categoria_display %}
+    <h1 class="h3 mt-2">{{ artigo.titulo }}</h1>
+    <p class="fq-eyebrow d-block mb-0">Publicado em {{ artigo.publicado_em|date:"d/m/Y" }}</p>
+    <div class="fq-regua"></div>
+    <div style="white-space: pre-line;">{{ artigo.corpo }}</div>
 </article>
 
 <a href="{% url 'conteudo:lista' %}" class="btn btn-link mt-3">&larr; Voltar para artigos</a>

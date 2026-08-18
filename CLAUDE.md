@@ -33,8 +33,20 @@ Projeto Django monolítico (`config/`) com um app por funcionalidade do MVP, seg
 - `simuladores/` — calculadora de juros compostos. Cálculo puro em `simuladores/views.py` (`JurosCompostosView._calcular`), sem modelo persistido; o resultado é calculado a cada envio do formulário e renderizado na mesma página.
 - `avaliacoes/` — modelo `Avaliacao` (nota de 1 a 5 + comentário, com FK opcional para o usuário) que registra o feedback dos usuários sobre o site; esses dados alimentam a análise de qualidade na entrega final do TCC.
 - `templates/base.html` — layout compartilhado (navbar, Bootstrap 5 via CDN, mensagens) que os templates de todos os apps estendem.
-- `static/css/site.css` — pequenos ajustes visuais sobre o Bootstrap.
+- `static/css/site.css` — sistema de design do portal (tokens de cor/tipografia, remapeamento das variáveis do Bootstrap). Veja "Identidade visual" abaixo.
 
 As configurações (`config/settings.py`) são lidas de variáveis de ambiente via `django-environ`, a partir de um `.env` local (ignorado pelo git; veja o modelo em `.env.example`). O banco é SQLite, a menos que `DATABASE_URL` esteja definida (produção/Render usa PostgreSQL). Arquivos estáticos são servidos via Whitenoise em produção.
 
 **Planejado, mas ainda não construído (fase 2):** um app `estudo_caso` comparando uma estratégia ativa de compra de ações brasileiras (análise técnica + fundamentalista) com renda fixa e investimento passivo, usando pandas/numpy/yfinance.
+
+## Identidade visual
+
+Direção "painel institucional": neutra, sóbria, funcional — não editorial nem decorativa. Ao criar uma página nova, siga estas convenções em vez de estilizar do zero:
+
+- **Tokens de cor/tipografia**: custom properties com prefixo `--fq-*` no `:root` de `static/css/site.css`, remapeadas nas variáveis nativas do Bootstrap 5.3 (`--bs-primary`, `--bs-body-bg`, `--bs-link-color`, variáveis locais de `.btn-*`/`.table-*`/`.dropdown-menu` etc.) — componentes prontos do Bootstrap herdam a paleta automaticamente, sem precisar de classes extras. Cores principais: `--fq-paper`/`--fq-paper-raised` (fundo/cards), `--fq-ink`/`--fq-ink-muted` (texto), `--fq-teal` (accent slate-azulado — botões, links, destaques), `--fq-gold` (verde-oliva, uso funcional tipo "positivo"), `--fq-rust` (terracota, "negativo"/alerta). Cada uma tem variante redefinida em `[data-bs-theme="dark"]`.
+  - **Atenção**: `--fq-ink` e `--fq-paper` invertem de sentido entre os dois temas (ink vira claro no escuro, paper vira escuro). Para algo que precise ficar sempre escuro nos dois temas (ex.: a navbar, o cabeçalho da tabela do simulador), use os tokens fixos `--fq-nav-bg`/`--fq-nav-fg` (ou `--fq-teal`, que também é consistente), nunca `--fq-ink`/`--fq-paper`.
+- **Tipografia**: Space Grotesk (títulos, `--fq-font-display`), IBM Plex Sans (corpo, `--fq-font-body`), IBM Plex Mono (números/dados, `--fq-font-mono` — usar a classe `.fq-numeros` em valores monetários/tabelas). Carregadas via Google Fonts no `<head>` do `base.html`.
+- **Layout**: cantos quase retos (`--bs-border-radius*` reduzidos), cards sem sombra (só borda 1px em `--fq-rule`), rótulos de seção com a classe `.fq-eyebrow`, divisor de assinatura `.fq-regua` (régua com marcações) abaixo de títulos de seção.
+- **Ilustrações**: SVGs de "painel de dados" (gráficos, crachás, medidores — nunca cenas decorativas/ilustrativas) em `templates/ilustracoes/*.svg`, incluídos com `{% include "ilustracoes/nome.svg" %}` (não `<img>`, para herdar `currentColor` e adaptar ao tema). Sempre com `width`/`height` explícitos no `<svg>` (evita ícone gigante antes do CSS carregar) além da classe `fq-ilustracao` (aplica cor e teto de tamanho responsivo).
+- **Selos de categoria de artigo**: `templates/conteudo/_categoria_badge.html` — um ícone de linha por categoria; incluir com `{% include "conteudo/_categoria_badge.html" with categoria=artigo.categoria label=artigo.get_categoria_display %}`.
+- O `<link>` do `site.css` no `base.html` tem um cache-buster (`?v={% now 'U' %}`) — qualquer edição no CSS aparece sem precisar de hard refresh do navegador.

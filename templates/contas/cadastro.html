@@ -4,9 +4,15 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-5">
+    <div class="col-md-6 col-lg-5 mb-4 mb-md-0 d-flex align-items-center justify-content-center">
+        <div style="max-width: 280px;">
+            {% include "ilustracoes/livro.svg" %}
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-5">
         <div class="card p-4">
-            <h1 class="h4 mb-3">Criar conta</h1>
+            <span class="fq-eyebrow">Nova conta</span>
+            <h1 class="h4 mb-3 mt-1">Criar conta</h1>
             <form method="post">
                 {% csrf_token %}
                 {% for field in form %}

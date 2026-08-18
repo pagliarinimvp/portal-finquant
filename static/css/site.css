@@ -1,17 +1,270 @@
-/* Ajustes visuais leves sobre o Bootstrap 5 para o Portal FinQuant. */
+/*
+ * Portal FinQuant — identidade visual "painel institucional":
+ * neutro, frio, funcional — cinza-branco de painel, tinta quase preta,
+ * um único accent slate-azulado. Os tokens abaixo remapeiam as
+ * variáveis nativas do Bootstrap 5.3 (--bs-*) para que os componentes
+ * prontos (botões, links, cards, tabelas) herdem a paleta sem precisar
+ * reescrever cada classe individualmente.
+ */
+
+:root {
+    --fq-paper: #F4F5F7;
+    --fq-paper-raised: #FFFFFF;
+    --fq-ink: #14161A;
+    --fq-ink-muted: #5B6470;
+    --fq-teal: #35506B;
+    --fq-teal-dark: #263B4F;
+    --fq-gold: #4B7A63;
+    --fq-rust: #B25A45;
+    --fq-rule: #DCDFE3;
+
+    --fq-nav-bg: #14161A;
+    --fq-nav-fg: #F4F5F7;
+
+    --fq-font-display: "Space Grotesk", system-ui, -apple-system, sans-serif;
+    --fq-font-body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    --fq-font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+    /* Remapeamento das variáveis do Bootstrap */
+    --bs-body-bg: var(--fq-paper);
+    --bs-body-color: var(--fq-ink);
+    --bs-body-font-family: var(--fq-font-body);
+    --bs-emphasis-color: var(--fq-ink);
+    --bs-secondary-color: var(--fq-ink-muted);
+    --bs-border-color: var(--fq-rule);
+    --bs-primary: var(--fq-teal);
+    --bs-primary-rgb: 53, 80, 107;
+    --bs-link-color: var(--fq-teal);
+    --bs-link-color-rgb: 53, 80, 107;
+    --bs-link-hover-color: var(--fq-teal-dark);
+    --bs-link-hover-color-rgb: 38, 59, 79;
+
+    /* Cantos discretos, quase retos, em vez dos padrões arredondados do Bootstrap */
+    --bs-border-radius: 0.25rem;
+    --bs-border-radius-sm: 0.1875rem;
+    --bs-border-radius-lg: 0.375rem;
+}
+
+[data-bs-theme="dark"] {
+    --fq-paper: #14171C;
+    --fq-paper-raised: #1B1F26;
+    --fq-ink: #F4F5F7;
+    --fq-ink-muted: #939BA8;
+    --fq-teal: #6C93B8;
+    --fq-teal-dark: #8FB0D1;
+    --fq-gold: #7FB39A;
+    --fq-rust: #D98A76;
+    --fq-rule: #2B313A;
+
+    --bs-body-bg: var(--fq-paper);
+    --bs-body-color: var(--fq-ink);
+    --bs-emphasis-color: var(--fq-ink);
+    --bs-secondary-color: var(--fq-ink-muted);
+    --bs-border-color: var(--fq-rule);
+    --bs-primary: var(--fq-teal);
+    --bs-primary-rgb: 108, 147, 184;
+    --bs-link-color: var(--fq-teal);
+    --bs-link-color-rgb: 108, 147, 184;
+    --bs-link-hover-color: var(--fq-teal-dark);
+    --bs-link-hover-color-rgb: 143, 176, 209;
+}
 
 body {
-    background-color: #f8f9fa;
+    background-color: var(--fq-paper);
 }
 
 main {
     min-height: 70vh;
 }
 
-.card {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+h1, h2, h3, h4, h5, h6,
+.display-1, .display-2, .display-3, .display-4, .display-5, .display-6 {
+    font-family: var(--fq-font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
 }
 
+/* Rótulo de seção em versalete espaçado, como uma etiqueta de painel. */
+.fq-eyebrow {
+    display: inline-block;
+    font-family: var(--fq-font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fq-gold);
+}
+
+/* Números financeiros alinhados como uma tabela de dados. */
+.fq-numeros,
+.fq-numeros td,
+.fq-numeros th {
+    font-family: var(--fq-font-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+/* --- Régua com marcações: motivo de assinatura do site --- */
+.fq-regua {
+    position: relative;
+    height: 10px;
+    margin: 0.5rem 0 1.75rem;
+}
+
+.fq-regua::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 8px;
+    background-image:
+        linear-gradient(var(--fq-rule), var(--fq-rule)),
+        repeating-linear-gradient(to right, var(--fq-rule) 0 1px, transparent 1px 9px);
+    background-size: 100% 1px, 100% 7px;
+    background-position: bottom, bottom;
+    background-repeat: no-repeat, repeat-x;
+}
+
+/* --- Navbar: barra escura neutra, sem faixa decorativa --- */
+.fq-navbar {
+    background-color: var(--fq-nav-bg);
+    border-bottom: 1px solid rgba(244, 245, 247, 0.12);
+}
+
+.fq-navbar .navbar-brand,
+.fq-navbar .nav-link {
+    color: var(--fq-nav-fg);
+}
+
+.fq-navbar .nav-link:hover,
+.fq-navbar .navbar-brand:hover {
+    color: var(--fq-teal-dark);
+}
+
+.fq-marca {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--fq-font-display);
+    font-weight: 700;
+    font-size: 1.15rem;
+}
+
+.fq-marca svg {
+    width: 1.6rem;
+    height: 1.6rem;
+    flex-shrink: 0;
+}
+
+/* --- Cards: painel funcional, sem sombra --- */
+.card {
+    background-color: var(--fq-paper-raised);
+    border: 1px solid var(--fq-rule);
+    box-shadow: none;
+}
+
+[data-bs-theme="dark"] .card {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.bg-body-tertiary {
+    background-color: var(--fq-paper-raised) !important;
+    border: 1px solid var(--fq-rule);
+}
+
+/* --- Botões: remapeia as variáveis locais de cada variante do Bootstrap --- */
+.btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--fq-teal);
+    --bs-btn-border-color: var(--fq-teal);
+    --bs-btn-hover-bg: var(--fq-teal-dark);
+    --bs-btn-hover-border-color: var(--fq-teal-dark);
+    --bs-btn-active-bg: var(--fq-teal-dark);
+    --bs-btn-active-border-color: var(--fq-teal-dark);
+    --bs-btn-disabled-bg: var(--fq-teal);
+    --bs-btn-disabled-border-color: var(--fq-teal);
+    --bs-btn-focus-shadow-rgb: 53, 80, 107;
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--fq-teal);
+    --bs-btn-border-color: var(--fq-teal);
+    --bs-btn-hover-bg: var(--fq-teal);
+    --bs-btn-hover-border-color: var(--fq-teal);
+    --bs-btn-active-bg: var(--fq-teal);
+    --bs-btn-active-border-color: var(--fq-teal);
+    --bs-btn-focus-shadow-rgb: 53, 80, 107;
+}
+
+/* --- Tabelas (usadas no simulador) ---
+   Mesmo tom do botão primário (--fq-teal), para o cabeçalho da tabela
+   acompanhar a cor de destaque do site em vez de ficar num tom à parte. */
+.table-dark {
+    --bs-table-bg: var(--fq-teal);
+    --bs-table-color: #fff;
+    --bs-table-border-color: var(--fq-teal-dark);
+}
+
+/* --- Selos de categoria dos artigos: etiqueta retangular, não pílula --- */
+.fq-badge-categoria {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--fq-font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.25rem;
+    border: 1px solid currentColor;
+    color: var(--fq-teal);
+    background-color: transparent;
+}
+
+.fq-badge-categoria svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    flex-shrink: 0;
+}
+
+.fq-badge-categoria.fq-cat-renda-fixa { color: var(--fq-teal); }
+.fq-badge-categoria.fq-cat-renda-variavel { color: var(--fq-rust); }
+.fq-badge-categoria.fq-cat-analise-quantitativa { color: var(--fq-gold); }
+.fq-badge-categoria.fq-cat-fundamentos { color: var(--fq-ink-muted); }
+
+/* --- Menu suspenso (dropdown) --- */
+.dropdown-menu {
+    --bs-dropdown-bg: var(--fq-paper-raised);
+    --bs-dropdown-border-color: var(--fq-ink-muted);
+    --bs-dropdown-border-width: 1.5px;
+    --bs-dropdown-link-color: var(--fq-ink);
+    --bs-dropdown-link-hover-bg: var(--fq-paper);
+    --bs-dropdown-link-hover-color: var(--fq-teal);
+    --bs-dropdown-link-active-bg: var(--fq-teal);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+/* --- Ilustrações ---
+   max-width em px garante um teto de tamanho mesmo que a coluna do
+   Bootstrap que a envolve ainda não tenha aplicado sua largura. */
+.fq-ilustracao {
+    color: var(--fq-teal);
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+}
+
+.fq-ilustracao .fq-tracejado {
+    stroke-dasharray: 4 5;
+}
+
+.fq-ilustracao-acento {
+    color: var(--fq-gold);
+}
+
+/* --- Toggle de tema (mantido do ajuste original) --- */
 #toggle-tema {
     width: 2.25rem;
     height: 2.25rem;
@@ -21,28 +274,21 @@ main {
     justify-content: center;
     font-size: 1.1rem;
     line-height: 1;
-    /* Zera o preenchimento de :hover/:active do Bootstrap: em telas touch
-       esse estado costuma ficar "grudado" depois do toque, fazendo o botão
-       parecer com o fundo da cor do tema anterior. */
     --bs-btn-hover-bg: transparent;
-    --bs-btn-hover-border-color: rgba(255, 255, 255, 0.75);
+    --bs-btn-hover-border-color: rgba(244, 245, 247, 0.75);
     --bs-btn-active-bg: transparent;
-    --bs-btn-active-border-color: rgba(255, 255, 255, 0.75);
+    --bs-btn-active-border-color: rgba(244, 245, 247, 0.75);
     --bs-btn-focus-box-shadow: none;
+    --bs-btn-color: var(--fq-nav-fg);
+    --bs-btn-border-color: rgba(244, 245, 247, 0.5);
 }
 
-/* Reativa o preenchimento no hover só para quem realmente tem mouse. */
 @media (hover: hover) and (pointer: fine) {
     #toggle-tema:hover {
-        background-color: rgba(255, 255, 255, 0.15);
+        background-color: rgba(244, 245, 247, 0.15);
     }
 }
 
-/* Modo noturno (data-bs-theme="dark", aplicado no <html> pelo toggle) */
-[data-bs-theme="dark"] body {
-    background-color: #1a1d20;
-}
-
-[data-bs-theme="dark"] .card {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+footer {
+    border-top: 1px solid var(--fq-rule);
 }

@@ -3,15 +3,17 @@
 {% block title %}Artigos — Portal FinQuant{% endblock %}
 
 {% block content %}
-<h1 class="h3 mb-4">Artigos</h1>
+<span class="fq-eyebrow">Acervo</span>
+<h1 class="h3 mb-2">Artigos</h1>
+<div class="fq-regua"></div>
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
     {% for artigo in artigos %}
     <div class="col">
         <div class="card h-100">
             <div class="card-body">
-                <span class="badge bg-secondary mb-2">{{ artigo.get_categoria_display }}</span>
-                <h2 class="h5 card-title">{{ artigo.titulo }}</h2>
+                {% include "conteudo/_categoria_badge.html" with categoria=artigo.categoria label=artigo.get_categoria_display %}
+                <h2 class="h5 card-title mt-2">{{ artigo.titulo }}</h2>
                 <p class="card-text text-muted">{{ artigo.resumo }}</p>
                 <a href="{% url 'conteudo:detalhe' artigo.slug %}" class="btn btn-sm btn-outline-primary">Ler artigo</a>
             </div>
