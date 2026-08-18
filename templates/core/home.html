@@ -36,4 +36,43 @@
     <p class="text-muted">Nenhum artigo publicado ainda.</p>
     {% endfor %}
 </div>
+
+<span class="fq-eyebrow mt-5 d-block">Ferramentas</span>
+<h2 class="h4 mb-2">Simuladores interativos</h2>
+<div class="fq-regua"></div>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3 class="h5 card-title mt-2">Juros compostos</h3>
+                <p class="card-text text-muted">
+                    Veja como aportes mensais e juros compostos fazem seu patrimônio crescer ao longo do tempo.
+                </p>
+                <a href="{% url 'simuladores:juros_compostos' %}" class="btn btn-sm btn-outline-primary">Simular</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3 class="h5 card-title mt-2">Dívida no rotativo do cartão</h3>
+                <p class="card-text text-muted">
+                    Veja como a dívida do rotativo pode sair de controle quando o pagamento só cobre os juros.
+                </p>
+                <a href="{% url 'simuladores:divida_cartao' %}" class="btn btn-sm btn-outline-primary">Simular</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3 class="h5 card-title mt-2">Meta financeira</h3>
+                <p class="card-text text-muted">
+                    Descubra quanto precisa guardar por mês para atingir uma meta financeira num prazo definido.
+                </p>
+                <a href="{% url 'simuladores:meta_financeira' %}" class="btn btn-sm btn-outline-primary">Simular</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
