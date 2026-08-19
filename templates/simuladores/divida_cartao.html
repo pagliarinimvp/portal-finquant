@@ -58,7 +58,7 @@
             </div>
         </figure>
         <div class="table-responsive fq-numeros" style="max-height: 400px;">
-            <table class="table table-sm table-striped">
+            <table class="table table-sm table-striped tabela-divida">
                 <thead class="table-dark">
                     <tr><th>Mês</th><th>Juros no mês (R$)</th><th>Pagamento (R$)</th><th>Saldo devedor (R$)</th></tr>
                 </thead>
@@ -85,7 +85,7 @@
                 <p class="fq-numeros mb-3">saldo(mês) = saldo(mês anterior) × (1 + taxa) − pagamento</p>
                 <p>Exemplo para conferência manual (saldo de R$ 1.000,00, taxa de 5% ao mês, pagamento de R$ 350,00):</p>
                 <div class="table-responsive fq-numeros">
-                    <table class="table table-sm">
+                    <table class="table table-sm tabela-divida-exemplo">
                         <thead>
                             <tr><th>Mês</th><th>Juros</th><th>Saldo após juros</th><th>Pagamento</th><th>Saldo final</th></tr>
                         </thead>
@@ -115,6 +115,65 @@
 </div>
 
 <style>
+    /* As 4 colunas (Mês, Juros, Pagamento, Saldo devedor) somadas ao seu conteúdo
+       numérico ultrapassam a largura do card em table-layout automático — larguras
+       fixas garantem que a tabela nunca precise de rolagem horizontal para ler o saldo. */
+    .tabela-divida {
+        table-layout: fixed;
+    }
+    .tabela-divida th,
+    .tabela-divida td {
+        overflow-wrap: break-word;
+    }
+    .tabela-divida th:first-child,
+    .tabela-divida td:first-child {
+        width: 12%;
+    }
+    .tabela-divida th:nth-child(2),
+    .tabela-divida td:nth-child(2) {
+        width: 28%;
+    }
+    .tabela-divida th:nth-child(3),
+    .tabela-divida td:nth-child(3) {
+        width: 24%;
+    }
+    .tabela-divida th:nth-child(4),
+    .tabela-divida td:nth-child(4) {
+        width: 36%;
+    }
+
+    /* Mesmo problema no exemplo de 5 colunas do painel "Como calculamos isso":
+       em telas estreitas o total não cabe e a última coluna fica cortada. */
+    .tabela-divida-exemplo {
+        table-layout: fixed;
+    }
+    .tabela-divida-exemplo th {
+        overflow-wrap: break-word;
+    }
+    .tabela-divida-exemplo td {
+        white-space: nowrap;
+    }
+    .tabela-divida-exemplo th:nth-child(1),
+    .tabela-divida-exemplo td:nth-child(1) {
+        width: 7%;
+    }
+    .tabela-divida-exemplo th:nth-child(2),
+    .tabela-divida-exemplo td:nth-child(2) {
+        width: 20%;
+    }
+    .tabela-divida-exemplo th:nth-child(3),
+    .tabela-divida-exemplo td:nth-child(3) {
+        width: 27%;
+    }
+    .tabela-divida-exemplo th:nth-child(4),
+    .tabela-divida-exemplo td:nth-child(4) {
+        width: 22%;
+    }
+    .tabela-divida-exemplo th:nth-child(5),
+    .tabela-divida-exemplo td:nth-child(5) {
+        width: 24%;
+    }
+
     .grafico-evolucao {
         --series-1: var(--fq-rust);
         --series-1-fill: rgba(178, 90, 69, 0.10);
@@ -220,8 +279,6 @@
         var largura = 800;
         var altura = 320;
         var margem = { topo: 12, direita: 16, baixo: 28, esquerda: 68 };
-        var areaLargura = largura - margem.esquerda - margem.direita;
-        var areaAltura = altura - margem.topo - margem.baixo;
 
         function criarEl(tag, atributos) {
             var el = document.createElementNS(NS, tag);
@@ -247,9 +304,37 @@
             });
         }
 
+        // Versão compacta (8 mil, 1,2 mi, 9,9 bi...) para o eixo Y: cenários de dívida
+        // que nunca quita projetam 600 meses de juros compostos e podem gerar saldos
+        // com dezenas de dígitos, que um rótulo por extenso jamais caberia na margem.
+        function formatarReaisEixo(valor) {
+            if (Math.abs(valor) < 1e15) {
+                return new Intl.NumberFormat('pt-BR', {
+                    style: 'currency', currency: 'BRL', notation: 'compact', maximumFractionDigits: 1,
+                }).format(valor);
+            }
+            return 'R$ ' + valor.toExponential(1).replace('.', ',').replace('e+', 'e');
+        }
+
         var maxSaldo = Math.max.apply(null, pontos.map(function (p) { return p.saldo; }));
         var passoY = passoAgradavel(maxSaldo, 4);
         var eixoMaxY = Math.max(passoY, Math.ceil(maxSaldo / passoY) * passoY);
+
+        var valoresEixoY = [];
+        for (var v = 0; v <= eixoMaxY + 0.01; v += passoY) valoresEixoY.push(v);
+        var rotulosEixoY = valoresEixoY.map(formatarReaisEixo);
+
+        // Mede a largura real dos rótulos para dimensionar a margem esquerda —
+        // caso contrário, rótulos muito largos (números muito grandes) ficam cortados.
+        var medidor = document.createElement('canvas').getContext('2d');
+        medidor.font = '11px sans-serif';
+        var larguraMaxRotulo = Math.max.apply(null, rotulosEixoY.map(function (t) {
+            return medidor.measureText(t).width;
+        }));
+        margem.esquerda = Math.min(140, Math.max(56, larguraMaxRotulo + 16));
+
+        var areaLargura = largura - margem.esquerda - margem.direita;
+        var areaAltura = altura - margem.topo - margem.baixo;
 
         function escalaX(i) {
             return margem.esquerda + (pontos.length === 1 ? 0 : (i / (pontos.length - 1)) * areaLargura);
@@ -259,7 +344,7 @@
         }
 
         // Grade e rótulos do eixo Y
-        for (var v = 0; v <= eixoMaxY + 0.01; v += passoY) {
+        valoresEixoY.forEach(function (v, indice) {
             var y = escalaY(v);
             svg.appendChild(criarEl('line', {
                 class: 'grade', x1: margem.esquerda, x2: largura - margem.direita, y1: y, y2: y,
@@ -267,9 +352,9 @@
             var rotuloY = criarEl('text', {
                 class: 'rotulo', x: margem.esquerda - 8, y: y + 3, 'text-anchor': 'end',
             });
-            rotuloY.textContent = formatarReais(v, false);
+            rotuloY.textContent = rotulosEixoY[indice];
             svg.appendChild(rotuloY);
-        }
+        });
 
         // Rótulos do eixo X (até ~6 marcações)
         var numTicksXDesejado = 6;

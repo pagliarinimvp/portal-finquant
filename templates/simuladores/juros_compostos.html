@@ -206,8 +206,6 @@
         var largura = 800;
         var altura = 320;
         var margem = { topo: 12, direita: 16, baixo: 28, esquerda: 68 };
-        var areaLargura = largura - margem.esquerda - margem.direita;
-        var areaAltura = altura - margem.topo - margem.baixo;
 
         function criarEl(tag, atributos) {
             var el = document.createElementNS(NS, tag);
@@ -233,9 +231,36 @@
             });
         }
 
+        // Versão compacta (8 mil, 1,2 mi, 9,9 bi...) para o eixo Y: um período longo
+        // pode gerar saldos com muitos dígitos, que um rótulo por extenso não caberia na margem.
+        function formatarReaisEixo(valor) {
+            if (Math.abs(valor) < 1e15) {
+                return new Intl.NumberFormat('pt-BR', {
+                    style: 'currency', currency: 'BRL', notation: 'compact', maximumFractionDigits: 1,
+                }).format(valor);
+            }
+            return 'R$ ' + valor.toExponential(1).replace('.', ',').replace('e+', 'e');
+        }
+
         var maxSaldo = Math.max.apply(null, pontos.map(function (p) { return p.saldo; }));
         var passoY = passoAgradavel(maxSaldo, 4);
         var eixoMaxY = Math.max(passoY, Math.ceil(maxSaldo / passoY) * passoY);
+
+        var valoresEixoY = [];
+        for (var v = 0; v <= eixoMaxY + 0.01; v += passoY) valoresEixoY.push(v);
+        var rotulosEixoY = valoresEixoY.map(formatarReaisEixo);
+
+        // Mede a largura real dos rótulos para dimensionar a margem esquerda —
+        // caso contrário, rótulos muito largos (números muito grandes) ficam cortados.
+        var medidor = document.createElement('canvas').getContext('2d');
+        medidor.font = '11px sans-serif';
+        var larguraMaxRotulo = Math.max.apply(null, rotulosEixoY.map(function (t) {
+            return medidor.measureText(t).width;
+        }));
+        margem.esquerda = Math.min(140, Math.max(56, larguraMaxRotulo + 16));
+
+        var areaLargura = largura - margem.esquerda - margem.direita;
+        var areaAltura = altura - margem.topo - margem.baixo;
 
         function escalaX(i) {
             return margem.esquerda + (pontos.length === 1 ? 0 : (i / (pontos.length - 1)) * areaLargura);
@@ -245,7 +270,7 @@
         }
 
         // Grade e rótulos do eixo Y
-        for (var v = 0; v <= eixoMaxY + 0.01; v += passoY) {
+        valoresEixoY.forEach(function (v, indice) {
             var y = escalaY(v);
             svg.appendChild(criarEl('line', {
                 class: 'grade', x1: margem.esquerda, x2: largura - margem.direita, y1: y, y2: y,
@@ -253,9 +278,9 @@
             var rotuloY = criarEl('text', {
                 class: 'rotulo', x: margem.esquerda - 8, y: y + 3, 'text-anchor': 'end',
             });
-            rotuloY.textContent = formatarReais(v, false);
+            rotuloY.textContent = rotulosEixoY[indice];
             svg.appendChild(rotuloY);
-        }
+        });
 
         // Rótulos do eixo X (até ~6 marcações)
         var numTicksXDesejado = 6;
