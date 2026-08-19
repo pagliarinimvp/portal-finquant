@@ -228,7 +228,7 @@
     }
     .grafico-evolucao .rotulo {
         fill: var(--muted);
-        font-size: 11px;
+        font-size: 13px;
         font-family: inherit;
     }
     .grafico-evolucao .crosshair-linha {
@@ -276,9 +276,15 @@
         if (!pontos.length) return;
 
         var NS = 'http://www.w3.org/2000/svg';
-        var largura = 800;
-        var altura = 320;
-        var margem = { topo: 12, direita: 16, baixo: 28, esquerda: 68 };
+        // O viewBox acompanha o tamanho real renderizado (em vez de um 800x320 fixo)
+        // para que o font-size dos rótulos, em px, corresponda a pixels de tela de
+        // verdade — sem isso, o texto encolhe junto com a largura do card no mobile
+        // e fica ilegível.
+        var caixaSvg = svg.getBoundingClientRect();
+        var largura = Math.round(caixaSvg.width) || 800;
+        var altura = Math.round(caixaSvg.height) || 320;
+        svg.setAttribute('viewBox', '0 0 ' + largura + ' ' + altura);
+        var margem = { topo: 14, direita: 16, baixo: 32, esquerda: 68 };
 
         function criarEl(tag, atributos) {
             var el = document.createElementNS(NS, tag);
@@ -327,7 +333,7 @@
         // Mede a largura real dos rótulos para dimensionar a margem esquerda —
         // caso contrário, rótulos muito largos (números muito grandes) ficam cortados.
         var medidor = document.createElement('canvas').getContext('2d');
-        medidor.font = '11px sans-serif';
+        medidor.font = '13px sans-serif';
         var larguraMaxRotulo = Math.max.apply(null, rotulosEixoY.map(function (t) {
             return medidor.measureText(t).width;
         }));
@@ -356,15 +362,38 @@
             svg.appendChild(rotuloY);
         });
 
-        // Rótulos do eixo X (até ~6 marcações)
-        var numTicksXDesejado = 6;
+        // Rótulos do eixo X: até ~6 marcações, mas menos em telas estreitas —
+        // como o texto agora tem tamanho real (ver viewBox acima), rótulos "Mês N"
+        // se sobrepõem se tentarmos manter sempre 6 num gráfico estreito no mobile.
+        var textoXMaisLargo = 'Mês ' + pontos[pontos.length - 1].mes;
+        var larguraRotuloX = medidor.measureText(textoXMaisLargo).width + 24;
+        var numTicksXDesejado = Math.max(2, Math.min(6, Math.floor(areaLargura / larguraRotuloX)));
         var passoX = Math.max(1, Math.round((pontos.length - 1) / numTicksXDesejado) || 1);
         var indicesX = [];
         for (var i = 0; i < pontos.length; i += passoX) indicesX.push(i);
         if (indicesX[indicesX.length - 1] !== pontos.length - 1) indicesX.push(pontos.length - 1);
+
+        // O último rótulo é alinhado pela direita (ver abaixo) para não ser cortado
+        // na borda do viewBox, o que o deixa mais largo para o lado esquerdo do que
+        // um rótulo centralizado comum — se não sobrar espaço, o penúltimo rótulo
+        // encosta nele. Remove o penúltimo nesse caso (mantendo sempre o primeiro).
+        if (indicesX.length >= 3) {
+            var iPenultimo = indicesX[indicesX.length - 2];
+            var iUltimo = indicesX[indicesX.length - 1];
+            var larguraUltimo = medidor.measureText('Mês ' + pontos[iUltimo].mes).width;
+            var larguraPenultimo = medidor.measureText('Mês ' + pontos[iPenultimo].mes).width;
+            var espaco = (escalaX(iUltimo) - larguraUltimo) - (escalaX(iPenultimo) + larguraPenultimo / 2);
+            if (espaco < 8) indicesX.splice(indicesX.length - 2, 1);
+        }
+
         indicesX.forEach(function (i) {
+            // O último rótulo fica centralizado exatamente na borda direita da área
+            // do gráfico — com text-anchor "middle" metade do texto ultrapassaria o
+            // viewBox e seria cortada, então esse aqui é alinhado pela direita.
+            var ehUltimo = i === pontos.length - 1;
             var rotuloX = criarEl('text', {
-                class: 'rotulo', x: escalaX(i), y: altura - margem.baixo + 18, 'text-anchor': 'middle',
+                class: 'rotulo', x: escalaX(i), y: altura - margem.baixo + 18,
+                'text-anchor': ehUltimo ? 'end' : 'middle',
             });
             rotuloX.textContent = 'Mês ' + pontos[i].mes;
             svg.appendChild(rotuloX);
