@@ -48,7 +48,7 @@ class Avaliacao(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='avaliacoes',
     )
-    nota = models.IntegerField(choices=Nota.choices)
+    nota = models.IntegerField(choices=Nota.choices, verbose_name='Navegação no site')
     faixa_etaria = models.CharField(max_length=10, choices=FaixaEtaria.choices)
     sexo = models.CharField(max_length=2, choices=Sexo.choices)
     experiencia_investimentos = models.IntegerField(choices=ExperienciaInvestimentos.choices)
