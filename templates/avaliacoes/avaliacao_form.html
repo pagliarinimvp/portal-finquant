@@ -10,7 +10,7 @@
                 <div class="col-8">
                     <span class="fq-eyebrow">Sua opinião</span>
                     <h1 class="h4 mb-3 mt-1">O que você achou do Portal FinQuant?</h1>
-                    <p class="text-muted">Sua avaliação ajuda a melhorar o site e será usada na análise final deste projeto.</p>
+                    <p class="text-muted">Suas respostas fazem parte da pesquisa deste Trabalho de Conclusão de Curso: elas serão usadas para analisar o perfil de quem usa o portal e o quanto o conteúdo ajuda no aprendizado sobre finanças quantitativas, sustentando as conclusões apresentadas na banca. Leva menos de 2 minutos — sua participação é essencial.</p>
                 </div>
                 <div class="col-4 d-none d-sm-block">
                     <div style="max-width: 140px;">
@@ -18,9 +18,45 @@
                     </div>
                 </div>
             </div>
+            <div class="fq-regua"></div>
             <form method="post">
                 {% csrf_token %}
-                <div class="mb-3">
+                <div class="fq-pergunta">
+                    <label class="form-label" for="{{ form.faixa_etaria.id_for_label }}">{{ form.faixa_etaria.label }}</label>
+                    {{ form.faixa_etaria }}
+                    {% if form.faixa_etaria.errors %}<div class="text-danger small">{{ form.faixa_etaria.errors }}</div>{% endif %}
+                </div>
+                <div class="fq-pergunta">
+                    <label class="form-label" for="{{ form.sexo.id_for_label }}">{{ form.sexo.label }}</label>
+                    {{ form.sexo }}
+                    {% if form.sexo.errors %}<div class="text-danger small">{{ form.sexo.errors }}</div>{% endif %}
+                </div>
+                <div class="fq-pergunta">
+                    <label class="form-label" for="{{ form.faixa_renda_familiar.id_for_label }}">{{ form.faixa_renda_familiar.label }}</label>
+                    {{ form.faixa_renda_familiar }}
+                    {% if form.faixa_renda_familiar.errors %}<div class="text-danger small">{{ form.faixa_renda_familiar.errors }}</div>{% endif %}
+                </div>
+                <div class="fq-pergunta">
+                    <label class="form-label d-block">{{ form.experiencia_investimentos.label }}</label>
+                    {% for radio in form.experiencia_investimentos %}
+                        <div class="form-check">
+                            {{ radio.tag }}
+                            <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                        </div>
+                    {% endfor %}
+                    {% if form.experiencia_investimentos.errors %}<div class="text-danger small">{{ form.experiencia_investimentos.errors }}</div>{% endif %}
+                </div>
+                <div class="fq-pergunta">
+                    <label class="form-label d-block">{{ form.conteudo_ajudou.label }}</label>
+                    {% for radio in form.conteudo_ajudou %}
+                        <div class="form-check">
+                            {{ radio.tag }}
+                            <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                        </div>
+                    {% endfor %}
+                    {% if form.conteudo_ajudou.errors %}<div class="text-danger small">{{ form.conteudo_ajudou.errors }}</div>{% endif %}
+                </div>
+                <div class="fq-pergunta">
                     <label class="form-label d-block">{{ form.nota.label }}</label>
                     {% for radio in form.nota %}
                         <div class="form-check">
@@ -30,7 +66,7 @@
                     {% endfor %}
                     {% if form.nota.errors %}<div class="text-danger small">{{ form.nota.errors }}</div>{% endif %}
                 </div>
-                <div class="mb-3">
+                <div class="fq-pergunta">
                     <label class="form-label" for="{{ form.comentario.id_for_label }}">{{ form.comentario.label }}</label>
                     {{ form.comentario }}
                 </div>

@@ -20,7 +20,15 @@ class ModalAvaliacaoContextProcessorTests(TestCase):
 
     def test_usuario_com_avaliacao_nao_ve_modal(self):
         usuario = User.objects.create_user(username='joana', password='senha123')
-        Avaliacao.objects.create(usuario=usuario, nota=Avaliacao.Nota.CINCO)
+        Avaliacao.objects.create(
+            usuario=usuario,
+            nota=Avaliacao.Nota.CINCO,
+            faixa_etaria=Avaliacao.FaixaEtaria.DE_26_A_35,
+            sexo=Avaliacao.Sexo.FEMININO,
+            experiencia_investimentos=Avaliacao.ExperienciaInvestimentos.INTERMEDIARIA,
+            conteudo_ajudou=Avaliacao.ConteudoAjudou.CONCORDO,
+            faixa_renda_familiar=Avaliacao.FaixaRendaFamiliar.DE_2000_A_5000,
+        )
         self.client.login(username='joana', password='senha123')
 
         resposta = self.client.get(reverse('core:home'))

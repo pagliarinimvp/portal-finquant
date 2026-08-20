@@ -95,6 +95,28 @@ h1, h2, h3, h4, h5, h6,
     color: var(--fq-gold);
 }
 
+/* --- Bloco de pergunta de formulário: separa questões com um divisor sutil --- */
+.fq-pergunta {
+    padding-bottom: 1.75rem;
+    margin-bottom: 1.75rem;
+    border-bottom: 1px solid var(--fq-rule);
+}
+
+.fq-pergunta:last-of-type {
+    padding-bottom: 0;
+    margin-bottom: 1.5rem;
+    border-bottom: none;
+}
+
+.fq-pergunta > .form-label {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.fq-pergunta .form-check {
+    margin-bottom: 0.5rem;
+}
+
 /* Números financeiros alinhados como uma tabela de dados. */
 .fq-numeros,
 .fq-numeros td,
