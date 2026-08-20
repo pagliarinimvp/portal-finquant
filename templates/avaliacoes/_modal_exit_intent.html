@@ -1,0 +1,49 @@
+{% load static %}
+<div class="modal fade" id="modalAvaliacao" tabindex="-1" aria-labelledby="modalAvaliacaoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="fq-eyebrow">Antes de você ir</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <h2 class="h5" id="modalAvaliacaoLabel">Ainda não vimos sua avaliação do site</h2>
+                <p class="text-muted mb-0">Sua opinião ajuda a melhorar o Portal FinQuant e será usada na análise final deste projeto. Leva menos de um minuto.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Agora não</button>
+                <a href="{% url 'avaliacoes:avaliar' %}" class="btn btn-primary" id="linkAvaliarModal">Avaliar o site</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    (function () {
+        var CHAVE_DISPENSADO = 'avaliacaoModalDispensado';
+        var modalEl = document.getElementById('modalAvaliacao');
+        var modal = new bootstrap.Modal(modalEl);
+        var mostrado = false;
+
+        function jaDispensado() {
+            return sessionStorage.getItem(CHAVE_DISPENSADO) === '1';
+        }
+
+        function marcarDispensado() {
+            sessionStorage.setItem(CHAVE_DISPENSADO, '1');
+        }
+
+        document.addEventListener('mouseout', function (evento) {
+            if (mostrado || jaDispensado()) {
+                return;
+            }
+            if (evento.clientY > 0 || evento.relatedTarget !== null) {
+                return;
+            }
+            mostrado = true;
+            modal.show();
+        });
+
+        modalEl.addEventListener('hidden.bs.modal', marcarDispensado);
+        document.getElementById('linkAvaliarModal').addEventListener('click', marcarDispensado);
+    })();
+</script>
