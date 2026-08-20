@@ -1,5 +1,8 @@
+from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
+
+from avaliacoes.models import Avaliacao
 
 GOOGLE_CONFIGURADO = {
     "google": {
@@ -66,3 +69,43 @@ class LoginSocialBotoesTests(TestCase):
         self.assertNotContains(response, 'Entrar com Google')
         self.assertContains(response, 'action="/contas/social/github/login/"')
         self.assertContains(response, 'method="post"')
+
+
+class MinhaContaViewTests(TestCase):
+    def test_exige_login(self):
+        response = self.client.get(reverse('contas:minha_conta'))
+        self.assertRedirects(
+            response, f"{reverse('contas:login')}?next={reverse('contas:minha_conta')}"
+        )
+
+    def test_usuario_logado_ve_seus_dados_e_avaliacoes(self):
+        usuario = User.objects.create_user(
+            username='joana', email='joana@example.com', password='senha-123',
+        )
+        Avaliacao.objects.create(
+            usuario=usuario,
+            nota=Avaliacao.Nota.CINCO,
+            faixa_etaria=Avaliacao.FaixaEtaria.DE_19_A_25,
+            sexo=Avaliacao.Sexo.FEMININO,
+            experiencia_investimentos=Avaliacao.ExperienciaInvestimentos.INICIANTE,
+            conteudo_ajudou=Avaliacao.ConteudoAjudou.CONCORDO_TOTALMENTE,
+            faixa_renda_familiar=Avaliacao.FaixaRendaFamiliar.NAO_INFORMAR,
+            comentario='Muito bom!',
+        )
+        self.client.force_login(usuario)
+
+        response = self.client.get(reverse('contas:minha_conta'))
+
+        self.assertContains(response, 'joana')
+        self.assertContains(response, 'joana@example.com')
+        self.assertContains(response, 'Excelente')
+        self.assertContains(response, 'Muito bom!')
+
+    def test_usuario_sem_avaliacoes_ve_convite_para_avaliar(self):
+        usuario = User.objects.create_user(username='pedro', password='senha-123')
+        self.client.force_login(usuario)
+
+        response = self.client.get(reverse('contas:minha_conta'))
+
+        self.assertContains(response, 'ainda não avaliou o site')
+        self.assertContains(response, reverse('avaliacoes:avaliar'))

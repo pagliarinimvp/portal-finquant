@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Minha conta — Portal FinQuant{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <span class="fq-eyebrow">Minha conta</span>
+        <h1 class="h4 mb-3 mt-1">Seus dados no Portal FinQuant</h1>
+        <div class="fq-regua"></div>
+
+        <div class="card p-4 mb-4">
+            <h2 class="h6 mb-3">Dados cadastrais</h2>
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Usuário</dt>
+                <dd class="col-sm-9 fq-numeros">{{ user.username }}</dd>
+
+                <dt class="col-sm-3">E-mail</dt>
+                <dd class="col-sm-9 fq-numeros">{{ user.email|default:"Não informado" }}</dd>
+
+                <dt class="col-sm-3">Cadastrado em</dt>
+                <dd class="col-sm-9 fq-numeros">{{ user.date_joined|date:"d/m/Y" }}</dd>
+            </dl>
+        </div>
+
+        <div class="card p-4">
+            <h2 class="h6 mb-3">Suas avaliações do site</h2>
+            {% if avaliacoes %}
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Data</th>
+                                <th scope="col">Nota</th>
+                                <th scope="col">Comentário</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for avaliacao in avaliacoes %}
+                            <tr>
+                                <td class="fq-numeros">{{ avaliacao.criado_em|date:"d/m/Y" }}</td>
+                                <td class="fq-numeros">{{ avaliacao.get_nota_display }}</td>
+                                <td>{{ avaliacao.comentario|default:"—" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted mb-3">Você ainda não avaliou o site.</p>
+                <a href="{% url 'avaliacoes:avaliar' %}" class="btn btn-primary">Avalie o site</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
