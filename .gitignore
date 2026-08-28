@@ -16,3 +16,10 @@ staticfiles/
 
 # Editor/IDE
 .vscode/
+.neon
+
+# Skills instaladas via `npx skills` (symlinks/arquivos locais; skills-lock.json
+# guarda o que reinstalar com `npx skills experimental_install`)
+.agents/
+.claude/skills/neon
+.claude/skills/neon-postgres
