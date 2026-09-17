@@ -23,3 +23,4 @@ staticfiles/
 .agents/
 .claude/skills/neon
 .claude/skills/neon-postgres
+.claude/skills/formatar-artigo
