@@ -83,5 +83,4 @@ depois que a URL final do serviço existir.
 
 ## Próximos passos (fase 2)
 
-- App `estudo_caso`: comparação de uma estratégia ativa de compra de ações brasileiras (análise técnica + fundamentalista) com renda fixa e investimento passivo, usando pandas/numpy/yfinance.
-- Exportação dos dados de `avaliacoes` (via `pandas`) para a análise de qualidade do projeto na entrega final do TCC.
+Ver [`PENDENCIAS.md`](PENDENCIAS.md).
