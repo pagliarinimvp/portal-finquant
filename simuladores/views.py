@@ -1,4 +1,4 @@
-from decimal import ROUND_UP, Decimal, localcontext
+from decimal import ROUND_HALF_UP, ROUND_UP, Decimal, localcontext
 
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
@@ -6,6 +6,11 @@ from django.views.generic.edit import FormView
 from .forms import DividaCartaoForm, JurosCompostosForm, MetaFinanceiraForm
 
 TETO_MESES = 600
+
+# Valores em reais vão para o centavo com ROUND_HALF_UP, o arredondamento
+# comercial (0,125 -> 0,13). O padrão do Decimal é ROUND_HALF_EVEN, que
+# arredonda o meio para o par (0,125 -> 0,12) e diverge de bancos e calculadoras.
+CENTAVO = Decimal('0.01')
 
 
 class JurosCompostosView(FormView):
@@ -33,16 +38,16 @@ class JurosCompostosView(FormView):
 
         total_aportado = dados['valor_inicial']
         linhas = []
-        pontos_grafico = [{'mes': 0, 'saldo': float(saldo.quantize(Decimal('0.01')))}]
+        pontos_grafico = [{'mes': 0, 'saldo': float(saldo.quantize(CENTAVO, rounding=ROUND_HALF_UP))}]
         for mes in range(1, meses + 1):
             saldo += aporte
             juros_do_mes = saldo * taxa
             saldo += juros_do_mes
             total_aportado += aporte
-            saldo_arredondado = saldo.quantize(Decimal('0.01'))
+            saldo_arredondado = saldo.quantize(CENTAVO, rounding=ROUND_HALF_UP)
             linhas.append({
                 'mes': mes,
-                'juros_do_mes': juros_do_mes.quantize(Decimal('0.01')),
+                'juros_do_mes': juros_do_mes.quantize(CENTAVO, rounding=ROUND_HALF_UP),
                 'saldo': saldo_arredondado,
             })
             pontos_grafico.append({'mes': mes, 'saldo': float(saldo_arredondado)})
@@ -51,9 +56,9 @@ class JurosCompostosView(FormView):
         return {
             'linhas': linhas,
             'pontos_grafico': pontos_grafico,
-            'saldo_final': saldo.quantize(Decimal('0.01')),
-            'total_aportado': total_aportado.quantize(Decimal('0.01')),
-            'total_juros': total_juros.quantize(Decimal('0.01')),
+            'saldo_final': saldo.quantize(CENTAVO, rounding=ROUND_HALF_UP),
+            'total_aportado': total_aportado.quantize(CENTAVO, rounding=ROUND_HALF_UP),
+            'total_juros': total_juros.quantize(CENTAVO, rounding=ROUND_HALF_UP),
         }
 
 
@@ -88,7 +93,7 @@ class DividaCartaoView(FormView):
         teto_juros = dados['saldo_devedor']
 
         linhas = []
-        pontos_grafico = [{'mes': 0, 'saldo': float(saldo.quantize(Decimal('0.01')))}]
+        pontos_grafico = [{'mes': 0, 'saldo': float(saldo.quantize(CENTAVO, rounding=ROUND_HALF_UP))}]
         total_pago = Decimal('0')
         total_juros = Decimal('0')
         pagamento_nao_cobre_juros = False
@@ -102,7 +107,7 @@ class DividaCartaoView(FormView):
             mes = 0
             while saldo > Decimal('0.01') and mes < TETO_MESES:
                 mes += 1
-                juros_calculado = (saldo * taxa).quantize(Decimal('0.01'))
+                juros_calculado = (saldo * taxa).quantize(CENTAVO, rounding=ROUND_HALF_UP)
                 if mes == 1 and pagamento <= juros_calculado:
                     pagamento_nao_cobre_juros = True
                 juros_do_mes = min(juros_calculado, teto_juros - total_juros)
@@ -115,7 +120,7 @@ class DividaCartaoView(FormView):
                 total_juros += juros_do_mes
                 total_pago += pagamento_efetivo
 
-                saldo_arredondado = saldo.quantize(Decimal('0.01'))
+                saldo_arredondado = saldo.quantize(CENTAVO, rounding=ROUND_HALF_UP)
                 linhas.append({
                     'mes': mes,
                     'juros_do_mes': juros_do_mes,
@@ -130,12 +135,12 @@ class DividaCartaoView(FormView):
                 'linhas': linhas,
                 'pontos_grafico': pontos_grafico,
                 'meses_para_quitar': mes if quitada else None,
-                'total_pago': total_pago.quantize(Decimal('0.01')),
-                'total_juros': total_juros.quantize(Decimal('0.01')),
-                'saldo_final': saldo.quantize(Decimal('0.01')),
+                'total_pago': total_pago.quantize(CENTAVO, rounding=ROUND_HALF_UP),
+                'total_juros': total_juros.quantize(CENTAVO, rounding=ROUND_HALF_UP),
+                'saldo_final': saldo.quantize(CENTAVO, rounding=ROUND_HALF_UP),
                 'quitada': quitada,
                 'pagamento_nao_cobre_juros': pagamento_nao_cobre_juros,
-                'teto_juros': teto_juros.quantize(Decimal('0.01')),
+                'teto_juros': teto_juros.quantize(CENTAVO, rounding=ROUND_HALF_UP),
                 'mes_teto': mes_teto,
             }
 
@@ -175,32 +180,32 @@ class MetaFinanceiraView(FormView):
         meta_ja_atingida = aporte_necessario <= 0
         # Arredonda para cima: arredondar para o centavo mais próximo deixava o
         # saldo final alguns centavos abaixo da meta em boa parte dos casos.
-        aporte_projecao = max(aporte_necessario, Decimal('0')).quantize(Decimal('0.01'), rounding=ROUND_UP)
+        aporte_projecao = max(aporte_necessario, Decimal('0')).quantize(CENTAVO, rounding=ROUND_UP)
 
         saldo = valor_inicial
         linhas = []
-        pontos_grafico = [{'mes': 0, 'saldo': float(saldo.quantize(Decimal('0.01')))}]
+        pontos_grafico = [{'mes': 0, 'saldo': float(saldo.quantize(CENTAVO, rounding=ROUND_HALF_UP))}]
         for mes in range(1, meses + 1):
             saldo += aporte_projecao
             juros_do_mes = saldo * taxa
             saldo += juros_do_mes
-            saldo_arredondado = saldo.quantize(Decimal('0.01'))
+            saldo_arredondado = saldo.quantize(CENTAVO, rounding=ROUND_HALF_UP)
             linhas.append({
                 'mes': mes,
-                'juros_do_mes': juros_do_mes.quantize(Decimal('0.01')),
+                'juros_do_mes': juros_do_mes.quantize(CENTAVO, rounding=ROUND_HALF_UP),
                 'saldo': saldo_arredondado,
             })
             pontos_grafico.append({'mes': mes, 'saldo': float(saldo_arredondado)})
 
-        total_aportado = (aporte_projecao * meses).quantize(Decimal('0.01'))
-        total_juros_projetado = (saldo - valor_inicial - total_aportado).quantize(Decimal('0.01'))
+        total_aportado = (aporte_projecao * meses).quantize(CENTAVO, rounding=ROUND_HALF_UP)
+        total_juros_projetado = (saldo - valor_inicial - total_aportado).quantize(CENTAVO, rounding=ROUND_HALF_UP)
 
         return {
             'linhas': linhas,
             'pontos_grafico': pontos_grafico,
             'aporte_necessario': aporte_projecao,
             'meta_ja_atingida': meta_ja_atingida,
-            'saldo_final_projetado': saldo.quantize(Decimal('0.01')),
+            'saldo_final_projetado': saldo.quantize(CENTAVO, rounding=ROUND_HALF_UP),
             'valor_meta': valor_meta,
             'total_aportado': total_aportado,
             'total_juros_projetado': total_juros_projetado,

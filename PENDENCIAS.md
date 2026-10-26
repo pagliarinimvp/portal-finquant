@@ -31,3 +31,13 @@ O bloco de JS/CSS do gráfico SVG se repete nos três templates de `templates/si
 **Sugestão:** https://www.notion.so/405d653a12cb8119bb7eed2476401967 · **Registrado em:** 26/10/2026 · **Origem:** Manual
 
 Fixar `PYTHON_VERSION` no `render.yaml`; `try/catch` no acesso ao `localStorage` do tema (`base.html`); páginas 404 e 500 com a identidade do site; filtro por categoria na lista de artigos. Achado na revisão completa de 26/10/2026.
+
+## Recuperação de senha por e-mail
+**Sugestão:** https://www.notion.so/405d653a12cb8199b61fe43fcf85fab7 · **Registrado em:** 26/10/2026 · **Origem:** Manual
+
+O cadastro pede e-mail desde 26/10/2026, mas não há tela de "esqueci a senha": produção usa o backend de e-mail do console (`MAILERS` em `config/settings.py`). Configurar um SMTP (credenciais no painel do Render) e ligar as views de reset de senha do Django.
+
+## Apagar o Postgres antigo do Render
+**Sugestão:** https://www.notion.so/405d653a12cb81e4809dcf0eab305c3e · **Registrado em:** 26/10/2026 · **Origem:** Manual
+
+O banco `portal-finquant-db` do Render está sem uso desde a migração para o Neon (28/08/2026) e saiu do `render.yaml` em 26/10/2026. Apagar pelo painel do Render depois de confirmar que a `DATABASE_URL` do serviço aponta para o Neon.

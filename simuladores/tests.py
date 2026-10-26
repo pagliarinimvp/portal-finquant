@@ -185,3 +185,28 @@ class MetaFinanceiraCalculoTests(TestCase):
                     'periodo_meses': meses,
                 })
                 self.assertGreaterEqual(resultado['saldo_final_projetado'], valor_meta)
+
+
+class ArredondamentoComercialTests(TestCase):
+    # R$ 12,50 a 1% dá R$ 0,125 de juros: meio centavo exato. O arredondamento
+    # comercial (ROUND_HALF_UP) sobe para 0,13; o padrão do Decimal daria 0,12.
+    def test_juros_compostos_arredonda_meio_centavo_para_cima(self):
+        resultado = JurosCompostosView._calcular({
+            'valor_inicial': Decimal('12.50'),
+            'aporte_mensal': Decimal('0'),
+            'taxa_mensal': Decimal('1'),
+            'periodo_meses': 1,
+        })
+
+        self.assertEqual(resultado['linhas'][0]['juros_do_mes'], Decimal('0.13'))
+        self.assertEqual(resultado['saldo_final'], Decimal('12.63'))
+
+    def test_divida_arredonda_meio_centavo_para_cima(self):
+        resultado = DividaCartaoView._calcular({
+            'saldo_devedor': Decimal('12.50'),
+            'taxa_mensal': Decimal('1'),
+            'pagamento_mensal': Decimal('100'),
+        })
+
+        self.assertEqual(resultado['total_juros'], Decimal('0.13'))
+        self.assertEqual(resultado['total_pago'], Decimal('12.63'))
