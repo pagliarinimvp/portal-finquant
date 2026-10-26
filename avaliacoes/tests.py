@@ -1,7 +1,8 @@
-from django.contrib.auth.models import User
-from django.test import TestCase
+from django.contrib.auth.models import AnonymousUser, User
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
+from .context_processors import modal_avaliacao
 from .models import Avaliacao
 
 
@@ -41,3 +42,10 @@ class ModalAvaliacaoContextProcessorTests(TestCase):
 
         resposta = self.client.get(reverse('avaliacoes:obrigado'))
         self.assertFalse(resposta.context['mostrar_modal_avaliacao'])
+
+    def test_url_inexistente_nao_quebra_o_context_processor(self):
+        # Sem rota resolvida (página 404), resolve() lançava Resolver404.
+        requisicao = RequestFactory().get('/pagina-que-nao-existe/')
+        requisicao.user = AnonymousUser()
+
+        self.assertEqual(modal_avaliacao(requisicao), {'mostrar_modal_avaliacao': True})

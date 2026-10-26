@@ -8,6 +8,7 @@ Para a lista completa de configurações e seus valores, veja
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import sys
 from pathlib import Path
 
 import environ
@@ -40,6 +41,14 @@ CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
 # URLs de callback do OAuth como http://, que Google/GitHub rejeitam.
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # Endurecimento para produção (avisos do `manage.py check --deploy`):
+    # força HTTPS e só envia os cookies de sessão/CSRF por conexão segura.
+    # HSTS começa curto (1 hora); suba para 1 ano (31536000) depois de
+    # confirmar que o site funciona inteiro em HTTPS.
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=3600)
 
 
 # Definição da aplicação
@@ -105,8 +114,13 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Usa SQLite localmente por padrão; em produção, define DATABASE_URL
 # (ex: postgres://usuario:senha@host:porta/nome_do_banco) no .env do Render.
 
+# Os testes rodam sempre no SQLite, mesmo com DATABASE_URL apontando para o
+# Neon no .env: criar o banco de teste pela conexão pooler do Neon deixa um
+# "test_neondb" preso ("being accessed by other users") e trava a suíte.
+TESTANDO = sys.argv[1:2] == ['test']
+
 DATABASE_URL = env('DATABASE_URL', default='')
-if DATABASE_URL:
+if DATABASE_URL and not TESTANDO:
     DATABASES = {'default': env.db_url_config(DATABASE_URL)}
 else:
     DATABASES = {

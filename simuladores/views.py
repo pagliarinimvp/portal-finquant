@@ -1,4 +1,4 @@
-from decimal import Decimal, localcontext
+from decimal import ROUND_UP, Decimal, localcontext
 
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
@@ -163,7 +163,9 @@ class MetaFinanceiraView(FormView):
             aporte_necessario = (valor_meta - valor_inicial * fator) / fator_anuidade
 
         meta_ja_atingida = aporte_necessario <= 0
-        aporte_projecao = max(aporte_necessario, Decimal('0')).quantize(Decimal('0.01'))
+        # Arredonda para cima: arredondar para o centavo mais próximo deixava o
+        # saldo final alguns centavos abaixo da meta em boa parte dos casos.
+        aporte_projecao = max(aporte_necessario, Decimal('0')).quantize(Decimal('0.01'), rounding=ROUND_UP)
 
         saldo = valor_inicial
         linhas = []

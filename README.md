@@ -63,8 +63,10 @@ static/         # CSS
 
 O repositório já tem um `render.yaml`. No dashboard do Render: **New +** →
 **Blueprint** → conecte este repositório no GitHub. O Render cria o Web
-Service e o banco PostgreSQL automaticamente, já com `SECRET_KEY` gerada e
-`DATABASE_URL` ligada ao banco. Se for usar login social, preencha
+Service já com `SECRET_KEY` gerada. O banco PostgreSQL fica no
+[Neon](https://neon.tech) (o Postgres free do Render é apagado após 30 dias):
+crie um projeto no Neon e cole a connection string da branch `main` em
+`DATABASE_URL` no formulário do Blueprint. Se for usar login social, preencha
 `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET`
 no formulário do Blueprint (pode deixar em branco e configurar depois pelo
 painel do serviço) — veja o passo a passo das credenciais em
@@ -76,9 +78,9 @@ depois que a URL final do serviço existir.
 
 1. Suba o repositório no GitHub.
 2. Crie um "Web Service" no Render apontando para o repositório.
-3. Build command: `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py bootstrap_admin` (o plano free do Render não suporta pre-deploy command, então migrate e bootstrap_admin ficam no build mesmo)
+3. Build command: `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py bootstrap_admin && python manage.py bootstrap_site` (o plano free do Render não suporta pre-deploy command, então migrate e os bootstraps ficam no build mesmo)
 4. Start command: `gunicorn config.wsgi`
-5. Provisione um banco PostgreSQL gerenciado gratuito no Render e copie a `DATABASE_URL` gerada.
+5. Crie um projeto PostgreSQL no Neon e copie a connection string da branch `main` para usar como `DATABASE_URL`.
 6. Configure as variáveis de ambiente no painel do Render: `SECRET_KEY`, `DEBUG=False`, `ALLOWED_HOSTS` (com o domínio `.onrender.com`), `CSRF_TRUSTED_ORIGINS` (com `https://` + o mesmo domínio), `DATABASE_URL`, `DJANGO_SUPERUSER_USERNAME`/`DJANGO_SUPERUSER_EMAIL`/`DJANGO_SUPERUSER_PASSWORD` (cria o admin no primeiro deploy — veja `contas/management/commands/bootstrap_admin.py`) e, se for usar login social, `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET` (veja o passo a passo em `docs/superpowers/specs/2026-08-17-login-social-design.md`, que inclui as URLs de callback de produção a cadastrar no Google e GitHub).
 
 ## Próximos passos (fase 2)

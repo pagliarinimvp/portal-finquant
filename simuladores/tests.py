@@ -110,3 +110,22 @@ class MetaFinanceiraCalculoTests(TestCase):
 
         diferenca = abs(projecao['saldo_final'] - Decimal('1000'))
         self.assertLessEqual(diferenca, Decimal('0.05'))
+
+    def test_saldo_final_nunca_fica_abaixo_da_meta(self):
+        # Com arredondamento para o centavo mais próximo, estes casos
+        # terminavam centavos abaixo da meta; o aporte agora sobe para cima.
+        casos = [
+            (Decimal('0'), Decimal('1000'), Decimal('1'), 12),
+            (Decimal('1234'), Decimal('98765'), Decimal('0.87'), 137),
+            (Decimal('500'), Decimal('3333'), Decimal('2.5'), 7),
+            (Decimal('0'), Decimal('1000'), Decimal('0'), 3),
+        ]
+        for valor_inicial, valor_meta, taxa, meses in casos:
+            with self.subTest(meta=valor_meta, taxa=taxa, meses=meses):
+                resultado = MetaFinanceiraView._calcular({
+                    'valor_inicial': valor_inicial,
+                    'valor_meta': valor_meta,
+                    'taxa_mensal': taxa,
+                    'periodo_meses': meses,
+                })
+                self.assertGreaterEqual(resultado['saldo_final_projetado'], valor_meta)

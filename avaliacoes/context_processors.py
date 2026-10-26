@@ -1,5 +1,3 @@
-from django.urls import resolve
-
 from .models import Avaliacao
 
 
@@ -11,7 +9,10 @@ def modal_avaliacao(request):
     A supressão por sessão de navegador (dispensar/enviar) é feita no JS via
     sessionStorage, não aqui.
     """
-    if resolve(request.path_info).app_name == 'avaliacoes':
+    # resolver_match em vez de resolve(): fica None numa URL inexistente,
+    # enquanto resolve() lançaria Resolver404 ao renderizar uma página 404.
+    rota = getattr(request, 'resolver_match', None)
+    if rota is not None and rota.app_name == 'avaliacoes':
         return {'mostrar_modal_avaliacao': False}
 
     if request.user.is_authenticated:

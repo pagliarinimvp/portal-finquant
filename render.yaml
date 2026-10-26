@@ -1,12 +1,10 @@
 # Blueprint do Render para o Portal FinQuant.
 # Uso: no dashboard do Render, "New +" -> "Blueprint" -> conecte este
-# repositório. O Render lê este arquivo e cria o Web Service e o banco
-# Postgres automaticamente. Veja o README ("Deploy (Render.com)") para o
-# passo a passo completo, incluindo o login social.
-
-databases:
-  - name: portal-finquant-db
-    plan: free
+# repositório. O Render lê este arquivo e cria o Web Service. O banco
+# Postgres fica no Neon desde 28/08/2026 (o Postgres free do Render é apagado
+# após 30 dias): a DATABASE_URL é preenchida à mão, nunca gerada aqui. Veja o
+# README ("Deploy (Render.com)") para o passo a passo completo, incluindo o
+# login social.
 
 services:
   - type: web
@@ -33,10 +31,11 @@ services:
       # apontam para o "example.com" padrão do Django.
       - key: SITE_DOMAIN
         value: 'portal-finquant.onrender.com'
+      # Connection string da branch `main` do Neon, preenchida no painel do
+      # Render. Nunca use `fromDatabase` aqui: o Blueprint Sync trocaria a
+      # produção para um banco do Render vazio.
       - key: DATABASE_URL
-        fromDatabase:
-          name: portal-finquant-db
-          property: connectionString
+        sync: false
       # Superusuário de admin, criado pelo bootstrap_admin no build
       # (veja contas/management/commands/bootstrap_admin.py). Preencha uma
       # vez no formulário do Render; ele nunca sobrescreve a senha depois
