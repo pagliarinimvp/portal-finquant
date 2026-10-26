@@ -19,8 +19,15 @@
                 <div class="mb-3">
                     <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {{ field.errors }}
-                    <input type="{% if 'password' in field.name %}password{% else %}text{% endif %}"
-                           name="{{ field.html_name }}" class="form-control" id="{{ field.id_for_label }}">
+                    {% if 'password' in field.name %}
+                    <input type="password" name="{{ field.html_name }}" class="form-control" id="{{ field.id_for_label }}" autocomplete="new-password">
+                    {% else %}
+                    {# value: depois de um erro, o usuário não precisa redigitar o que já estava certo #}
+                    <input type="{% if field.name == 'email' %}email{% else %}text{% endif %}"
+                           name="{{ field.html_name }}" class="form-control" id="{{ field.id_for_label }}"
+                           value="{{ field.value|default_if_none:'' }}"
+                           autocomplete="{% if field.name == 'email' %}email{% else %}username{% endif %}">
+                    {% endif %}
                     {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
                 </div>
                 {% endfor %}

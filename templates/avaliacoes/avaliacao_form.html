@@ -70,6 +70,20 @@
                     <label class="form-label" for="{{ form.comentario.id_for_label }}">{{ form.comentario.label }}</label>
                     {{ form.comentario }}
                 </div>
+                <div class="fq-pergunta">
+                    <h2 class="h6">Aviso de privacidade</h2>
+                    <ul class="small text-muted ps-3 mb-3">
+                        <li><strong>O que guardamos:</strong> as respostas deste formulário e, se você estiver logado, o vínculo com a sua conta. Não pedimos nome, CPF nem e-mail aqui.</li>
+                        <li><strong>Para quê:</strong> só para a análise deste Trabalho de Conclusão de Curso (ADS, UNISINOS). Os resultados são apresentados em conjunto, em médias e percentuais, nunca de forma individual.</li>
+                        <li><strong>Base legal:</strong> o seu consentimento (LGPD, Lei 13.709/2018, art. 7º, I). A participação é voluntária e você pode deixar de responder.</li>
+                        <li><strong>Seus direitos:</strong> você pode pedir a exclusão das suas respostas a qualquer momento{% if contato_email %}, pelo e-mail <a href="mailto:{{ contato_email }}">{{ contato_email }}</a>{% endif %}.</li>
+                    </ul>
+                    <div class="form-check">
+                        {{ form.consentimento }}
+                        <label class="form-check-label" for="{{ form.consentimento.id_for_label }}">{{ form.consentimento.label }}</label>
+                    </div>
+                    {% if form.consentimento.errors %}<div class="text-danger small">{{ form.consentimento.errors }}</div>{% endif %}
+                </div>
                 <button type="submit" class="btn btn-primary w-100">Enviar avaliação</button>
             </form>
         </div>

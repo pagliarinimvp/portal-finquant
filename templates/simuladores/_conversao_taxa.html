@@ -1,0 +1,9 @@
+{% comment %}Trecho do painel "Como calculamos isso?" comum a todos os simuladores.{% endcomment %}
+<p>
+    Se você informar a taxa <strong>ao ano</strong>, ela é convertida na taxa mensal equivalente pela regra dos
+    juros compostos (dividir por 12 daria uma taxa maior que a real):
+</p>
+<p class="fq-numeros mb-3">
+    taxa mensal = (1 + taxa anual)<sup>1/12</sup> − 1<br>
+    exemplo: 12,68% ao ano &rarr; (1,1268)<sup>1/12</sup> − 1 &asymp; 1,00% ao mês
+</p>

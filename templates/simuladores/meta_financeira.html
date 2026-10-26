@@ -41,6 +41,7 @@
         {% else %}
         <div class="card p-4 mb-3">
             <h2 class="h5">Resultado</h2>
+            {% include "simuladores/_premissas.html" with nota="Com inflação, a mesma meta vale menos no fim do prazo." %}
             <ul class="list-unstyled mb-0 fq-numeros">
                 <li><strong>Aporte mensal necessário:</strong> R$ {{ resultado.aporte_necessario }}</li>
                 <li><strong>Total a aportar:</strong> R$ {{ resultado.total_aportado }}</li>
@@ -85,6 +86,7 @@
                     se taxa = 0: aporte = (meta − valor inicial) / meses<br>
                     se taxa &ne; 0: aporte = (meta − valor inicial × fator) / [((fator − 1) / taxa) × (1 + taxa)]
                 </p>
+                {% include "simuladores/_conversao_taxa.html" %}
                 <p>Dois exemplos para conferência manual:</p>
                 <ul>
                     <li>

@@ -2,7 +2,38 @@ from decimal import Decimal
 
 from django.test import TestCase
 
+from .forms import JurosCompostosForm, taxa_anual_para_mensal
 from .views import DividaCartaoView, JurosCompostosView, MetaFinanceiraView
+
+
+class ConversaoTaxaTests(TestCase):
+    def test_exemplo_do_painel_12_68_ao_ano_e_1_ao_mes(self):
+        self.assertAlmostEqual(taxa_anual_para_mensal(Decimal('12.68')), Decimal('1'), places=3)
+
+    def test_taxa_zero_continua_zero(self):
+        self.assertEqual(taxa_anual_para_mensal(Decimal('0')), Decimal('0'))
+
+    def test_form_converte_taxa_anual_e_mantem_a_mensal(self):
+        base = {'valor_inicial': '1000', 'aporte_mensal': '0', 'taxa_mensal': '12.68', 'periodo_meses': '12'}
+
+        anual = JurosCompostosForm({**base, 'periodo_taxa': 'anual'})
+        mensal = JurosCompostosForm({**base, 'periodo_taxa': 'mensal'})
+
+        self.assertTrue(anual.is_valid())
+        self.assertTrue(mensal.is_valid())
+        self.assertAlmostEqual(anual.cleaned_data['taxa_mensal'], Decimal('1'), places=3)
+        self.assertEqual(mensal.cleaned_data['taxa_mensal'], Decimal('12.68'))
+
+    def test_um_ano_a_taxa_anual_rende_a_propria_taxa(self):
+        form = JurosCompostosForm({
+            'valor_inicial': '1000', 'aporte_mensal': '0', 'taxa_mensal': '10',
+            'periodo_taxa': 'anual', 'periodo_meses': '12',
+        })
+        self.assertTrue(form.is_valid())
+
+        resultado = JurosCompostosView._calcular(form.cleaned_data)
+
+        self.assertEqual(resultado['saldo_final'], Decimal('1100.00'))
 
 
 class JurosCompostosCalculoTests(TestCase):
@@ -28,25 +59,50 @@ class DividaCartaoCalculoTests(TestCase):
         })
 
         self.assertTrue(resultado['quitada'])
-        self.assertFalse(resultado['nunca_quita'])
+        self.assertFalse(resultado['pagamento_nao_cobre_juros'])
         self.assertEqual(resultado['meses_para_quitar'], 4)
         self.assertEqual(len(resultado['linhas']), 4)
         self.assertEqual(resultado['total_pago'], Decimal('1106.96'))
         self.assertEqual(resultado['total_juros'], Decimal('106.96'))
         self.assertEqual(resultado['saldo_final'], Decimal('0.00'))
 
-    def test_pagamento_nao_cobre_juros_nunca_quita(self):
+    def test_pagamento_nao_cobre_juros_para_no_teto_da_lei(self):
+        # Lei 14.690/2023: os juros somados param em 100% do valor original,
+        # então a dívida de R$ 1.000 custa no máximo R$ 2.000 e acaba quitada.
         resultado = DividaCartaoView._calcular({
             'saldo_devedor': Decimal('1000'),
             'taxa_mensal': Decimal('10'),
             'pagamento_mensal': Decimal('90'),
         })
 
-        self.assertTrue(resultado['nunca_quita'])
+        self.assertTrue(resultado['pagamento_nao_cobre_juros'])
+        self.assertTrue(resultado['quitada'])
+        self.assertEqual(resultado['total_juros'], Decimal('1000.00'))
+        self.assertEqual(resultado['total_pago'], Decimal('2000.00'))
+        self.assertEqual(resultado['mes_teto'], 10)
+        self.assertEqual(resultado['meses_para_quitar'], 23)
+
+    def test_juros_abaixo_do_teto_nao_marcam_mes_teto(self):
+        resultado = DividaCartaoView._calcular({
+            'saldo_devedor': Decimal('1000'),
+            'taxa_mensal': Decimal('5'),
+            'pagamento_mensal': Decimal('350'),
+        })
+
+        self.assertIsNone(resultado['mes_teto'])
+        self.assertFalse(resultado['pagamento_nao_cobre_juros'])
+
+    def test_pagamento_minusculo_nao_quita_em_50_anos(self):
+        resultado = DividaCartaoView._calcular({
+            'saldo_devedor': Decimal('10000'),
+            'taxa_mensal': Decimal('10'),
+            'pagamento_mensal': Decimal('1'),
+        })
+
         self.assertFalse(resultado['quitada'])
         self.assertIsNone(resultado['meses_para_quitar'])
         self.assertEqual(len(resultado['linhas']), 600)
-        self.assertGreater(resultado['saldo_final'], Decimal('1000'))
+        self.assertEqual(resultado['total_juros'], Decimal('10000.00'))
 
     def test_quita_no_primeiro_mes_sem_saldo_negativo(self):
         resultado = DividaCartaoView._calcular({

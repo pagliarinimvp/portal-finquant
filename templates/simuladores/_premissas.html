@@ -1,0 +1,12 @@
+{% comment %}
+Nota de premissas mostrada no card de resultado de todo simulador.
+Uso: {% include "simuladores/_premissas.html" with nota="..." %}
+Quando a taxa foi informada ao ano, mostra também a taxa mensal equivalente
+usada no cálculo (a conversão é feita em TaxaComPeriodoMixin, simuladores/forms.py).
+{% endcomment %}
+<p class="small text-muted mb-3">
+    {% if form.cleaned_data.periodo_taxa == 'anual' %}
+    Taxa mensal equivalente usada no cálculo: <span class="fq-numeros">{{ form.cleaned_data.taxa_mensal|floatformat:4 }}% ao mês</span>.
+    {% endif %}
+    Valores nominais, sem descontar inflação nem Imposto de Renda. {{ nota }}
+</p>

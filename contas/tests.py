@@ -109,3 +109,48 @@ class MinhaContaViewTests(TestCase):
 
         self.assertContains(response, 'ainda não avaliou o site')
         self.assertContains(response, reverse('avaliacoes:avaliar'))
+
+
+class CadastroTests(TestCase):
+    DADOS_VALIDOS = {
+        'username': 'marina',
+        'email': 'Marina@Exemplo.com',
+        'password1': 'uma-senha-bem-forte-42',
+        'password2': 'uma-senha-bem-forte-42',
+    }
+
+    def test_cadastro_salva_email_e_loga(self):
+        response = self.client.post(reverse('contas:cadastro'), self.DADOS_VALIDOS)
+
+        self.assertRedirects(response, reverse('core:home'))
+        usuario = User.objects.get(username='marina')
+        self.assertEqual(usuario.email, 'marina@exemplo.com')
+        self.assertEqual(int(self.client.session['_auth_user_id']), usuario.pk)
+
+    def test_cadastro_exige_email(self):
+        dados = {**self.DADOS_VALIDOS, 'email': ''}
+        response = self.client.post(reverse('contas:cadastro'), dados)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username='marina').exists())
+
+    def test_cadastro_recusa_email_ja_usado(self):
+        User.objects.create_user(username='outra', email='marina@exemplo.com', password='x')
+        response = self.client.post(reverse('contas:cadastro'), self.DADOS_VALIDOS)
+
+        self.assertContains(response, 'Já existe uma conta com este e-mail.')
+
+    def test_erro_no_cadastro_mantem_o_que_foi_digitado(self):
+        dados = {**self.DADOS_VALIDOS, 'password2': 'diferente'}
+        response = self.client.post(reverse('contas:cadastro'), dados)
+
+        self.assertContains(response, 'value="marina"')
+        self.assertContains(response, 'value="Marina@Exemplo.com"')
+
+
+class LoginTests(TestCase):
+    def test_erro_no_login_mantem_o_usuario_digitado(self):
+        response = self.client.post(reverse('contas:login'), {'username': 'ninguem', 'password': 'errada'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'value="ninguem"')

@@ -55,6 +55,9 @@ class Avaliacao(models.Model):
     conteudo_ajudou = models.IntegerField(choices=ConteudoAjudou.choices)
     faixa_renda_familiar = models.CharField(max_length=13, choices=FaixaRendaFamiliar.choices)
     comentario = models.TextField(blank=True, help_text='Opcional: conte o que podemos melhorar.')
+    # Registro do consentimento (LGPD, art. 7º, I): o formulário só é aceito
+    # com a caixa marcada, e o valor fica salvo como prova junto da resposta.
+    consentimento = models.BooleanField('Consentiu em participar da pesquisa', default=False)
     criado_em = models.DateTimeField(auto_now_add=True)
 
     class Meta:

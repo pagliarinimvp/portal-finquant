@@ -29,26 +29,34 @@
 
     <div class="col-md-7">
         {% if resultado %}
-        {% if resultado.nunca_quita %}
+        {% if resultado.pagamento_nao_cobre_juros %}
         <div class="card p-4 mb-3 border-danger">
-            <h2 class="h5 text-danger-emphasis">Atenção: essa dívida não vai ser quitada</h2>
+            <h2 class="h5 text-danger-emphasis">Atenção: seu pagamento não cobre os juros do mês</h2>
             <p class="mb-0">
-                Com esse valor de pagamento, você está cobrindo só os juros do mês (ou menos) — o saldo devedor
-                não diminui e pode continuar crescendo indefinidamente. A simulação abaixo foi projetada por
-                {{ resultado.linhas|length }} meses só para deixar essa tendência visível no gráfico. Aumente o
-                valor do pagamento mensal para conseguir quitar a dívida.
+                Com esse valor, a dívida cresce em vez de diminuir. Antes da Lei 14.690/2023 ela cresceria para
+                sempre; hoje, os juros param quando somam 100% do valor original
+                (R$ {{ resultado.teto_juros }}){% if resultado.mes_teto %}, o que acontece no mês {{ resultado.mes_teto }}{% endif %}.
+                Mesmo assim, você termina pagando o dobro do que devia. Aumente o pagamento mensal ou procure
+                o parcelamento da fatura, que costuma ter juros menores.
             </p>
         </div>
-        {% else %}
+        {% endif %}
         <div class="card p-4 mb-3">
             <h2 class="h5">Resultado</h2>
+            {% include "simuladores/_premissas.html" with nota="Não inclui IOF nem outros encargos da fatura." %}
             <ul class="list-unstyled mb-0 fq-numeros">
+                {% if resultado.quitada %}
                 <li><strong>Meses até quitar:</strong> {{ resultado.meses_para_quitar }}</li>
+                {% else %}
+                <li><strong>Meses até quitar:</strong> mais de {{ resultado.linhas|length }} (50 anos)</li>
+                {% endif %}
                 <li><strong>Total pago:</strong> R$ {{ resultado.total_pago }}</li>
                 <li><strong>Total em juros:</strong> R$ {{ resultado.total_juros }}</li>
+                {% if resultado.mes_teto %}
+                <li><strong>Teto de juros atingido no mês:</strong> {{ resultado.mes_teto }}</li>
+                {% endif %}
             </ul>
         </div>
-        {% endif %}
         <figure class="card p-4 mb-3 grafico-evolucao">
             <figcaption class="h6 text-secondary-emphasis mb-3">Evolução do saldo devedor mês a mês</figcaption>
             {{ resultado.pontos_grafico|json_script:"pontos-grafico" }}
@@ -83,6 +91,7 @@
                     valor pago é abatido do saldo resultante.
                 </p>
                 <p class="fq-numeros mb-3">saldo(mês) = saldo(mês anterior) × (1 + taxa) − pagamento</p>
+                {% include "simuladores/_conversao_taxa.html" %}
                 <p>Exemplo para conferência manual (saldo de R$ 1.000,00, taxa de 5% ao mês, pagamento de R$ 350,00):</p>
                 <div class="table-responsive fq-numeros">
                     <table class="table table-sm tabela-divida-exemplo">
@@ -97,10 +106,25 @@
                         </tbody>
                     </table>
                 </div>
-                <p class="text-muted mb-0">
+                <p class="text-muted">
                     A dívida é quitada em 4 meses, com R$ 1.106,96 pagos no total (R$ 106,96 em juros). Você pode
                     conferir: o total pago menos o total de juros bate com o saldo devedor original (R$ 1.000,00).
                 </p>
+                <p class="mb-2"><strong>O que a lei limita.</strong></p>
+                <ul class="mb-0">
+                    <li>
+                        <strong>Teto de juros (Lei 14.690/2023, desde 03/01/2024):</strong> os juros e encargos do
+                        rotativo, somados, não podem passar de 100% do valor original da dívida. A simulação aplica
+                        esse teto: quando o total de juros chega ao valor original, os juros param e cada pagamento
+                        só abate o saldo. Por isso, a dívida no máximo dobra.
+                    </li>
+                    <li>
+                        <strong>Limite de cerca de 30 dias no rotativo (Resolução CMN 4.549/2017):</strong> o saldo só
+                        pode ficar no rotativo até o vencimento da fatura seguinte. Depois disso, o banco precisa
+                        oferecer um parcelamento, em geral com juros menores. Aqui a taxa do rotativo é mantida o
+                        tempo todo para mostrar o pior caso.
+                    </li>
+                </ul>
             </div>
         </details>
         {% else %}

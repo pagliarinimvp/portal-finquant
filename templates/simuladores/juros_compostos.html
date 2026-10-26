@@ -31,6 +31,7 @@
         {% if resultado %}
         <div class="card p-4 mb-3">
             <h2 class="h5">Resultado</h2>
+            {% include "simuladores/_premissas.html" with nota="Na prática, o rendimento real fica abaixo deste valor." %}
             <ul class="list-unstyled mb-0 fq-numeros">
                 <li><strong>Valor final:</strong> R$ {{ resultado.saldo_final }}</li>
                 <li><strong>Total investido (aportes):</strong> R$ {{ resultado.total_aportado }}</li>
@@ -69,6 +70,7 @@
                     com o aporte somado — por isso um aporte feito hoje já rende no próprio mês.
                 </p>
                 <p class="fq-numeros mb-3">saldo(mês) = (saldo(mês anterior) + aporte) × (1 + taxa)</p>
+                {% include "simuladores/_conversao_taxa.html" %}
                 <p>Exemplo para conferência manual (valor inicial R$ 1.000,00, aporte de R$ 100,00/mês, taxa de 1% ao mês):</p>
                 <div class="table-responsive fq-numeros">
                     <table class="table table-sm">

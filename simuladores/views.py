@@ -72,35 +72,43 @@ class DividaCartaoView(FormView):
         """Simula a evolução mês a mês do saldo devedor do rotativo do cartão.
 
         Juros incidem sobre o saldo do início do mês e o pagamento é abatido
-        em seguida, replicando como uma fatura de cartão funciona. Se o
-        pagamento não superar os juros do primeiro mês, a dívida nunca é
-        quitada — a simulação roda até um teto de meses para deixar isso
-        visualmente claro no gráfico, em vez de tentar achar um fim que não
-        existe.
+        em seguida, replicando como uma fatura de cartão funciona.
+
+        Aplica o teto da Lei 14.690/2023 (em vigor desde 03/01/2024): os juros
+        e encargos do rotativo somados não podem passar de 100% do valor
+        original da dívida. Quando o total de juros chega a esse teto, os
+        juros param e cada pagamento passa a abater só o saldo — por isso,
+        mesmo um pagamento que não cobre os juros do mês acaba quitando a
+        dívida (o que antes da lei não aconteceria nunca). A simulação ainda
+        para em TETO_MESES para pagamentos muito pequenos.
         """
         saldo = dados['saldo_devedor']
         taxa = dados['taxa_mensal'] / Decimal('100')
         pagamento = dados['pagamento_mensal']
+        teto_juros = dados['saldo_devedor']
 
         linhas = []
         pontos_grafico = [{'mes': 0, 'saldo': float(saldo.quantize(Decimal('0.01')))}]
         total_pago = Decimal('0')
         total_juros = Decimal('0')
-        nunca_quita = False
+        pagamento_nao_cobre_juros = False
+        mes_teto = None
 
-        # Precisão elevada: no caso "nunca quita", o saldo é composto por até
-        # TETO_MESES meses sem nunca diminuir e pode ultrapassar as ~28 casas
-        # significativas do contexto padrão de Decimal, o que faria o
-        # `quantize` final falhar com InvalidOperation.
+        # Precisão elevada por segurança: com o teto o saldo no máximo dobra,
+        # mas sem ele o saldo composto por TETO_MESES meses estouraria as ~28
+        # casas do contexto padrão de Decimal no `quantize` final.
         with localcontext() as ctx:
             ctx.prec = 60
             mes = 0
             while saldo > Decimal('0.01') and mes < TETO_MESES:
                 mes += 1
-                juros_do_mes = (saldo * taxa).quantize(Decimal('0.01'))
+                juros_calculado = (saldo * taxa).quantize(Decimal('0.01'))
+                if mes == 1 and pagamento <= juros_calculado:
+                    pagamento_nao_cobre_juros = True
+                juros_do_mes = min(juros_calculado, teto_juros - total_juros)
+                if mes_teto is None and juros_calculado > 0 and total_juros + juros_do_mes >= teto_juros:
+                    mes_teto = mes
                 saldo += juros_do_mes
-                if mes == 1 and pagamento <= juros_do_mes:
-                    nunca_quita = True
                 pagamento_efetivo = min(pagamento, saldo)
                 saldo -= pagamento_efetivo
 
@@ -116,7 +124,7 @@ class DividaCartaoView(FormView):
                 })
                 pontos_grafico.append({'mes': mes, 'saldo': float(saldo_arredondado)})
 
-            quitada = saldo <= Decimal('0.01') and not nunca_quita
+            quitada = saldo <= Decimal('0.01')
 
             return {
                 'linhas': linhas,
@@ -126,7 +134,9 @@ class DividaCartaoView(FormView):
                 'total_juros': total_juros.quantize(Decimal('0.01')),
                 'saldo_final': saldo.quantize(Decimal('0.01')),
                 'quitada': quitada,
-                'nunca_quita': nunca_quita,
+                'pagamento_nao_cobre_juros': pagamento_nao_cobre_juros,
+                'teto_juros': teto_juros.quantize(Decimal('0.01')),
+                'mes_teto': mes_teto,
             }
 
 

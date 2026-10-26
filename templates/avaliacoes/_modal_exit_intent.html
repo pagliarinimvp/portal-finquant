@@ -32,16 +32,29 @@
             sessionStorage.setItem(CHAVE_DISPENSADO, '1');
         }
 
-        document.addEventListener('mouseout', function (evento) {
+        function mostrar() {
             if (mostrado || jaDispensado()) {
-                return;
-            }
-            if (evento.clientY > 0 || evento.relatedTarget !== null) {
                 return;
             }
             mostrado = true;
             modal.show();
+        }
+
+        // Computador: abre quando o mouse sai pelo topo da janela (intenção de sair).
+        document.addEventListener('mouseout', function (evento) {
+            if (evento.clientY > 0 || evento.relatedTarget !== null) {
+                return;
+            }
+            mostrar();
         });
+
+        // Celular e tablet não têm mouse, então o gatilho acima nunca dispara.
+        // Neles o aviso abre depois de um tempo na página, mais cedo quando há
+        // um resultado de simulador na tela (o usuário acabou de usar o site).
+        if (window.matchMedia('(hover: none)').matches) {
+            var temResultado = document.getElementById('pontos-grafico') !== null;
+            setTimeout(mostrar, temResultado ? 15000 : 45000);
+        }
 
         modalEl.addEventListener('hidden.bs.modal', marcarDispensado);
         document.getElementById('linkAvaliarModal').addEventListener('click', marcarDispensado);

@@ -236,6 +236,11 @@ STORAGES = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# E-mail de contato mostrado no aviso de privacidade da avaliação, para quem
+# quiser pedir a exclusão das próprias respostas (LGPD). Vazio = não mostra.
+CONTATO_EMAIL = env('CONTATO_EMAIL', default='')
+
+
 # Autenticação — para onde redirecionar após login/logout.
 LOGIN_URL = 'contas:login'
 LOGIN_REDIRECT_URL = 'core:home'

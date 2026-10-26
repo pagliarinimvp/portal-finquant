@@ -54,11 +54,21 @@ class AvaliacaoForm(forms.ModelForm):
         error_messages={'required': 'Selecione sua faixa de renda familiar.'},
     )
 
+    # O BooleanField do model vira um campo opcional no ModelForm; aqui ele é
+    # obrigatório, porque sem o consentimento a resposta não pode ser usada.
+    consentimento = forms.BooleanField(
+        label='Li o aviso de privacidade acima e concordo em participar da pesquisa.',
+        required=True,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        error_messages={'required': 'Para enviar, marque que concorda em participar.'},
+    )
+
     class Meta:
         model = Avaliacao
         fields = [
             'faixa_etaria', 'sexo', 'experiencia_investimentos',
             'conteudo_ajudou', 'faixa_renda_familiar', 'nota', 'comentario',
+            'consentimento',
         ]
         widgets = {
             'comentario': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
