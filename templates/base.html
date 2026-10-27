@@ -9,7 +9,10 @@
         // Aplica o tema salvo (ou a preferência do sistema) antes de a página
         // pintar, para evitar o "flash" de tema errado.
         (function () {
-            var salvo = localStorage.getItem('theme');
+            // O acesso ao localStorage pode falhar (aba anônima, cookies
+            // bloqueados): sem ele, vale a preferência do sistema.
+            var salvo = null;
+            try { salvo = localStorage.getItem('theme'); } catch (e) {}
             var tema = salvo || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             document.documentElement.setAttribute('data-bs-theme', tema);
         })();
@@ -98,7 +101,7 @@
                 var atual = document.documentElement.getAttribute('data-bs-theme');
                 var novo = atual === 'dark' ? 'light' : 'dark';
                 document.documentElement.setAttribute('data-bs-theme', novo);
-                localStorage.setItem('theme', novo);
+                try { localStorage.setItem('theme', novo); } catch (e) {}
                 atualizarIcone();
                 // Remove o foco após o toque para não deixar o botão com
                 // aparência de "pressionado" em telas touch.

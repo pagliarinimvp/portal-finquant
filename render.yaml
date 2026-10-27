@@ -18,6 +18,10 @@ services:
     buildCommand: 'pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py bootstrap_admin && python manage.py bootstrap_site'
     startCommand: 'gunicorn config.wsgi'
     envVars:
+      # Mesma versão do venv local: sem isso, o Render usa a versão padrão
+      # dele, que muda com o tempo e pode quebrar o build sem aviso.
+      - key: PYTHON_VERSION
+        value: '3.12.10'
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG

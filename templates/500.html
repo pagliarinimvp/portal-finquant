@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+{# Página independente de propósito: o Django a renderiza sem request nem #}
+{# context processors, e ela precisa funcionar mesmo se o erro vier do base.html. #}
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Erro no servidor — Portal FinQuant</title>
+    <script>
+        (function () {
+            var salvo = null;
+            try { salvo = localStorage.getItem('theme'); } catch (e) {}
+            var tema = salvo || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-bs-theme', tema);
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'css/site.css' %}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-dark fq-navbar">
+        <div class="container">
+            <a class="navbar-brand fq-marca" href="/">Portal FinQuant</a>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        <div class="row justify-content-center text-center py-5">
+            <div class="col-md-7">
+                <span class="fq-eyebrow">Erro 500</span>
+                <h1 class="h3 mb-2">Algo deu errado do nosso lado</h1>
+                <div class="fq-regua mx-auto"></div>
+                <p class="text-muted">O problema foi no servidor, não no que você fez. Tente de novo em alguns minutos.</p>
+                <a href="/" class="btn btn-primary mt-3">Voltar à página inicial</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -10,6 +10,7 @@ def criar_artigo(slug, status=Artigo.Status.PUBLICADO, **campos):
     return Artigo.objects.create(
         titulo=campos.get('titulo', slug), slug=slug, resumo='Resumo.',
         corpo=campos.get('corpo', '<p>Corpo.</p>'), status=status,
+        categoria=campos.get('categoria', Artigo.Categoria.FUNDAMENTOS),
     )
 
 
@@ -68,3 +69,34 @@ class CorpoSeguroTests(TestCase):
 
         self.assertIn('target="_blank"', limpo)
         self.assertIn('noopener', limpo)
+
+
+class ArtigoFiltroCategoriaTests(TestCase):
+    def setUp(self):
+        self.renda_fixa = criar_artigo('cdb', categoria=Artigo.Categoria.RENDA_FIXA)
+        self.fundamentos = criar_artigo('orcamento', categoria=Artigo.Categoria.FUNDAMENTOS)
+
+    def test_filtra_pela_categoria(self):
+        response = self.client.get(reverse('conteudo:lista'), {'categoria': 'RENDA_FIXA'})
+
+        artigos = list(response.context['artigos'])
+        self.assertIn(self.renda_fixa, artigos)
+        self.assertNotIn(self.fundamentos, artigos)
+        self.assertEqual(response.context['categoria_atual'], 'RENDA_FIXA')
+
+    def test_categoria_desconhecida_mostra_tudo(self):
+        response = self.client.get(reverse('conteudo:lista'), {'categoria': 'INEXISTENTE'})
+
+        artigos = list(response.context['artigos'])
+        self.assertIn(self.renda_fixa, artigos)
+        self.assertIn(self.fundamentos, artigos)
+        self.assertEqual(response.context['categoria_atual'], '')
+
+
+class PaginasDeErroTests(TestCase):
+    def test_404_usa_a_identidade_do_site(self):
+        response = self.client.get('/artigos/nao-existe/')
+
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, '404.html')
+        self.assertContains(response, 'Página não encontrada', status_code=404)

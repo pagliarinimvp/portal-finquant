@@ -27,10 +27,6 @@ Os atalhos `neon` e `neon-postgres` em `.claude/skills/` apontam para `Desktop\P
 
 O bloco de JS/CSS do gráfico SVG se repete nos três templates de `templates/simuladores/` (cerca de 400 linhas cada). Extrair para `static/js/grafico.js` e atualizar o "Padrão dos simuladores" do `CLAUDE.md` junto. Achado na revisão completa de 26/10/2026.
 
-## Ajustes menores
-**Sugestão:** https://www.notion.so/405d653a12cb8119bb7eed2476401967 · **Registrado em:** 26/10/2026 · **Origem:** Manual
-
-Fixar `PYTHON_VERSION` no `render.yaml`; `try/catch` no acesso ao `localStorage` do tema (`base.html`); páginas 404 e 500 com a identidade do site; filtro por categoria na lista de artigos. Achado na revisão completa de 26/10/2026.
 
 ## Recuperação de senha por e-mail
 **Sugestão:** https://www.notion.so/405d653a12cb8199b61fe43fcf85fab7 · **Registrado em:** 26/10/2026 · **Origem:** Manual
