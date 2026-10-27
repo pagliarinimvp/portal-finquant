@@ -7,10 +7,14 @@ Melhorias e correções previstas. Cada item tem uma linha no banco 💡 Sugest�
 
 Do `README.md` ("Próximos passos (fase 2)"): App `estudo_caso`: comparação de uma estratégia ativa de compra de ações brasileiras (análise técnica + fundamentalista) com renda fixa e investimento passivo, usando pandas/numpy/yfinance.
 
+**Base (27/10/2026):** o app vai ser construído a partir do projeto `Script Analise Quantitativa` (pasta irmã, em `Desktop\Projeto Final ADS\`). A análise sai desse script e é levada para o portal; não se começa do zero.
+
 ## Exportar as avaliações para a análise de qualidade
 **Sugestão:** https://www.notion.so/3fdd653a12cb8127af26d5cfba4f775b · **Registrado em:** 18/10/2026 · **Origem:** Planejada
 
 Do `README.md` ("Próximos passos (fase 2)"): Exportação dos dados de `avaliacoes` (via `pandas`) para a análise de qualidade do projeto na entrega final do TCC.
+
+**Sequência (27/10/2026):** as avaliações ainda não foram abertas ao público, então não há dados para exportar. Ordem: (1) terminar o portal, incluindo o `estudo_caso`; (2) enviar o portal para as pessoas avaliarem; (3) só depois exportar e analisar os dados de `avaliacoes`.
 
 
 ## Gráfico dos simuladores num arquivo só
