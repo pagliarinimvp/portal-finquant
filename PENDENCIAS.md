@@ -29,8 +29,3 @@ O cadastro pede e-mail desde 26/10/2026, mas não há tela de "esqueci a senha":
 O Render gratuito desliga o serviço depois de 15 minutos sem acesso, e a primeira visita depois disso leva cerca de 1 minuto. Solução escolhida: criar uma rota leve `/saude/` que responde "ok" **sem consultar o banco** (se o ping lesse o banco, o Neon ficaria ligado o mês inteiro, cerca de 186 horas de computação, acima das ~100 do plano gratuito) e cadastrar um monitor externo gratuito (UptimeRobot ou cron-job.org) que acessa a rota a cada 10 minutos. É tudo determinístico, sem IA. O plano gratuito do Render (750 h/mês) cobre o serviço ligado 24 h. Se o portal continuar no ar depois do TCC, reavaliar o plano pago do Render (Starter, cerca de US$ 7/mês).
 
 **Rota pronta (27/10/2026):** `/saude/` responde "ok" sem consultar o banco (há teste garantindo zero consultas). Falta: depois do deploy, cadastrar o monitor externo apontando para `https://portal-finquant.onrender.com/saude/` a cada 10 minutos.
-
-## Apagar o Postgres antigo do Render
-**Sugestão:** https://www.notion.so/405d653a12cb81e4809dcf0eab305c3e · **Registrado em:** 26/10/2026 · **Origem:** Manual
-
-O banco `portal-finquant-db` do Render está sem uso desde a migração para o Neon (28/08/2026) e saiu do `render.yaml` em 26/10/2026. Apagar pelo painel do Render depois de confirmar que a `DATABASE_URL` do serviço aponta para o Neon.
