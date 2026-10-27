@@ -17,10 +17,6 @@ Do `README.md` ("Próximos passos (fase 2)"): Exportação dos dados de `avaliac
 
 Os atalhos `neon` e `neon-postgres` em `.claude/skills/` apontam para `Desktop\Projeto - Portal FinQuant\.agents/skills/`, pasta que não existe mais (o projeto mudou para `Projeto Final ADS\Portal FinQuant`). Achado na revisão do plano de organização por temas (18/10/2026). Tratar no inventário de caminhos de 19 a 24/10/2026: achar onde está hoje `.agents/skills/neon` e refazer os dois atalhos, ou removê-los se o plugin neon global já cobrir.
 
-## Data de publicação real dos artigos
-**Sugestão:** https://www.notion.so/405d653a12cb81db81f0c4ff6c124b5f · **Registrado em:** 26/10/2026 · **Origem:** Manual
-
-`Artigo.publicado_em` usa `auto_now_add` e guarda a data de criação: um rascunho publicado depois aparece com a data antiga. Gravar a data quando o status muda para Publicado (admin e ação "Marcar como publicado"). Achado na revisão completa de 26/10/2026.
 
 ## Gráfico dos simuladores num arquivo só
 **Sugestão:** https://www.notion.so/405d653a12cb8148a2d8d94c232133e0 · **Registrado em:** 26/10/2026 · **Origem:** Manual

@@ -1,5 +1,9 @@
+from datetime import timedelta
+
+from django.contrib import admin
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.test.client import RequestFactory
 from django.urls import reverse
 
 from .models import Artigo
@@ -100,3 +104,41 @@ class PaginasDeErroTests(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertTemplateUsed(response, '404.html')
         self.assertContains(response, 'Página não encontrada', status_code=404)
+
+
+class DataDePublicacaoTests(TestCase):
+    def test_rascunho_nao_tem_data_de_publicacao(self):
+        artigo = criar_artigo('rascunho', status=Artigo.Status.RASCUNHO)
+
+        self.assertIsNone(artigo.publicado_em)
+
+    def test_data_e_gravada_quando_o_rascunho_vira_publicado(self):
+        artigo = criar_artigo('rascunho', status=Artigo.Status.RASCUNHO)
+
+        artigo.status = Artigo.Status.PUBLICADO
+        artigo.save()
+
+        self.assertIsNotNone(artigo.publicado_em)
+        self.assertGreater(artigo.publicado_em, artigo.atualizado_em - timedelta(seconds=5))
+
+    def test_data_nao_muda_ao_editar_artigo_publicado(self):
+        artigo = criar_artigo('publicado')
+        data_original = artigo.publicado_em
+
+        artigo.resumo = 'Resumo novo.'
+        artigo.save()
+
+        self.assertEqual(artigo.publicado_em, data_original)
+
+    def test_acao_do_admin_grava_a_data(self):
+        artigo = criar_artigo('rascunho', status=Artigo.Status.RASCUNHO)
+        modelo_admin = admin.site._registry[Artigo]
+        request = RequestFactory().post('/')
+        request.user = User.objects.create_superuser(username='adm', password='x')
+        modelo_admin.message_user = lambda *args, **kwargs: None
+
+        modelo_admin.marcar_como_publicado(request, Artigo.objects.filter(pk=artigo.pk))
+
+        artigo.refresh_from_db()
+        self.assertEqual(artigo.status, Artigo.Status.PUBLICADO)
+        self.assertIsNotNone(artigo.publicado_em)

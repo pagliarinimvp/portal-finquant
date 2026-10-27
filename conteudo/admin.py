@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils import timezone
 
 from .models import Artigo
 
@@ -13,5 +14,7 @@ class ArtigoAdmin(admin.ModelAdmin):
 
     @admin.action(description='Marcar selecionados como publicado')
     def marcar_como_publicado(self, request, queryset):
+        # update() não passa pelo save() do modelo: a data vai aqui.
+        queryset.filter(publicado_em__isnull=True).update(publicado_em=timezone.now())
         atualizados = queryset.update(status=Artigo.Status.PUBLICADO)
         self.message_user(request, f'{atualizados} artigo(s) publicado(s).')

@@ -10,7 +10,9 @@
 <article class="card p-4">
     {% include "conteudo/_categoria_badge.html" with categoria=artigo.categoria label=artigo.get_categoria_display %}
     <h1 class="h3 mt-2">{{ artigo.titulo }}</h1>
+    {% if artigo.publicado_em %}
     <p class="fq-eyebrow d-block mb-0">Publicado em {{ artigo.publicado_em|date:"d/m/Y" }}</p>
+    {% endif %}
     <div class="fq-regua"></div>
     <div class="fq-artigo-corpo">{{ artigo.corpo|corpo_seguro }}</div>
 </article>
