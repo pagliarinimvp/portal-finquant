@@ -28,6 +28,11 @@ O bloco de JS/CSS do gráfico SVG se repete nos três templates de `templates/si
 
 O cadastro pede e-mail desde 26/10/2026, mas não há tela de "esqueci a senha": produção usa o backend de e-mail do console (`MAILERS` em `config/settings.py`). Configurar um SMTP (credenciais no painel do Render) e ligar as views de reset de senha do Django.
 
+## Portal sem espera ao abrir (cold start do Render)
+**Sugestão:** https://www.notion.so/406d653a12cb81f6a57cca57cff2d4a0 · **Registrado em:** 27/10/2026 · **Origem:** Manual
+
+O Render gratuito desliga o serviço depois de 15 minutos sem acesso, e a primeira visita depois disso leva cerca de 1 minuto. Solução escolhida: criar uma rota leve `/saude/` que responde "ok" **sem consultar o banco** (se o ping lesse o banco, o Neon ficaria ligado o mês inteiro, cerca de 186 horas de computação, acima das ~100 do plano gratuito) e cadastrar um monitor externo gratuito (UptimeRobot ou cron-job.org) que acessa a rota a cada 10 minutos. É tudo determinístico, sem IA. O plano gratuito do Render (750 h/mês) cobre o serviço ligado 24 h. Se o portal continuar no ar depois do TCC, reavaliar o plano pago do Render (Starter, cerca de US$ 7/mês).
+
 ## Apagar o Postgres antigo do Render
 **Sugestão:** https://www.notion.so/405d653a12cb81e4809dcf0eab305c3e · **Registrado em:** 26/10/2026 · **Origem:** Manual
 
