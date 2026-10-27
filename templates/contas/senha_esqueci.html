@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Esqueci a senha — Portal FinQuant{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card p-4">
+            <span class="fq-eyebrow">Recuperar acesso</span>
+            <h1 class="h4 mb-3 mt-1">Esqueci a senha</h1>
+            <p>Informe o e-mail da sua conta. Enviamos um link para você criar uma senha nova.</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.email.id_for_label }}">E-mail</label>
+                    {{ form.email.errors }}
+                    <input type="email" name="{{ form.email.html_name }}" class="form-control" id="{{ form.email.id_for_label }}" value="{{ form.email.value|default_if_none:'' }}" autocomplete="email" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Enviar link</button>
+            </form>
+            <p class="mt-3 mb-0 text-center">
+                Lembrou a senha? <a href="{% url 'contas:login' %}">Entrar</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

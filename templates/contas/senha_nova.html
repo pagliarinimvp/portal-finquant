@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Nova senha — Portal FinQuant{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card p-4">
+            <span class="fq-eyebrow">Recuperar acesso</span>
+            <h1 class="h4 mb-3 mt-1">Criar senha nova</h1>
+            {% if validlink %}
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field.errors }}
+                    <input type="password" name="{{ field.html_name }}" class="form-control" id="{{ field.id_for_label }}" autocomplete="new-password" required>
+                    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary w-100">Salvar senha nova</button>
+            </form>
+            {% else %}
+            <p>Este link não vale mais: ele já foi usado ou expirou.</p>
+            <p class="mb-0"><a href="{% url 'contas:senha_esqueci' %}">Peça um link novo</a>.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

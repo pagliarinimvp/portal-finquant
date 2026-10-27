@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Link enviado — Portal FinQuant{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card p-4">
+            <span class="fq-eyebrow">Recuperar acesso</span>
+            <h1 class="h4 mb-3 mt-1">Confira o seu e-mail</h1>
+            {# A mesma mensagem aparece exista ou não a conta: assim a tela não revela quem tem cadastro. #}
+            <p>Se houver uma conta com esse e-mail, você vai receber em alguns minutos um link para criar uma senha nova.</p>
+            <p class="mb-0">Não chegou? Confira a caixa de spam ou <a href="{% url 'contas:senha_esqueci' %}">peça outro link</a>.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

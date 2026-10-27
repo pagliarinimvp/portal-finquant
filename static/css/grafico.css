@@ -1,0 +1,103 @@
+/* Gráfico de evolução mês a mês dos simuladores (templates/simuladores/*.html).
+   Par com static/js/grafico.js. Para a paleta de alerta, some a classe
+   `grafico-alerta` ao <figure class="grafico-evolucao">. */
+.grafico-evolucao {
+    --series-1: #35506B;
+    --series-1-fill: rgba(53, 80, 107, 0.10);
+    --gridline: #e2e4e8;
+    --baseline: #c1c5cb;
+    --muted: #7d8794;
+    --tooltip-bg: #FFFFFF;
+    --tooltip-border: rgba(20, 22, 26, 0.12);
+    --tooltip-fg: #14161A;
+}
+[data-bs-theme="dark"] .grafico-evolucao {
+    --series-1: #6C93B8;
+    --series-1-fill: rgba(108, 147, 184, 0.14);
+    --gridline: #262b33;
+    --baseline: #3a4149;
+    --muted: #8b93a0;
+    --tooltip-bg: #1B1F26;
+    --tooltip-border: rgba(244, 245, 247, 0.12);
+    --tooltip-fg: #F4F5F7;
+}
+/* Paleta de alerta (simuladores de dívida): a linha troca o azul pelo terracota. */
+.grafico-evolucao.grafico-alerta {
+    --series-1: var(--fq-rust);
+    --series-1-fill: rgba(178, 90, 69, 0.10);
+}
+[data-bs-theme="dark"] .grafico-evolucao.grafico-alerta {
+    --series-1: var(--fq-rust);
+    --series-1-fill: rgba(217, 138, 118, 0.14);
+}
+.grafico-corpo {
+    position: relative;
+}
+.grafico-corpo svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 800 / 320;
+}
+.grafico-evolucao .linha-saldo {
+    fill: none;
+    stroke: var(--series-1);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+.grafico-evolucao .area-saldo {
+    fill: var(--series-1-fill);
+    stroke: none;
+}
+.grafico-evolucao .marcador-final {
+    fill: var(--series-1);
+    stroke: var(--tooltip-bg);
+    stroke-width: 2;
+}
+.grafico-evolucao .grade,
+.grafico-evolucao .eixo {
+    stroke: var(--gridline);
+    stroke-width: 1;
+}
+.grafico-evolucao .eixo {
+    stroke: var(--baseline);
+}
+.grafico-evolucao .rotulo {
+    fill: var(--muted);
+    font-size: 13px;
+    font-family: inherit;
+}
+.grafico-evolucao .crosshair-linha {
+    stroke: var(--baseline);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+}
+.grafico-evolucao .crosshair-ponto {
+    fill: var(--series-1);
+    stroke: var(--tooltip-bg);
+    stroke-width: 2;
+}
+.grafico-evolucao .grafico-overlay {
+    fill: transparent;
+    cursor: crosshair;
+}
+.grafico-tooltip {
+    position: absolute;
+    transform: translate(-50%, calc(-100% - 10px));
+    background: var(--tooltip-bg);
+    color: var(--tooltip-fg);
+    border: 1px solid var(--tooltip-border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+.grafico-tooltip strong {
+    color: var(--tooltip-fg);
+}
+.grafico-tooltip span {
+    color: var(--muted);
+}

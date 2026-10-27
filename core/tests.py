@@ -33,3 +33,12 @@ class HomeTests(TestCase):
         response = self.client.get(reverse('core:home'))
 
         self.assertContains(response, 'Não é recomendação de investimento')
+
+
+class SaudeTests(TestCase):
+    def test_responde_ok_sem_consultar_o_banco(self):
+        with self.assertNumQueries(0):
+            response = self.client.get(reverse('core:saude'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'ok')

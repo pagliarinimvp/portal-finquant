@@ -16,22 +16,19 @@ Do `README.md` ("Próximos passos (fase 2)"): Exportação dos dados de `avaliac
 
 **Sequência (27/10/2026):** as avaliações ainda não foram abertas ao público, então não há dados para exportar. Ordem: (1) terminar o portal, incluindo o `estudo_caso`; (2) enviar o portal para as pessoas avaliarem; (3) só depois exportar e analisar os dados de `avaliacoes`.
 
-
-## Gráfico dos simuladores num arquivo só
-**Sugestão:** https://www.notion.so/405d653a12cb8148a2d8d94c232133e0 · **Registrado em:** 26/10/2026 · **Origem:** Manual
-
-O bloco de JS/CSS do gráfico SVG se repete nos três templates de `templates/simuladores/` (cerca de 400 linhas cada). Extrair para `static/js/grafico.js` e atualizar o "Padrão dos simuladores" do `CLAUDE.md` junto. Achado na revisão completa de 26/10/2026.
-
-
 ## Recuperação de senha por e-mail
 **Sugestão:** https://www.notion.so/405d653a12cb8199b61fe43fcf85fab7 · **Registrado em:** 26/10/2026 · **Origem:** Manual
 
 O cadastro pede e-mail desde 26/10/2026, mas não há tela de "esqueci a senha": produção usa o backend de e-mail do console (`MAILERS` em `config/settings.py`). Configurar um SMTP (credenciais no painel do Render) e ligar as views de reset de senha do Django.
 
+**Código pronto (27/10/2026):** telas de "esqueci a senha" em `/contas/esqueci-a-senha/` e SMTP lido do ambiente (`EMAIL_HOST` e afins, veja `.env.example`). Falta: criar a senha de app do Gmail e preencher `EMAIL_HOST`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD` e `DEFAULT_FROM_EMAIL` no painel do Render; depois, testar o envio em produção.
+
 ## Portal sem espera ao abrir (cold start do Render)
 **Sugestão:** https://www.notion.so/406d653a12cb81f6a57cca57cff2d4a0 · **Registrado em:** 27/10/2026 · **Origem:** Manual
 
 O Render gratuito desliga o serviço depois de 15 minutos sem acesso, e a primeira visita depois disso leva cerca de 1 minuto. Solução escolhida: criar uma rota leve `/saude/` que responde "ok" **sem consultar o banco** (se o ping lesse o banco, o Neon ficaria ligado o mês inteiro, cerca de 186 horas de computação, acima das ~100 do plano gratuito) e cadastrar um monitor externo gratuito (UptimeRobot ou cron-job.org) que acessa a rota a cada 10 minutos. É tudo determinístico, sem IA. O plano gratuito do Render (750 h/mês) cobre o serviço ligado 24 h. Se o portal continuar no ar depois do TCC, reavaliar o plano pago do Render (Starter, cerca de US$ 7/mês).
+
+**Rota pronta (27/10/2026):** `/saude/` responde "ok" sem consultar o banco (há teste garantindo zero consultas). Falta: depois do deploy, cadastrar o monitor externo apontando para `https://portal-finquant.onrender.com/saude/` a cada 10 minutos.
 
 ## Apagar o Postgres antigo do Render
 **Sugestão:** https://www.notion.so/405d653a12cb81e4809dcf0eab305c3e · **Registrado em:** 26/10/2026 · **Origem:** Manual

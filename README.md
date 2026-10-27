@@ -11,7 +11,7 @@ Portal web de educação em finanças quantitativas para pessoas leigas, desenvo
 ## Funcionalidades do MVP
 
 - Artigos educacionais (`conteudo`), gerenciados pelo Django Admin
-- Cadastro e login de usuário (`contas`)
+- Cadastro e login de usuário, com recuperação de senha por e-mail (`contas`)
 - Simulador de juros compostos (`simuladores`)
 - Formulário de avaliação do site pelos usuários (`avaliacoes`), com dados exportáveis para análise de qualidade do projeto
 
@@ -72,7 +72,14 @@ no formulário do Blueprint (pode deixar em branco e configurar depois pelo
 painel do serviço) — veja o passo a passo das credenciais em
 `docs/superpowers/specs/2026-08-17-login-social-design.md`, que também
 inclui as URLs de callback de produção a cadastrar no Google e no GitHub
-depois que a URL final do serviço existir.
+depois que a URL final do serviço existir. Para a recuperação de senha
+enviar e-mail de verdade, preencha também `EMAIL_HOST`/`EMAIL_HOST_USER`/
+`EMAIL_HOST_PASSWORD`/`DEFAULT_FROM_EMAIL` (com Gmail, veja o `.env.example`).
+
+Para o portal não demorar a abrir depois de um tempo parado (o plano free do
+Render desliga o serviço após 15 minutos sem acesso), cadastre um monitor
+gratuito (UptimeRobot ou cron-job.org) que acessa `/saude/` a cada 10 minutos.
+Essa rota responde "ok" sem consultar o banco, então não mantém o Neon ligado.
 
 ### Opção manual
 

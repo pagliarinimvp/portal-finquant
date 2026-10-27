@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Senha alterada — Portal FinQuant{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card p-4">
+            <span class="fq-eyebrow">Recuperar acesso</span>
+            <h1 class="h4 mb-3 mt-1">Senha alterada</h1>
+            <p>Pronto, a sua senha nova já vale.</p>
+            <a href="{% url 'contas:login' %}" class="btn btn-primary w-100">Entrar</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

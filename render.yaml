@@ -62,3 +62,14 @@ services:
         sync: false
       - key: GITHUB_CLIENT_SECRET
         sync: false
+      # Envio de e-mail da recuperação de senha (veja o .env.example). Sem
+      # EMAIL_HOST, o portal não envia e-mail: só registra no log. Preencha
+      # os quatro juntos (com Gmail, EMAIL_HOST = smtp.gmail.com).
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false

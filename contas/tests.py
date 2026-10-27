@@ -1,4 +1,7 @@
+import re
+
 from django.contrib.auth.models import User
+from django.core import mail
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -154,3 +157,38 @@ class LoginTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'value="ninguem"')
+
+
+class RecuperacaoSenhaTests(TestCase):
+    def setUp(self):
+        self.usuario = User.objects.create_user('ana', 'ana@exemplo.com', 'senha-antiga-123')
+
+    def test_login_tem_link_para_esqueci_a_senha(self):
+        response = self.client.get(reverse('contas:login'))
+        self.assertContains(response, reverse('contas:senha_esqueci'))
+
+    def test_pedido_envia_email_com_link_que_troca_a_senha(self):
+        response = self.client.post(reverse('contas:senha_esqueci'), {'email': 'ana@exemplo.com'})
+        self.assertRedirects(response, reverse('contas:senha_enviada'))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['ana@exemplo.com'])
+
+        link = re.search(r'https?://[^/\s]+(/contas/nova-senha/\S+)', mail.outbox[0].body).group(1)
+        # O primeiro GET troca o token da URL por um da sessão e redireciona.
+        response = self.client.get(link, follow=True)
+        self.assertContains(response, 'Salvar senha nova')
+        response = self.client.post(response.redirect_chain[-1][0], {
+            'new_password1': 'senha-nova-456!', 'new_password2': 'senha-nova-456!',
+        })
+        self.assertRedirects(response, reverse('contas:senha_redefinida'))
+        self.usuario.refresh_from_db()
+        self.assertTrue(self.usuario.check_password('senha-nova-456!'))
+
+    def test_email_desconhecido_nao_envia_nada_mas_mostra_a_mesma_tela(self):
+        response = self.client.post(reverse('contas:senha_esqueci'), {'email': 'ninguem@exemplo.com'})
+        self.assertRedirects(response, reverse('contas:senha_enviada'))
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_link_invalido_avisa_e_oferece_outro(self):
+        response = self.client.get(reverse('contas:senha_nova', args=['xx', 'token-falso']))
+        self.assertContains(response, 'Este link não vale mais')

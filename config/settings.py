@@ -250,8 +250,33 @@ LOGOUT_REDIRECT_URL = 'core:home'
 # E-mail
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+# Com EMAIL_HOST definido, envia por SMTP de verdade (produção, recuperação de
+# senha). Sem ele, o e-mail só aparece no terminal do runserver. O nome em
+# minúsculas é de propósito: o Django 6.1 recusa um setting EMAIL_HOST junto
+# com o MAILERS.
+_email_host = env('EMAIL_HOST', default='')
+if _email_host:
+    MAILERS = {
+        'default': {
+            'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+            'OPTIONS': {
+                'host': _email_host,
+                'port': env.int('EMAIL_PORT', default=587),
+                'username': env('EMAIL_HOST_USER', default=''),
+                'password': env('EMAIL_HOST_PASSWORD', default=''),
+                'use_tls': env.bool('EMAIL_USE_TLS', default=True),
+                'timeout': 10,
+            },
+        },
+    }
+else:
+    MAILERS = {
+        'default': {
+            'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+        },
+    }
+
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='Portal FinQuant <webmaster@localhost>')
+
+# Validade do link de "esqueci a senha" (o padrão do Django é 3 dias).
+PASSWORD_RESET_TIMEOUT = 60 * 60 * 2
