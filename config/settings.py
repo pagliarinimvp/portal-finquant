@@ -247,6 +247,16 @@ LOGIN_REDIRECT_URL = 'core:home'
 LOGOUT_REDIRECT_URL = 'core:home'
 
 
+# Logs do app `contas` no stdout, que o Render mostra em Logs (o Django, por
+# padrão, só manda para o console os logs dele mesmo, e só com DEBUG ligado).
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {'console': {'class': 'logging.StreamHandler'}},
+    'loggers': {'contas': {'handlers': ['console'], 'level': 'INFO'}},
+}
+
+
 # E-mail
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 

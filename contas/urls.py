@@ -2,6 +2,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
 
 from . import views
+from .forms import RecuperarSenhaForm
 
 app_name = 'contas'
 
@@ -13,6 +14,7 @@ urlpatterns = [
     # Recuperação de senha com as views nativas do Django. Os success_url são
     # explícitos porque o padrão delas procura rotas sem o namespace `contas:`.
     path('esqueci-a-senha/', auth_views.PasswordResetView.as_view(
+        form_class=RecuperarSenhaForm,
         template_name='contas/senha_esqueci.html',
         email_template_name='contas/email_senha.txt',
         subject_template_name='contas/email_senha_assunto.txt',

@@ -189,6 +189,19 @@ class RecuperacaoSenhaTests(TestCase):
         self.assertRedirects(response, reverse('contas:senha_enviada'))
         self.assertEqual(len(mail.outbox), 0)
 
+    def test_conta_sem_senha_local_nao_recebe_e_fica_registrada_no_log(self):
+        # Conta criada pelo login social: sem senha local, o Django não envia o e-mail.
+        social = User.objects.create_user('bia', 'bia@exemplo.com')
+        social.set_unusable_password()
+        social.save()
+
+        with self.assertLogs('contas.forms', level='INFO') as logs:
+            self.client.post(reverse('contas:senha_esqueci'), {'email': 'bia@exemplo.com'})
+
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertIn('1 conta(s) ativa(s) com este e-mail, nenhuma com senha local', logs.output[0])
+        self.assertNotIn('bia@exemplo.com', logs.output[0])
+
     def test_link_invalido_avisa_e_oferece_outro(self):
         response = self.client.get(reverse('contas:senha_nova', args=['xx', 'token-falso']))
         self.assertContains(response, 'Este link não vale mais')
