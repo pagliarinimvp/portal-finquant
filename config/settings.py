@@ -249,11 +249,17 @@ LOGOUT_REDIRECT_URL = 'core:home'
 
 # Logs do app `contas` no stdout, que o Render mostra em Logs (o Django, por
 # padrão, só manda para o console os logs dele mesmo, e só com DEBUG ligado).
+# `django.contrib.auth` entra porque o PasswordResetForm engole a exceção de
+# envio do e-mail e só a registra nesse logger: sem ele, uma falha de SMTP
+# em produção não deixa rastro nenhum.
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {'console': {'class': 'logging.StreamHandler'}},
-    'loggers': {'contas': {'handlers': ['console'], 'level': 'INFO'}},
+    'loggers': {
+        'contas': {'handlers': ['console'], 'level': 'INFO'},
+        'django.contrib.auth': {'handlers': ['console'], 'level': 'ERROR'},
+    },
 }
 
 
