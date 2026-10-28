@@ -13,7 +13,7 @@ urlpatterns = [
     path('minha-conta/', views.MinhaContaView.as_view(), name='minha_conta'),
     # Recuperação de senha com as views nativas do Django. Os success_url são
     # explícitos porque o padrão delas procura rotas sem o namespace `contas:`.
-    path('esqueci-a-senha/', auth_views.PasswordResetView.as_view(
+    path('esqueci-a-senha/', views.EsqueciSenhaView.as_view(
         form_class=RecuperarSenhaForm,
         template_name='contas/senha_esqueci.html',
         email_template_name='contas/email_senha.txt',

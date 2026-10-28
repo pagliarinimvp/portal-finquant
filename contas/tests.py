@@ -159,6 +159,7 @@ class LoginTests(TestCase):
         self.assertContains(response, 'value="ninguem"')
 
 
+@override_settings(RECUPERACAO_SENHA_ATIVA=True)
 class RecuperacaoSenhaTests(TestCase):
     def setUp(self):
         self.usuario = User.objects.create_user('ana', 'ana@exemplo.com', 'senha-antiga-123')
@@ -205,3 +206,18 @@ class RecuperacaoSenhaTests(TestCase):
     def test_link_invalido_avisa_e_oferece_outro(self):
         response = self.client.get(reverse('contas:senha_nova', args=['xx', 'token-falso']))
         self.assertContains(response, 'Este link não vale mais')
+
+
+@override_settings(RECUPERACAO_SENHA_ATIVA=False, CONTATO_EMAIL='contato@exemplo.com')
+class RecuperacaoSenhaDesligadaTests(TestCase):
+    def test_mostra_aviso_com_o_contato_em_vez_do_formulario(self):
+        response = self.client.get(reverse('contas:senha_esqueci'))
+        self.assertContains(response, 'ainda não está disponível')
+        self.assertContains(response, 'contato@exemplo.com')
+        self.assertNotContains(response, 'Enviar link')
+
+    def test_post_nao_envia_nada(self):
+        User.objects.create_user('ana', 'ana@exemplo.com', 'senha-antiga-123')
+        response = self.client.post(reverse('contas:senha_esqueci'), {'email': 'ana@exemplo.com'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 0)

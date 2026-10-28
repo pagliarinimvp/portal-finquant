@@ -74,7 +74,9 @@ painel do serviço) — veja o passo a passo das credenciais em
 inclui as URLs de callback de produção a cadastrar no Google e no GitHub
 depois que a URL final do serviço existir. Para a recuperação de senha
 enviar e-mail de verdade, preencha também `EMAIL_HOST`/`EMAIL_HOST_USER`/
-`EMAIL_HOST_PASSWORD`/`DEFAULT_FROM_EMAIL` (com Gmail, veja o `.env.example`).
+`EMAIL_HOST_PASSWORD`/`DEFAULT_FROM_EMAIL` (com Gmail, veja o `.env.example`). Atenção: o
+plano gratuito do Render bloqueia as portas SMTP (25, 465 e 587), então o
+envio só funciona num plano pago ou com um serviço de e-mail por API HTTPS.
 
 Para o portal não demorar a abrir depois de um tempo parado (o plano free do
 Render desliga o serviço após 15 minutos sem acesso), cadastre um monitor

@@ -294,5 +294,11 @@ else:
 
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='Portal FinQuant <webmaster@localhost>')
 
+# Liga o formulário de "esqueci a senha". Desligado, a tela pede para falar
+# com o administrador: o Render gratuito bloqueia as portas SMTP, então o
+# e-mail nunca sairia. Ligue junto com um envio que funcione (plano pago ou
+# serviço de e-mail por API).
+RECUPERACAO_SENHA_ATIVA = env.bool('RECUPERACAO_SENHA_ATIVA', default=False)
+
 # Validade do link de "esqueci a senha" (o padrão do Django é 3 dias).
 PASSWORD_RESET_TIMEOUT = 60 * 60 * 2
