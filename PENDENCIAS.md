@@ -24,3 +24,13 @@ O cadastro pede e-mail desde 26/10/2026, mas não há tela de "esqueci a senha":
 **Código pronto (27/10/2026):** telas de "esqueci a senha" em `/contas/esqueci-a-senha/` e SMTP lido do ambiente (`EMAIL_HOST` e afins, veja `.env.example`). As variáveis do Gmail foram preenchidas no Render em 27/10/2026.
 
 **Bloqueio (27/10/2026):** o envio falha com `OSError: [Errno 101] Network is unreachable` porque o plano gratuito do Render bloqueia a saída nas portas SMTP (25, 465 e 587) desde setembro de 2025 ([changelog do Render](https://render.com/changelog/free-web-services-will-no-longer-allow-outbound-traffic-to-smtp-ports)). Não é erro de código nem de credencial. A tela continua respondendo "confira o seu e-mail", e a falha só aparece no log do Render ("Failed to send password reset email"). Decisão de 27/10/2026: ficar sem envio por enquanto; quem esquecer a senha pede ao admin, que troca pelo `/admin/`. Para retomar, escolher entre (1) um serviço de e-mail por API HTTPS, como o Brevo (gratuito, 300 e-mails/dia, aceita o Gmail como remetente), com `django-anymail`, ou (2) o plano pago do Render (Starter, cerca de US$ 7/mês), que libera o SMTP sem mudar o código. Enquanto isso, a tela de "esqueci a senha" mostra um aviso para falar com o administrador; ao retomar, ligar `RECUPERACAO_SENHA_ATIVA=True` no Render.
+
+## Procedência e lacunas nos dados
+**Sugestão:** https://www.notion.so/40ad653a12cb81c5baa1da65238fb42e · **Registrado em:** 31/10/2026 · **Origem:** Manual
+
+Padrão do Mapa de Feminicídio (`Portfólio/docs/referencias/mapafeminicidio-josyscript-com.md`): cada série ou indicador mostra fonte, data da coleta e, se possível, o hash do arquivo baixado; "sem dado" nunca vira zero nem repete o último valor sem aviso; período parcial avisado ("até setembro"); dados oficiais (B3, CVM, BCB) e cálculos derivados (retorno, volatilidade) com rótulo próprio, sem somar bases diferentes; frase curta de método junto de cada número. Serve também para o capítulo de metodologia do TCC. Encaixa junto com o app `estudo_caso`.
+
+## Ver tabela ao lado dos gráficos e estado da tela na URL
+**Sugestão:** https://www.notion.so/40ad653a12cb81ea8647fb2a5dee5889 · **Registrado em:** 31/10/2026 · **Origem:** Manual
+
+Botão "Ver tabela" em cada gráfico (acessibilidade e conferência) e ativo, período e indicador guardados na URL, para compartilhar uma análise. Referência: `Portfólio/docs/referencias/mapafeminicidio-josyscript-com.md`.
