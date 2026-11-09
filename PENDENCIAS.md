@@ -25,6 +25,8 @@ No teste de tempo de 09/11/2026 em produção, Entrar e Cadastro levaram ~0,95 s
 
 **2ª rodada (09/11/2026, versão com abas, commit `3c3cafe`):** páginas iguais à 1ª (variação de até 0,05 s); telas da análise 0,95 a 1,7 s; PDF novo 3,1 s (71 KB); padrão PETR4 e automática no cache 1,0 e 1,5 s; 1 ação nova (VALE3) 16,9 s; 4 ações novas (PETR4, VALE3, ITUB4, BBAS3) 32,7 s; página inicial durante o cálculo: mediana 0,65 s, máximo 1,94 s. Também ficaram no cache.
 
+**10 ações escolhidas uma a uma (09/11/2026, padrões do site):** B3SA3, RENT3, SUZB3, GGBR4, RADL3, LREN3, EQTL3, PRIO3, TOTS3, SBSP3 em 37,0 s e ITSA4, BBSE3, CMIG4, CPFE3, KLBN11, UGPA3, VIVT3, TIMS3, CSAN3, HYPE3 em 35,7 s; a etapa "testes" leva ~20 s desse total. Telas 0,8 a 2,6 s (até 152 KB); PDF 1,7 a 2,5 s. Página inicial durante o cálculo: mediana 0,72 s, máximo 1,90 s. Na 1ª rodada, um acesso levou 55 s, quase com certeza a troca de versão do deploy disparado às 20:02 (não se repetiu na 2ª). A estimativa da tela de espera de 2 a 10 ações passou a "menos de 1 minuto". As duas carteiras ficaram no cache.
+
 ## Exportar as avaliações para a análise de qualidade
 **Sugestão:** https://www.notion.so/3fdd653a12cb8127af26d5cfba4f775b · **Registrado em:** 18/10/2026 · **Origem:** Planejada
 

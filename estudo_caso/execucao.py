@@ -137,14 +137,13 @@ def _rodar(cfg: dict, k: str) -> None:
 
 
 def tempo_previsto(cfg: dict) -> str:
-    """Estimativa para a página de espera, a partir das medições no Render em 09/11/2026 (1 ação 15 s, 4 ações 33 s,
-    seleção automática 75 s, sem contar a fila). Ajuste se os tempos mudarem."""
+    """Estimativa para a página de espera, a partir das medições no Render em 09/11/2026 (1 ação 15 a 17 s, 4 ações
+    27 a 33 s, 10 ações 36 a 37 s, seleção automática 75 s sem cache; sem contar a fila). Ajuste se os tempos mudarem."""
     if cfg["selecao"] == "automatica":
         return "1 a 2 minutos"
-    n = len(cfg["tickers"])
-    if n == 1:
+    if len(cfg["tickers"]) == 1:
         return "cerca de 15 segundos"
-    return "menos de 1 minuto" if n <= 4 else "cerca de 1 minuto"
+    return "menos de 1 minuto"
 
 
 # ------------------------------------------------------------------------------- pré-cálculo no tempo ocioso
