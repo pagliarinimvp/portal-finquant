@@ -251,6 +251,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Os CSVs de preços, Ibovespa e Selic que a análise lê. Atualizados no build
 # pelo `manage.py atualizar_dados_estudo`; as requisições nunca baixam nada.
 DADOS_ESTUDO = BASE_DIR / 'estudo_caso' / 'dados'
+# Janela do pré-cálculo das análises, em horas de Brasília (estudo_caso/execucao.py). Mudar só para testar,
+# definindo ESTUDO_JANELA no Render (ex.: "17-19"); sem a variável, roda das 02:00 às 05:00.
+ESTUDO_JANELA = env('ESTUDO_JANELA', default='2-5')
 
 # `analises` guarda os resultados no banco (tabela criada pelo
 # `manage.py createcachetable` no build): sobrevive à hibernação do Render e

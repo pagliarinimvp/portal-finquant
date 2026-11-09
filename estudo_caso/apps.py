@@ -22,6 +22,6 @@ class EstudoCasoConfig(AppConfig):
             from .quant import servico  # noqa: F401
 
             caches["analises"]  # noqa: B018 — instancia o backend agora (sem consultar o banco)
-            # Pré-cálculo de madrugada (`execucao.JANELA`): tudo o que a thread usa já foi importado acima, e ela fica
+            # Pré-cálculo de madrugada (`execucao.janela()`, `ESTUDO_JANELA` no settings): tudo o que a thread usa já foi importado acima, e ela fica
             # dormindo até a janela abrir, com o servidor já atendendo.
             threading.Thread(target=execucao.precalcular_ocioso, daemon=True, name="precalculo-ocioso").start()

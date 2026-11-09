@@ -8,7 +8,7 @@ A chave junta a versão do núcleo, a configuração e a data do último pregão
 
 Pré-cálculo no tempo ocioso (`precalcular_ocioso`): com o custo e o capital fixos, as escolhas mais lentas são finitas.
 Uma thread calcula, uma por vez, as 60 seleções automáticas e cada ação sozinha com os padrões, só de madrugada
-(`JANELA`, horário de Brasília), e cede a vez a quem pedir uma análise: na próxima troca de etapa, abandona o cálculo e
+(`janela()`, horário de Brasília), e cede a vez a quem pedir uma análise: na próxima troca de etapa, abandona o cálculo e
 tenta de novo quando a fila esvaziar. Os preços novos chegam no deploy de sábado à 01:00 (.github/workflows), logo antes.
 """
 import json
@@ -148,7 +148,6 @@ def tempo_previsto(cfg: dict) -> str:
 
 
 # ------------------------------------------------------------------------------- pré-cálculo no tempo ocioso
-JANELA = (2, 5)                 # das 02:00 às 05:00 de Brasília: a volta completa leva ~90 min no Render
 BRASILIA = timezone(timedelta(hours=-3))    # sem horário de verão desde 2019
 PAUSA_ENTRE = 2                 # respiro entre uma análise e outra
 ESPERA_FILA = 5                 # de quanto em quanto tempo olha se a fila esvaziou
@@ -202,13 +201,24 @@ def rodar_ocioso(cfg: dict, k: str) -> bool:
         _TRAVA.release()
 
 
+def janela() -> tuple[int, int]:
+    """As horas de início e de fim, em Brasília: `settings.ESTUDO_JANELA` ("2-5" = das 02:00 às 05:00). A volta completa
+    leva ~90 min no Render. Um valor ilegível volta ao padrão."""
+    try:
+        inicio, fim = (int(x) for x in str(settings.ESTUDO_JANELA).split("-"))
+    except (AttributeError, ValueError):
+        return (2, 5)
+    return (inicio, fim)
+
+
 def na_janela(agora: datetime | None = None) -> bool:
     agora = agora or datetime.now(BRASILIA)
-    return JANELA[0] <= agora.astimezone(BRASILIA).hour < JANELA[1]
+    inicio, fim = janela()
+    return inicio <= agora.astimezone(BRASILIA).hour < fim
 
 
 def precalcular_ocioso(uma_volta: bool = False) -> int:
-    """Laço da thread de pré-cálculo (iniciada pelo `apps.py` no gunicorn): uma volta por noite, dentro da `JANELA`,
+    """Laço da thread de pré-cálculo (iniciada pelo `apps.py` no gunicorn): uma volta por noite, dentro da `janela()`,
     refazendo só o que falta no cache. Com `uma_volta`, roda já, ignora o horário e devolve quantas guardou."""
     while True:
         if not uma_volta:

@@ -223,3 +223,12 @@ class PrecalculoTests(SimpleTestCase):
         cfg = {**self.cfg(), "protecao": "1_1"}
         with mock.patch.object(execucao, "_alguem_esperando", return_value=True):
             self.assertFalse(execucao.rodar_ocioso(cfg, execucao.chave(cfg)))
+
+    def test_janela_configuravel_para_teste(self):
+        from datetime import datetime
+        b = execucao.BRASILIA
+        with self.settings(ESTUDO_JANELA="17-19"):
+            self.assertTrue(execucao.na_janela(datetime(2026, 11, 9, 17, 30, tzinfo=b)))
+            self.assertFalse(execucao.na_janela(datetime(2026, 11, 9, 3, 0, tzinfo=b)))
+        with self.settings(ESTUDO_JANELA="abc"):
+            self.assertEqual(execucao.janela(), (2, 5))
