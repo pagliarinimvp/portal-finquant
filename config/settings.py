@@ -123,6 +123,16 @@ TESTANDO = sys.argv[1:2] == ['test']
 DATABASE_URL = env('DATABASE_URL', default='')
 if DATABASE_URL and not TESTANDO:
     DATABASES = {'default': env.db_url_config(DATABASE_URL)}
+    # Reaproveita a conexão entre requisições. Sem isso, cada visita abria uma
+    # conexão nova do Render (Oregon) com o Neon (São Paulo): uns 5 vaivéns de
+    # ~0,18 s, que deixavam toda página com banco em ~2 s (medido em
+    # 09/11/2026). CONN_HEALTH_CHECKS descarta a conexão que o Neon fechou, e
+    # DISABLE_SERVER_SIDE_CURSORS é exigido pelo pooler do Neon (PgBouncer).
+    DATABASES['default'].update(
+        CONN_MAX_AGE=600,
+        CONN_HEALTH_CHECKS=True,
+        DISABLE_SERVER_SIDE_CURSORS=True,
+    )
 else:
     DATABASES = {
         'default': {
