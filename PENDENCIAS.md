@@ -9,7 +9,7 @@ Do `README.md` ("Próximos passos (fase 2)"): App `estudo_caso`: comparação de
 
 **Base (27/10/2026):** o app vai ser construído a partir do projeto `Script Analise Quantitativa` (pasta irmã, em `Desktop\Projeto Final ADS\`). A análise sai desse script e é levada para o portal; não se começa do zero.
 
-**Código pronto (09/11/2026):** app `estudo_caso` em `/estudo-caso/` ("Análise de ações" no menu), branch `dev`. Falta, para fechar o item: (1) commit, merge no `main` e deploy; (2) criar o Deploy Hook no Render e gravá-lo como secret `RENDER_DEPLOY_HOOK` no GitHub (README, "Atualização semanal"); (3) medir no Render o tempo de 1 ação, 4 ações e da seleção automática (estimativa: ~6 s, ~20 s e ~1 min) e ajustar `execucao.tempo_previsto` se precisar; (4) abrir o resumo em PDF no Render e conferir os símbolos ✓ e −.
+**No ar (09/11/2026):** app `estudo_caso` em `/estudo-caso/` ("Análise de ações" no menu), no `main` e no Render. Deploy Hook e secret `RENDER_DEPLOY_HOOK` configurados; o workflow semanal foi testado e disparou o deploy. Tempos medidos no Render: 1 ação 15 s, 4 ações 33 s, seleção automática ~75 s (textos de `execucao.tempo_previsto` ajustados). Falta só: abrir o resumo em PDF do Render e conferir os símbolos ✓ e − (o PDF já sai, 200, 70 KB).
 
 ## Exportar as avaliações para a análise de qualidade
 **Sugestão:** https://www.notion.so/3fdd653a12cb8127af26d5cfba4f775b · **Registrado em:** 18/10/2026 · **Origem:** Planejada
