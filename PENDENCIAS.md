@@ -2,15 +2,6 @@
 
 Melhorias e correções previstas. Cada item tem uma linha no banco 💡 Sugestões do Centro de Comando. Executado → Implementada no banco e o item sai daqui.
 
-## App estudo_caso
-**Sugestão:** https://www.notion.so/3fdd653a12cb81309b80c037ccb7851c · **Registrado em:** 18/10/2026 · **Origem:** Planejada
-
-Do `README.md` ("Próximos passos (fase 2)"): App `estudo_caso`: comparação de uma estratégia ativa de compra de ações brasileiras (análise técnica + fundamentalista) com renda fixa e investimento passivo, usando pandas/numpy/yfinance.
-
-**Base (27/10/2026):** o app vai ser construído a partir do projeto `Script Analise Quantitativa` (pasta irmã, em `Desktop\Projeto Final ADS\`). A análise sai desse script e é levada para o portal; não se começa do zero.
-
-**No ar (09/11/2026):** app `estudo_caso` em `/estudo-caso/` ("Análise de ações" no menu), no `main` e no Render. Deploy Hook e secret `RENDER_DEPLOY_HOOK` configurados; o workflow semanal foi testado e disparou o deploy. Tempos medidos no Render: 1 ação 15 s, 4 ações 33 s, seleção automática ~75 s (textos de `execucao.tempo_previsto` ajustados). Falta só: abrir o resumo em PDF do Render e conferir os símbolos ✓ e − (o PDF já sai, 200, 70 KB).
-
 ## Conferir a 1ª rodada completa do pré-cálculo das análises (14/11/2026)
 **Sugestão:** https://www.notion.so/413d653a12cb814894aad42acd4e59bd · **Registrado em:** 09/11/2026 · **Origem:** Manual
 
