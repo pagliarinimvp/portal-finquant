@@ -16,6 +16,13 @@ Do `README.md` ("Próximos passos (fase 2)"): App `estudo_caso`: comparação de
 
 O pré-cálculo de madrugada (02:00–05:00, `estudo_caso/execucao.py`) foi ligado em 09/11/2026, depois de um teste aprovado no Render. No sábado, 14/11/2026, o deploy da 01:00 traz preços novos e a rodada das 02:00 refaz as 136 análises (60 seleções automáticas + 76 ações sozinhas). Conferir: (1) abrir uma amostra de análises (devem abrir prontas, com a data nova); (2) o histórico do UptimeRobot entre 02:00 e 05:00, para garantir que o site não travou. Os logs do Render gratuito só guardam 1 hora; se houver travamento, o `estudo_caso/vigia.py` grava a pilha das threads no log.
 
+## Investigar o tempo de resposta de Entrar e Cadastro (~1 s)
+**Sugestão:** https://www.notion.so/413d653a12cb81e3aa4ef557d674cc6b · **Registrado em:** 09/11/2026 · **Origem:** Manual
+
+No teste de tempo de 09/11/2026 em produção, Entrar e Cadastro levaram ~0,95 s, contra ~0,24 s das páginas que não leem o banco. Hipótese a conferir: a distância entre o servidor (Render, Oregon) e o banco (Neon, São Paulo). Passos: contar as consultas de cada página e, se a hipótese se confirmar, avaliar mudar a região de um dos dois.
+
+**Tempos de referência (09/11/2026, produção no commit `bd84573`, sem as abas; mediana de 3 acessos):** simuladores (índice, os 3 e o cálculo POST), Esqueci a senha, Avaliação e Análise de ações passo 1: 0,23 a 0,25 s · Início 0,58 s (1º acesso 1,7 s) · Artigo 0,61 s · Artigos 0,76 s · Entrar e Cadastro ~0,95 s · telas da análise PETR4 (0 a 9) 0,9 a 1,5 s · resumo em PDF 2,6 s. Análises: padrão PETR4 e seleção automática já prontas no cache, 1,3 a 1,6 s (a automática levava ~75 s sem cache); 1 ação nova (WEGE3) 15,2 s; 4 ações novas (ITUB4, BBDC4, ABEV3, WEGE3) 26,9 s; página inicial durante o cálculo: mediana 0,64 s, máximo 1,13 s. Essas duas análises novas ficaram no cache: num próximo teste, use outras ações ou opções. Para repetir: `python scripts/medir_tempos.py resultado.json`.
+
 ## Exportar as avaliações para a análise de qualidade
 **Sugestão:** https://www.notion.so/3fdd653a12cb8127af26d5cfba4f775b · **Registrado em:** 18/10/2026 · **Origem:** Planejada
 
