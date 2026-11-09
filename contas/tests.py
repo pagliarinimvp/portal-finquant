@@ -221,3 +221,38 @@ class RecuperacaoSenhaDesligadaTests(TestCase):
         response = self.client.post(reverse('contas:senha_esqueci'), {'email': 'ana@exemplo.com'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(mail.outbox), 0)
+
+
+def _consultas_socialapp(contexto):
+    return [q["sql"] for q in contexto.captured_queries if "socialaccount_socialapp" in q["sql"]]
+
+
+class ProvedoresSociaisSemBancoTests(TestCase):
+    """Entrar e Cadastro não devem consultar a tabela de provedores quando os dois estão nas configurações.
+
+    Em produção, cada consulta ao banco (Neon, São Paulo) custa ~0,18 s a partir do Render (Oregon), e essas
+    3 consultas deixavam as duas páginas em ~0,95 s (medido em 09/11/2026)."""
+
+    @override_settings(SOCIALACCOUNT_PROVIDERS={**GOOGLE_CONFIGURADO, **GITHUB_CONFIGURADO})
+    def test_entrar_e_cadastro_nao_consultam_a_tabela_com_os_dois_configurados(self):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+
+        for url in ("/contas/entrar/", "/contas/cadastro/"):
+            with CaptureQueriesContext(connection) as contexto:
+                response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "/contas/social/google/login/")
+            self.assertContains(response, "/contas/social/github/login/")
+            self.assertEqual(_consultas_socialapp(contexto), [], url)
+
+    @override_settings(SOCIALACCOUNT_PROVIDERS=GOOGLE_CONFIGURADO)
+    def test_com_um_provedor_faltando_continua_lendo_a_tabela(self):
+        from allauth.socialaccount.models import SocialApp
+        from django.contrib.sites.models import Site
+
+        app = SocialApp.objects.create(provider="github", name="GitHub do banco", client_id="id-do-banco", secret="s")
+        app.sites.add(Site.objects.get_current())
+        response = self.client.get("/contas/entrar/")
+        self.assertContains(response, "/contas/social/google/login/")
+        self.assertContains(response, "/contas/social/github/login/")

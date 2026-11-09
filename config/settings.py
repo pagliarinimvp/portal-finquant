@@ -199,6 +199,9 @@ if GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET:
 # no provedor -> volta logado, sem passo intermediario.
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
+# Lê os provedores das configurações sem consultar o banco (ver contas/adapters.py).
+SOCIALACCOUNT_ADAPTER = 'contas.adapters.AdaptadorSocial'
+
 # Se o e-mail vindo do provedor (verificado) ja pertence a um usuario local
 # existente, loga nessa conta em vez de dar erro de e-mail duplicado, e
 # conecta a conta social a ela automaticamente.
