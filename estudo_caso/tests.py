@@ -195,6 +195,7 @@ class PrecalculoTests(SimpleTestCase):
         self.assertEqual(lista[0], PADROES)                         # a mais provável vem primeiro
         self.assertTrue(all(x["custo"] == "tarifas_b3" and x["capital"] == 100_000.0 for x in lista))
 
+    @override_settings(ESTUDO_JANELA="2-5")
     def test_janela_de_madrugada(self):
         from datetime import datetime
         b = execucao.BRASILIA
@@ -230,5 +231,16 @@ class PrecalculoTests(SimpleTestCase):
         with self.settings(ESTUDO_JANELA="17-19"):
             self.assertTrue(execucao.na_janela(datetime(2026, 11, 9, 17, 30, tzinfo=b)))
             self.assertFalse(execucao.na_janela(datetime(2026, 11, 9, 3, 0, tzinfo=b)))
-        with self.settings(ESTUDO_JANELA="abc"):
-            self.assertEqual(execucao.janela(), (2, 5))
+        for desligado in ("", "abc"):
+            with self.settings(ESTUDO_JANELA=desligado):
+                self.assertIsNone(execucao.janela())
+                self.assertFalse(execucao.na_janela())
+
+    def test_vigia_aponta_requisicao_presa(self):
+        from . import vigia
+        vigia._EM_CURSO[-1] = (100.0, "/presa/")
+        try:
+            self.assertEqual(vigia.presas(agora=100.0 + vigia.LIMITE + 1), [(vigia.LIMITE + 1, "/presa/")])
+            self.assertEqual(vigia.presas(agora=100.0 + vigia.LIMITE - 1), [])
+        finally:
+            vigia._EM_CURSO.pop(-1, None)

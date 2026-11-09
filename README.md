@@ -102,7 +102,7 @@ Essa rota responde "ok" sem consultar o banco, então não mantém o Neon ligado
 
 ### Atualização semanal dos dados da análise de ações
 
-`.github/workflows/atualizar-dados.yml` dispara um deploy todo sábado à 01:00 de Brasília, e o build baixa os preços novos. Das 02:00 às 05:00, o servidor deixa prontas as 60 seleções automáticas e cada ação sozinha com os padrões (`estudo_caso/execucao.py`), cedendo a vez a quem pedir uma análise. Configuração, uma vez só:
+`.github/workflows/atualizar-dados.yml` dispara um deploy todo sábado à 01:00 de Brasília, e o build baixa os preços novos. Com a variável `ESTUDO_JANELA` (ex.: `2-5`, das 02:00 às 05:00; desligado por padrão até ser validado), o servidor deixa prontas as 60 seleções automáticas e cada ação sozinha com os padrões (`estudo_caso/execucao.py`), cedendo a vez a quem pedir uma análise. Configuração, uma vez só:
 
 1. No Render, serviço `portal-finquant` > Settings > Deploy Hook: copie a URL.
 2. No GitHub, Settings > Secrets and variables > Actions > New repository secret, com o nome `RENDER_DEPLOY_HOOK` e a URL como valor.

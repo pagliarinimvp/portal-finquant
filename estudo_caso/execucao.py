@@ -152,6 +152,7 @@ BRASILIA = timezone(timedelta(hours=-3))    # sem horário de verão desde 2019
 PAUSA_ENTRE = 2                 # respiro entre uma análise e outra
 ESPERA_FILA = 5                 # de quanto em quanto tempo olha se a fila esvaziou
 ESPERA_JANELA = 5 * 60          # fora da janela, olha o relógio a cada 5 min
+PAUSA_INICIAL = 120             # nada de trabalho enquanto o servidor sobe (o 1º teste travou começando na subida)
 
 
 class _Cedeu(Exception):
@@ -201,25 +202,29 @@ def rodar_ocioso(cfg: dict, k: str) -> bool:
         _TRAVA.release()
 
 
-def janela() -> tuple[int, int]:
+def janela() -> tuple[int, int] | None:
     """As horas de início e de fim, em Brasília: `settings.ESTUDO_JANELA` ("2-5" = das 02:00 às 05:00). A volta completa
-    leva ~90 min no Render. Um valor ilegível volta ao padrão."""
+    leva ~90 min no Render. Vazio ou ilegível: None, o pré-cálculo fica desligado."""
     try:
-        inicio, fim = (int(x) for x in str(settings.ESTUDO_JANELA).split("-"))
-    except (AttributeError, ValueError):
-        return (2, 5)
+        inicio, fim = (int(x) for x in str(getattr(settings, "ESTUDO_JANELA", "")).split("-"))
+    except ValueError:
+        return None
     return (inicio, fim)
 
 
 def na_janela(agora: datetime | None = None) -> bool:
+    j = janela()
+    if j is None:
+        return False
     agora = agora or datetime.now(BRASILIA)
-    inicio, fim = janela()
-    return inicio <= agora.astimezone(BRASILIA).hour < fim
+    return j[0] <= agora.astimezone(BRASILIA).hour < j[1]
 
 
 def precalcular_ocioso(uma_volta: bool = False) -> int:
     """Laço da thread de pré-cálculo (iniciada pelo `apps.py` no gunicorn): uma volta por noite, dentro da `janela()`,
     refazendo só o que falta no cache. Com `uma_volta`, roda já, ignora o horário e devolve quantas guardou."""
+    if not uma_volta:
+        time.sleep(PAUSA_INICIAL)
     while True:
         if not uma_volta:
             while not na_janela():
