@@ -28,9 +28,12 @@ ESCOLHA_DIVISAO = "Como dividir o dinheiro?"
 ESCOLHA_RITMO = ("Qual o ritmo da regra?", "A regra compra quando a média dos preços recentes passa para cima da média dos "
                  "preços mais antigos, e vende no movimento contrário. Os números dizem quantos dias entram em cada média.")
 ESCOLHA_PROTECAO = ("Quer uma saída automática?", "Um limite definido na hora da compra: vende se a perda ou o ganho chegar ao percentual escolhido.")
-ESCOLHA_CUSTO = ("Quanto custa cada operação?", "Cada compra e cada venda pagam a tarifa da B3, e o lucro paga imposto de renda: 15%, ou 20% "
-                 "no day trade. A Selic de comparação segue a mesma escolha: com imposto, ou sem. O custo pesa mais em quem opera muito. "
-                 "Os detalhes estão na tela “As operações”.")
+CUSTOS_FIXOS = ("Custos: tarifas da B3 e imposto de renda",
+                "A simulação paga os custos reais de quem investe em ações. A <b>tarifa da B3</b> é de 0,03% sobre o valor de cada compra "
+                "e de cada venda: numa compra de R$ 10.000, são R$ 3. O <b>imposto de renda</b> incide sobre o lucro: 15% nas operações "
+                "comuns, com isenção no mês em que as vendas somam até R$ 20 mil, e 20% no day trade, quando a compra e a venda acontecem "
+                "no mesmo dia. A Selic de comparação também paga o imposto da renda fixa, de 22,5% a 15% conforme o prazo. O custo pesa "
+                "mais em quem opera muito. Os detalhes estão na tela “As operações”.")
 CUSTO_B3 = ("<b>De onde vem o 0,03%.</b> É a tarifa que a B3, a bolsa brasileira, cobra sobre o valor de cada compra e de cada venda de ações "
             "à vista, fora do day trade, de quem negocia até R$ 3 milhões por dia em média, como a maioria das pessoas físicas. Ela soma três "
             "partes: 0,005% de negociação, 0,0224% de contraparte central (a antiga taxa de liquidação, que garante que a operação se "
@@ -56,7 +59,11 @@ IMPOSTO_FORA = ("<b>O que fica de fora:</b> a corretagem, que muitas corretoras 
                 "e a taxa de custódia do Tesouro Direto. Para o limite de R$ 20 mil, esta ferramenta soma todas as vendas do mês, "
                 "inclusive as de day trade, que é a leitura mais conservadora. As escolhas feitas no treino usam o resultado antes do imposto. "
                 "As regras são as vigentes em 07/11/2026: a Medida Provisória nº 1.303/2025, que mudaria as alíquotas, perdeu a validade.")
-ESCOLHA_CAPITAL = "Com quanto dinheiro começar? (R$)"
+CAPITAL_FIXO = ("Dinheiro inicial: R$ 100.000",
+                "O valor serve apenas para a simulação. Com ele, sempre há dinheiro para comprar quando a regra dá o sinal, e o teste "
+                "não fica prejudicado por falta de saldo: a simulação compra lotes inteiros de 100 ações, e com pouco dinheiro uma "
+                "ação cara poderia não caber em um lote. Um valor menor não invalida a estratégia. Na bolsa brasileira, dá para "
+                "comprar no mercado fracionário, a partir de 1 ação, e o resultado tende a ser proporcionalmente semelhante.")
 
 BOTAO = "Rodar a análise"
 VOLTAR = "Voltar ao resultado"
@@ -87,7 +94,7 @@ RESUMO = {
     "selecao": "A ferramenta testou a regra em cada ação, só no treino, e ficou com as melhores notas.",
     "regra": "A regra compra quando a média curta passa para cima da longa e vende no movimento contrário.",
     "carteira": "Veja como o dinheiro foi dividido e o quanto a estimativa do treino acertou no teste.",
-    "dinheiro": "Este é o resultado da regra em reais, depois de pagar as tarifas e o imposto escolhidos.",
+    "dinheiro": "Este é o resultado da regra em reais, depois de pagar as tarifas e o imposto.",
     "sharpe": "O índice de Sharpe responde a uma pergunta: o que a regra rendeu acima da Selic compensou o sobe e desce do caminho?",
     "janelas": "Antes de cada janela de teste, as escolhas foram refeitas só com o passado. Aqui está o que foi escolhido e o que cada janela entregou.",
     "operacoes": "Cada operação é uma compra seguida de uma venda. Aqui está o resumo de todas elas, por período.",
@@ -199,7 +206,7 @@ DINHEIRO_NAO_E_PASSAR = ("<b>Ganhar dinheiro não é o mesmo que passar nos test
                          "foram feitas olhando os próprios dados. O passo 5 explica a diferença.")
 DINHEIRO_TITULO = "Entenda melhor: as alternativas e os períodos"
 DINHEIRO_ALTERNATIVAS = [
-    "<b>Regra:</b> compra e vende pelas médias, com a saída automática, as tarifas e o imposto escolhidos.",
+    "<b>Regra:</b> compra e vende pelas médias, com a saída automática escolhida, pagando as tarifas e o imposto.",
     "<b>Comprar e segurar:</b> as mesmas ações e pesos, compradas no primeiro dia e vendidas só quando as escolhas mudam entre "
     "janelas ou no fim. Paga as mesmas tarifas e o mesmo imposto.",
     "<b>Selic:</b> o mesmo dinheiro numa aplicação que rende a taxa básica de juros todo dia. Com imposto, a curva mostra o valor "
@@ -321,8 +328,7 @@ LIMITES = [
     "Brown et al. (1992) mostram como amostras só com sobreviventes distorcem estudos de desempenho de fundos.",
     "<b>Viés do período.</b> Os resultados valem para estes 10 anos. Outras fases do mercado podem dar outros resultados.",
     "<b>Amostra pequena.</b> Poucas operações ou poucos anos de teste não permitem concluir muito. Quando isso acontece, a página avisa.",
-    "<b>A simulação simplifica.</b> Ela não considera a dificuldade de negociar grandes volumes nem o rendimento do dinheiro parado. "
-    "O imposto de renda só entra quando o custo escolhido inclui o imposto.",
+    "<b>A simulação simplifica.</b> Ela não considera a dificuldade de negociar grandes volumes nem o rendimento do dinheiro parado.",
 ]
 PROXIMOS_PASSOS = ("Experimente outras escolhas e veja o que muda: outro ritmo, outra saída automática, mais ações. Compare os testes, e não só o retorno. "
                    "Se uma combinação só parece boa depois de muitas tentativas, desconfie: é disso que trata o desconto do Sharpe.")

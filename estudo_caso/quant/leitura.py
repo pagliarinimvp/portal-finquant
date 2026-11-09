@@ -266,7 +266,7 @@ def _perguntas(r: dict, n_passou: int, n_aplicaveis: int) -> tuple[list[dict], s
     est, selic, bh = te["estrategia"], te.get("selic"), te["buy_hold"]
     dinheiro = {"pergunta": "A regra ganhou dinheiro?", "resposta": "Sim" if est_i["retorno_total"] > 0 else "Não",
                 "texto": f"No histórico inteiro, de {_data(per['inicio'])} a {_data(per['fim'])}, {_brl(cap)} viraram "
-                         f"{_brl(est_i['valor_final'])}, depois de pagar as tarifas e o imposto escolhidos. Nas janelas de teste, a regra rendeu {_pct(est['retorno_total'])}."}
+                         f"{_brl(est_i['valor_final'])}, depois de pagar as tarifas e o imposto. Nas janelas de teste, a regra rendeu {_pct(est['retorno_total'])}."}
     refs = ([("da Selic", selic["retorno_total"])] if selic else []) + [("de comprar e segurar", bh["retorno_total"])]
     venceu = [nome for nome, v in refs if est["retorno_total"] > v]
     contra = " e ".join(f"{_pct(v)} {nome}" for nome, v in refs)
@@ -411,7 +411,7 @@ def roteiro_treino(r: dict) -> dict:
     if sel:
         passos += [
             ("Filtrar as ações", f"Das {sel['n_universo']} ações do Ibovespa, ficam {sel['n_candidatas']}: as que têm dados completos e sem sinais de erro desde o início do histórico."),
-            ("Simular cada ação", f"A regra roda em cada candidata, só nos pregões do treino, com {_brl(e['capital'] / MAX_ACOES)} (o capital dividido por {MAX_ACOES}) e com a saída e o custo escolhidos. "
+            ("Simular cada ação", f"A regra roda em cada candidata, só nos pregões do treino, com {_brl(e['capital'] / MAX_ACOES)} (o capital dividido por {MAX_ACOES}), com a saída escolhida e pagando as tarifas e o imposto. "
                                   "Uma compra aberta no último pregão do treino é vendida no fechamento dele."),
             ("Dar uma nota", "A nota é o índice de Sharpe no treino: quanto a ação rendeu acima da Selic para cada ponto de oscilação. Só nesta nota, o dinheiro parado rende a Selic, "
                              "para não punir os ritmos que ficam menos tempo comprados."),
@@ -427,7 +427,7 @@ def roteiro_treino(r: dict) -> dict:
             passos.append(pesos)
         if e["medias_pelo_treino"]:
             nota = next((ln["sharpe_treino"] for ln in e["comparacao_ritmos"] if ln["curta"] == e["curta"]), None)
-            passos.append(("Comparar os ritmos", f"Os {n_ritmos} ritmos são simulados com a saída e o custo escolhidos, e cada um recebe o índice de Sharpe do trecho de treino: "
+            passos.append(("Comparar os ritmos", f"Os {n_ritmos} ritmos são simulados com a saída escolhida e com as tarifas e o imposto, e cada um recebe o índice de Sharpe do trecho de treino: "
                            f"quanto rendeu acima da Selic para cada ponto de oscilação. Vence o maior. Na 1ª janela: {e['medias']}, com {_num(nota)}."))
         if not pesos and not e["medias_pelo_treino"]:
             passos.append(("Nada a escolher", "Com estas escolhas, não há o que decidir: a ação, o ritmo, a saída e o custo foram definidos por você e valem em todas as janelas. "

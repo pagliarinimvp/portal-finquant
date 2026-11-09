@@ -279,7 +279,7 @@ def gerar_pdf(res: dict, hoje: date | None = None) -> bytes:
         Spacer(1, 5),
         _t(v["frase"], "texto"),
         KeepTogether([_p("Quanto o dinheiro teria virado", "secao"), _grafico(res, largura), Spacer(1, 4), _dinheiro(res, largura),
-                      Spacer(1, 3), _p("Valor final depois das tarifas e do imposto escolhidos. O histórico inteiro inclui o treino, em que "
+                      Spacer(1, 3), _p("Valor final depois das tarifas e do imposto. O histórico inteiro inclui o treino, em que "
                                        "as escolhas foram feitas olhando os próprios dados; por isso, o veredito olha as janelas de teste.", "suave")]),
         KeepTogether([_p("Os testes", "secao"), *_testes(res, largura)]),
         KeepTogether([_p("As operações nas janelas de teste", "secao"), _operacoes(res, largura)]),

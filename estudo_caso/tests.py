@@ -13,7 +13,7 @@ from pathlib import Path
 from django.test import SimpleTestCase, override_settings
 
 from . import execucao, telas
-from .forms import AnaliseForm, ler_capital
+from .forms import AnaliseForm
 
 _spec = importlib.util.spec_from_file_location("conftest_quant", Path(__file__).parent / "quant_tests" / "conftest.py")
 conftest = importlib.util.module_from_spec(_spec)
@@ -21,22 +21,25 @@ _spec.loader.exec_module(conftest)
 
 CACHE_TESTE = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
                "analises": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "LOCATION": "analises-teste"}}
-UMA = "selecao=manual&tickers=PETR4&divisao=igual&medias=intermediario&protecao=2_1&custo=tarifas_b3&capital=100.000"
-DUAS = "selecao=manual&tickers=PETR4&tickers=VALE3&divisao=min_variancia&medias=treino&protecao=sem&custo=sem_custo&capital=50.000"
-AUTO = "selecao=automatica&divisao=igual&medias=intermediario&protecao=2_1&custo=tarifas_b3&capital=100.000"
+UMA = "selecao=manual&tickers=PETR4&divisao=igual&medias=intermediario&protecao=2_1"
+DUAS = "selecao=manual&tickers=PETR4&tickers=VALE3&divisao=min_variancia&medias=treino&protecao=sem"
+AUTO = "selecao=automatica&divisao=igual&medias=intermediario&protecao=2_1"
 
 
 class FormularioTests(SimpleTestCase):
     def dados(self, **extra):
         base = {"selecao": "manual", "tickers": ["PETR4"], "divisao": "max_sharpe", "medias": "intermediario",
-                "protecao": "2_1", "custo": "tarifas_b3", "capital": "100.000"}
+                "protecao": "2_1"}
         return {**base, **extra}
 
-    def test_capital_no_formato_brasileiro(self):
-        self.assertEqual(ler_capital("100.000"), 100_000.0)
-        self.assertEqual(ler_capital("R$ 100.000,50"), 100_000.5)
-        self.assertIsNone(ler_capital("999"))
-        self.assertIsNone(ler_capital("abc"))
+    def test_custo_e_capital_sao_fixos(self):
+        # Mesmo num link antigo, com outro custo e outro capital, a análise usa sempre os valores fixos.
+        form = AnaliseForm(self.dados(custo="sem_custo", capital="50.000"))
+        self.assertTrue(form.is_valid(), form.errors)
+        cfg = form.para_config()
+        self.assertEqual((cfg["custo"], cfg["capital"]), ("tarifas_b3", 100_000.0))
+        self.assertNotIn("custo", form.fields)
+        self.assertNotIn("capital", form.fields)
 
     def test_divisao_so_vale_com_duas_ou_mais_acoes(self):
         form = AnaliseForm(self.dados())
@@ -107,7 +110,10 @@ class PaginasTests(SimpleTestCase):
     def test_passo_1(self):
         r = self.client.get("/estudo-caso/")
         self.assertContains(r, "Esta regra de compra e venda teria dado certo?")
-        self.assertContains(r, 'value="100.000"')
+        self.assertContains(r, "Dinheiro inicial: R$ 100.000")
+        self.assertContains(r, "Custos: tarifas da B3 e imposto de renda")
+        self.assertNotContains(r, 'name="capital"')
+        self.assertNotContains(r, 'name="custo"')
         self.assertNotContains(r, "Voltar ao resultado")
 
     def test_todas_as_telas_com_uma_acao(self):
@@ -133,7 +139,7 @@ class PaginasTests(SimpleTestCase):
         self.assertRegex(r["Content-Disposition"], r'filename="resumo_PETR4_\d{2}-\d{2}-\d{4}\.pdf"')
 
     def test_pdf_sem_resultado_da_404(self):
-        r = self.client.get(f"/estudo-caso/pdf/?{UMA.replace('100.000', '123.456')}")
+        r = self.client.get(f"/estudo-caso/pdf/?{UMA.replace('protecao=2_1', 'protecao=3_1')}")
         self.assertEqual(r.status_code, 404)
 
     def test_mudar_escolhas_volta_ao_resultado(self):
@@ -141,12 +147,11 @@ class PaginasTests(SimpleTestCase):
         self.assertContains(self.client.get(f"/estudo-caso/?{UMA}"), "Voltar ao resultado")
 
     def test_escolhas_invalidas_voltam_ao_formulario(self):
-        r = self.client.get("/estudo-caso/analise/?selecao=manual&medias=intermediario&protecao=2_1&custo=tarifas_b3&capital=abc")
+        r = self.client.get("/estudo-caso/analise/?selecao=manual&medias=intermediario&protecao=2_1")
         self.assertContains(r, "Escolha ao menos uma ação para rodar a análise.")
-        self.assertContains(r, "Digite um valor entre R$ 1.000")
 
     def test_espera_e_status(self):
-        qs = UMA.replace("100.000", "77.000")
+        qs = UMA.replace("protecao=2_1", "protecao=1_1")
         r = self.client.get(f"/estudo-caso/analise/?{qs}")
         self.assertContains(r, "Calculando a análise")
         k = execucao.chave(self.config(qs))

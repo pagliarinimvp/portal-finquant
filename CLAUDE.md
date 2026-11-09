@@ -49,6 +49,8 @@ Veio do projeto `Script Analise Quantitativa` (pasta irmã), que era um app Stre
 - `execucao.py` — a análise roda numa thread (uma por vez) e o resultado vai compactado para o cache `analises` (tabela `estudo_caso_cache` no banco). A chave junta a versão do núcleo, a configuração e a data do último pregão nos CSVs.
 - `dados/` — CSVs de preços, Ibovespa e Selic, versionados no git. As requisições nunca baixam nada. `manage.py atualizar_dados_estudo` atualiza (roda no build do Render, disparado toda semana por `.github/workflows/atualizar-dados.yml`); `manage.py precalcular_estudo` deixa prontas as configurações padrão.
 
+- **Custo e capital fixos (desde 09/11/2026, decisão do autor):** o passo 1 não pergunta mais o custo nem o capital. Vale sempre "Tarifas da B3 e imposto" e R$ 100.000 (`forms.CUSTO_FIXO`/`CAPITAL_FIXO`), explicados como premissas (`tx.CUSTOS_FIXOS`, `tx.CAPITAL_FIXO`). O núcleo continua aceitando os dois, porque o teste "Sensibilidade ao custo" usa `sem_custo` por dentro. Ao mudar um texto que fica guardado no resultado (como os de `quant/leitura.py`), suba `execucao.REVISAO_TEXTOS`, senão o cache continua servindo o texto antigo.
+
 Exceções deliberadas aos padrões do portal:
 - **`float`, não `Decimal`:** o núcleo calcula com pandas/numpy; a apresentação formata em texto (`formatacao.py`).
 - **GET, não POST:** as escolhas e a tela atual (`?tela=N`) ficam no link, que pode ser compartilhado.

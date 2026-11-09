@@ -34,9 +34,12 @@
             </div>
             <div class="col-md-6">{% include "estudo_caso/_campo.html" with campo=form.medias descricao=descricao_atual.medias %}</div>
             <div class="col-md-6">{% include "estudo_caso/_campo.html" with campo=form.protecao descricao=descricao_atual.protecao %}</div>
-            <div class="col-md-6">{% include "estudo_caso/_campo.html" with campo=form.custo descricao=descricao_atual.custo %}</div>
-            <div class="col-md-6">{% include "estudo_caso/_campo.html" with campo=form.capital %}</div>
             <div class="col-md-6" data-campo-divisao>{% include "estudo_caso/_campo.html" with campo=form.divisao descricao=descricao_atual.divisao %}</div>
+        </div>
+        {# Custo e capital são fixos (decisão de 09/11/2026): aparecem como premissas, não como escolhas. #}
+        <div class="row gx-5 gy-2 premissas">
+            <div class="col-md-6"><p class="premissa-titulo">{{ tx.CUSTOS_FIXOS.0 }}</p><p class="descricao">{{ tx.CUSTOS_FIXOS.1|safe }}</p></div>
+            <div class="col-md-6"><p class="premissa-titulo">{{ tx.CAPITAL_FIXO.0 }}</p><p class="descricao">{{ tx.CAPITAL_FIXO.1|safe }}</p></div>
         </div>
         <div class="alerta" data-so-automatica hidden>{{ tx.ALERTA_SELECAO_CURTO|safe }}</div>
 

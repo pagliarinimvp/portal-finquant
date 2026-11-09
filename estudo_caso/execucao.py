@@ -49,8 +49,12 @@ def ultimo_pregao() -> str:
         return "sem-dados"
 
 
+# Sobe quando um texto guardado no resultado muda (vem do núcleo, como a leitura), para não servir o texto antigo do cache.
+REVISAO_TEXTOS = 2  # 2: custo e capital fixos (09/11/2026)
+
+
 def chave(cfg: dict) -> str:
-    return f"{servico.VERSAO}-{servico.chave_cache(cfg)}-{ultimo_pregao()}"
+    return f"{servico.VERSAO}.{REVISAO_TEXTOS}-{servico.chave_cache(cfg)}-{ultimo_pregao()}"
 
 
 def config_completa(cfg: dict) -> dict:

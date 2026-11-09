@@ -54,6 +54,8 @@
 .escolhas .ts-dropdown { background: var(--cartao); color: var(--tinta); }
 .escolhas .ts-dropdown .active { background: var(--azul-claro); color: var(--tinta); }
 .escolhas .ts-control input { color: var(--tinta); }
+.premissas { margin-top: .4rem; }
+.premissa-titulo { font-family: var(--fq-font-display); font-weight: 700; font-size: 1.12rem; color: var(--tinta); margin: .5rem 0 .3rem; }
 .botoes-escolhas { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.2rem; }
 .botoes-escolhas .btn-primary { font-size: 1.05rem; font-weight: 700; }
 

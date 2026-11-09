@@ -35,7 +35,7 @@ def _urls(cfg: dict | None) -> dict:
 
 def _perguntar(request, form, erro: str | None = None, cfg: dict | None = None):
     todas = descricoes()
-    atual = {campo: todas[campo].get(form.valor(campo) or "", "") for campo in ("medias", "protecao", "custo", "divisao")}
+    atual = {campo: todas[campo].get(form.valor(campo) or "", "") for campo in ("medias", "protecao", "divisao")}
     # "Voltar ao resultado" só aparece se a análise destas escolhas já foi feita, como no app Streamlit.
     voltar = _urls(cfg)["analise"] if cfg and execucao.resultado(execucao.chave(cfg)) is not None else None
     contexto = {"form": form, "abertura": telas.abertura(_urls(None)), "descricoes": todas, "descricao_atual": atual,
