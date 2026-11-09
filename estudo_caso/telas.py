@@ -9,6 +9,7 @@ Para mudar um texto, edite `apresentacao/textos.py` ou `quant/leitura.py`, como 
 """
 import re
 import threading
+from collections.abc import Callable, Sequence
 from contextlib import contextmanager
 from html import escape
 
@@ -253,7 +254,7 @@ def fechar_teste(res: dict, id_: str, extra: str | None = None, figura=None):
         fontes(ids)
 
 
-def um_por_vez(chave: str, itens: list[tuple[str, object]]):
+def um_por_vez(chave: str, itens: Sequence[tuple[str, Callable[[], object]]]):
     """Mostra um item de cada vez, escolhido em um seletor. O primeiro vem aberto."""
     # No portal, todos os itens vão na página e as abas trocam qual aparece, sem recarregar (estudo_caso.js).
     grupo = st.novo_id(chave)
@@ -281,7 +282,12 @@ def tela_preparar(res: dict):
         html(f'<p><b>Ações consideradas:</b> as {s["n_universo"]} da carteira do Ibovespa de {DATA_CARTEIRA}. {s["n_candidatas"]} têm histórico completo e confiável para a seleção.</p>')
     else:
         html(f'<p><b>Ações analisadas:</b> {escape(", ".join(res["tickers"]))}, da carteira do Ibovespa de {DATA_CARTEIRA}.</p>')
-    entenda(tx.DADOS, tx.POR_QUE_10_ANOS, ids=["yahoo", "bcb_selic", "b3_ibov"])
+
+    def origem():
+        html(f"<p>{tx.DADOS}</p>")
+        fontes(["yahoo", "bcb_selic", "b3_ibov"])
+
+    um_por_vez("item_dados", [("De onde vêm os dados", origem), ("Por que 10 anos", lambda: html(f"<p>{tx.POR_QUE_10_ANOS}</p>"))])
 
 
 # ----------------------------------------------------------------------------- 3. processar
@@ -307,13 +313,14 @@ def tela_treino_teste(res: dict):
         tabela(["", "Treino", "Teste, em janelas"], tx.TT_TABELA, texto=True)
         html(f"<p>{tx.TT_POR_QUE_JANELAS}</p>")
         html(f"<p>{tx.TT_SEPARACAO}</p>")
-        sub("O que o treino decidiu nesta análise")
+        entenda(tx.DIVISAO_HISTORICO, tx.TT_NAO_INTERCALAR, ids=["bailey2014", "tashman2000"])
+
+    def decidiu():
         html(f"<p>{escape(dec['frase'])}</p>")
         tabela(["Escolha", "Quem definiu", "Resultado"], [[x["escolha"], x["quem"], x["resultado"]] for x in dec["itens"]], texto=True)
         with st.expander("O passo a passo do treino nesta análise"):
             passos(rot["passos"])
             nota(escape(rot["nao_decide"]))
-        entenda(tx.DIVISAO_HISTORICO, tx.TT_NAO_INTERCALAR, ids=["bailey2014", "tashman2000"])
 
     def usos():
         sub("O que usa cada período")
@@ -321,7 +328,7 @@ def tela_treino_teste(res: dict):
         sub("Os limites dessa separação")
         lista(tx.TT_LIMITES)
 
-    um_por_vez("item_treino", [("As duas partes", partes), ("Usos e limites", usos)])
+    um_por_vez("item_treino", [("As duas partes", partes), ("O que o treino decidiu", decidiu), ("Usos e limites", usos)])
     html('<p class="leitura-grafico">A regra de compra e venda, com um exemplo real, está no passo 4, em “A regra em ação”. '
          'O resultado de cada janela vem depois, em “As janelas de teste”.</p>')
 
@@ -331,24 +338,27 @@ def tela_janelas(res: dict):
     js = res["janelas"]
     com_selic = [j for j in js if j["bateu_selic"] is not None]
     titulo = f"A regra rendeu mais que a Selic em {sum(j['bateu_selic'] for j in com_selic)} de {len(com_selic)} janelas de teste" if com_selic else None
-    grafico("janelas", titulo, g.fig_janelas(js))
-    sub("O que foi escolhido antes de cada janela")
 
     def acoes(j):
         if j["caixa"]:
             return "Dinheiro parado: nenhuma ação passou na seleção"
         return ", ".join(f"{t} {pct(w, 0)}" for t, w in j["pesos"].items()) if len(j["pesos"]) > 1 else ", ".join(j["pesos"])
 
-    tabela(["Janela", "Período", "Ações e pesos", "Ritmo"],
-           [[f"{j['n']}ª" + (" (mudou)" if j["mudou"] else ""), f"{data_br(j['inicio'])} a {data_br(j['fim'])}", acoes(j), j["rotulo_ritmo"] or "—"] for j in js], texto=True)
-    leitura_de("O treino de cada janela vai do início do histórico até o pregão anterior a ela.")
-    sub("O que o treino prometia e o que cada janela entregou")
-    tabela(["Janela", "Sharpe no treino", "Sharpe na janela", "Regra", "Selic", "Comprar e segurar"],
-           [[f"{j['n']}ª", num(j["sharpe_treino"]), num(j["sharpe_teste"]), pct(j["retorno"]), pct(j["selic"]), pct(j["buy_hold"])] for j in js],
-           cores=[[None, None, *melhor_e_pior([j["retorno"], j["selic"], j["buy_hold"]])] for j in js])
-    html('<p class="leitura-grafico"><b>Como ler:</b></p>')
-    lista(tx.TT_JANELAS_LER)
-    fontes(["tashman2000"])
+    def escolhido():
+        tabela(["Janela", "Período", "Ações e pesos", "Ritmo"],
+               [[f"{j['n']}ª" + (" (mudou)" if j["mudou"] else ""), f"{data_br(j['inicio'])} a {data_br(j['fim'])}", acoes(j), j["rotulo_ritmo"] or "—"] for j in js], texto=True)
+        leitura_de("O treino de cada janela vai do início do histórico até o pregão anterior a ela.")
+
+    def entregou():
+        tabela(["Janela", "Sharpe no treino", "Sharpe na janela", "Regra", "Selic", "Comprar e segurar"],
+               [[f"{j['n']}ª", num(j["sharpe_treino"]), num(j["sharpe_teste"]), pct(j["retorno"]), pct(j["selic"]), pct(j["buy_hold"])] for j in js],
+               cores=[[None, None, *melhor_e_pior([j["retorno"], j["selic"], j["buy_hold"]])] for j in js])
+        html('<p class="leitura-grafico"><b>Como ler:</b></p>')
+        lista(tx.TT_JANELAS_LER)
+        fontes(["tashman2000"])
+
+    um_por_vez("item_janelas", [("Janela a janela", lambda: grafico("janelas", titulo, g.fig_janelas(js))),
+                                ("O que foi escolhido", escolhido), ("Prometido e entregue", entregou)])
 
 
 # ----------------------------------------------------------------------------- 4. analisar
@@ -356,9 +366,36 @@ def tela_selecao(res: dict):
     s, te = res["selecao"], res["desempenho"]["teste"]
     alerta(tx.ALERTA_SELECAO)
     numeros([(str(s["n_universo"]), "ações no Ibovespa"), (str(s["n_candidatas"]), "com dados completos e confiáveis"), (str(len(res["tickers"])), "selecionadas")])
-    grafico("selecao", "A melhor no treino: as ações selecionadas e suas notas", g.fig_selecao(s["ranking"]))
-    nota(tx.SELECAO_NOTA)
-    sub("A seleção ajudou no teste?")
+
+    def notas():
+        grafico("selecao", "A melhor no treino: as ações selecionadas e suas notas", g.fig_selecao(s["ranking"]))
+        nota(tx.SELECAO_NOTA)
+
+    def ajudou():
+        _selecao_ajudou(s, te)
+
+    def cada_acao():
+        j1 = res["janelas"][0]
+        if j1["selic"] is not None:
+            leitura_de(f"Compare o retorno de cada ação na 1ª janela com a Selic, que rendeu {pct(j1['selic'])} no mesmo período.")
+        tabela(["Ação", "Sharpe no treino inicial", "Operações no treino inicial", "Retorno da regra na 1ª janela"],
+               [[x["ticker"], num(x["sharpe_treino"]), str(x["n_trades"]), pct(x["retorno_teste"])] for x in s["ranking"] if x["selecionada"]])
+        sub("As ações escolhidas antes de cada janela")
+        tabela(["Janela", "Treino até", "Ações"],
+               [[f"{j['n']}ª", data_br(j["fim_treino"]), ", ".join(j["acoes"]) or "Nenhuma: dinheiro parado"] for j in res["janelas"]], texto=True)
+        leitura_de("A seleção é refeita antes de cada janela, só com os dados anteriores a ela. Por isso as ações podem mudar de uma janela para outra.")
+
+    def como():
+        html(f"<p>{tx.SELECAO_COMPARA}</p>")
+        if s["fora"]:
+            html("<p><b>Ações que ficaram de fora:</b></p>")
+            lista([f'{escape(x["ticker"])}: {escape(x["motivo"])}.' for x in s["fora"]])
+        fontes(["bailey2014", "harvey2015", "brown1992", "b3_ibov"])
+
+    um_por_vez("item_selecao", [("As notas no treino", notas), ("A seleção ajudou?", ajudou), ("Ação por ação", cada_acao), ("Como comparar", como)])
+
+
+def _selecao_ajudou(s: dict, te: dict):
     alternativas = [("Regra na carteira selecionada", te["estrategia"]), ("Comprar e segurar a carteira selecionada", te["buy_hold"]),
                     ("Comprar e segurar partes iguais de todas as candidatas", s["candidatas_iguais"])]
     if "selic" in te:
@@ -369,59 +406,53 @@ def tela_selecao(res: dict):
     cores = por_coluna([melhor_e_pior([x[m] for _, x in alternativas], casas=2 if m == "sharpe" else 3) for m in ("retorno_total", "sharpe", "max_drawdown")])
     tabela(["Nas janelas de teste", "Retorno total", "Sharpe", "Queda máxima"], linhas, 0, cores=cores)
     leitura_de(f"Sharpe: {como_ler('sharpe')} Queda máxima: {como_ler('drawdown')} " + LEGENDA_CORES + " Cada coluna é uma comparação.")
-    sub("Cada ação selecionada para a 1ª janela: do treino à janela")
-    j1 = res["janelas"][0]
-    if j1["selic"] is not None:
-        leitura_de(f"Compare o retorno de cada ação na 1ª janela com a Selic, que rendeu {pct(j1['selic'])} no mesmo período.")
-    tabela(["Ação", "Sharpe no treino inicial", "Operações no treino inicial", "Retorno da regra na 1ª janela"],
-           [[x["ticker"], num(x["sharpe_treino"]), str(x["n_trades"]), pct(x["retorno_teste"])] for x in s["ranking"] if x["selecionada"]])
-    sub("As ações escolhidas antes de cada janela")
-    tabela(["Janela", "Treino até", "Ações"],
-           [[f"{j['n']}ª", data_br(j["fim_treino"]), ", ".join(j["acoes"]) or "Nenhuma: dinheiro parado"] for j in res["janelas"]], texto=True)
-    leitura_de("A seleção é refeita antes de cada janela, só com os dados anteriores a ela. Por isso as ações podem mudar de uma janela para outra.")
-    with st.expander("Entenda melhor"):
-        html(f"<p>{tx.SELECAO_COMPARA}</p>")
-        if s["fora"]:
-            html("<p><b>Ações que ficaram de fora:</b></p>")
-            lista([f'{escape(x["ticker"])}: {escape(x["motivo"])}.' for x in s["fora"]])
-        fontes(["bailey2014", "harvey2015", "brown1992", "b3_ibov"])
 
 
 def tela_regra(res: dict):
     esc, rot = res["escolhas"], res["roteiro_treino"]
-    sub("A regra, com os números desta análise")
     html(f"<p>{tx.TT_REGRA}</p>")
-    passos(rot["regra"][:N_PASSOS_REGRA])
-    with st.expander(tx.DETALHES_SIMULACAO):
-        passos(rot["regra"][N_PASSOS_REGRA:])
-    x = res["primeira_operacao_treino"]
-    if x and x.get("grafico") and rot["exemplo"]:
-        ganho = "ganho" if x["retorno_pct"] > 0 else "perda"
-        grafico("primeira_operacao", f"Um exemplo real: a primeira operação, em {x['ticker']}, comprada em {data_br(x['data_entrada'])} e vendida em "
-                f"{data_br(x['data_saida'])}, com {ganho} de {num(abs(x['retorno_pct']), 1)}%", g.fig_primeira_operacao(x, esc),
-                lambda: html(f"<p>{escape(rot['exemplo'])}</p>"))
-    else:
-        nota("A regra não chegou a operar nesta combinação, então não há exemplo para mostrar.")
-    if esc["medias_pelo_treino"]:
-        sub("O ritmo escolhido pelo treino")
-        if res["selecao"]:
-            html("<p>Você deixou o treino escolher. Antes de cada janela de teste, vence o ritmo com a maior média de Sharpe entre as 10 melhores ações, "
-                 "só com os dados anteriores à janela. Nenhuma janela participou da própria escolha.</p>")
+
+    def regra():
+        passos(rot["regra"][:N_PASSOS_REGRA])
+        with st.expander(tx.DETALHES_SIMULACAO):
+            passos(rot["regra"][N_PASSOS_REGRA:])
+
+    def exemplo():
+        x = res["primeira_operacao_treino"]
+        if x and x.get("grafico") and rot["exemplo"]:
+            ganho = "ganho" if x["retorno_pct"] > 0 else "perda"
+            grafico("primeira_operacao", f"Um exemplo real: a primeira operação, em {x['ticker']}, comprada em {data_br(x['data_entrada'])} e vendida em "
+                    f"{data_br(x['data_saida'])}, com {ganho} de {num(abs(x['retorno_pct']), 1)}%", g.fig_primeira_operacao(x, esc),
+                    lambda: html(f"<p>{escape(rot['exemplo'])}</p>"))
         else:
-            html("<p>Você deixou o treino escolher. Antes de cada janela de teste, testamos os 4 ritmos só com os dados anteriores a ela e ficamos com o "
-                 "maior índice de Sharpe. Nenhuma janela participou da própria escolha.</p>")
-        ritmos = esc["comparacao_ritmos"]
-        tabela(["Ritmo", "Sharpe no treino inicial"], [[f"{ln['curta']} e {ln['longa']} dias", num(ln["sharpe_treino"])] for ln in ritmos],
-               cores=[[x] for x in melhor_e_pior([ln["sharpe_treino"] for ln in ritmos], casas=2)])
-        leitura_de("Esta é a comparação feita para a 1ª janela. Zero significa render igual à Selic. Entre os ritmos, vence o maior: "
-                   "o verde com ✓ é o ritmo escolhido, e o vermelho, o pior.")
-        if esc["ritmo_muda"]:
-            nota("O ritmo mudou entre as janelas: " + "; ".join(f"{j['n']}ª janela, {escape(j['rotulo_ritmo'])}" for j in res["janelas"] if j["rotulo_ritmo"]) + ".")
-    with st.expander("Entenda melhor"):
+            nota("A regra não chegou a operar nesta combinação, então não há exemplo para mostrar.")
+
+    def trapaca():
         html(f"<p>{tx.REGRA}</p>")
         sub(tx.SEM_TRAPACA_TITULO)
         lista(tx.SEM_TRAPACA)
         fontes(["brock1992"])
+
+    itens = [("A regra, passo a passo", regra), ("Um exemplo real", exemplo)]
+    if esc["medias_pelo_treino"]:
+        itens.append(("O ritmo escolhido", lambda: _ritmo_pelo_treino(res, esc)))
+    um_por_vez("item_regra", itens + [("Sem olhar o futuro", trapaca)])
+
+
+def _ritmo_pelo_treino(res: dict, esc: dict):
+    if res["selecao"]:
+        html("<p>Você deixou o treino escolher. Antes de cada janela de teste, vence o ritmo com a maior média de Sharpe entre as 10 melhores ações, "
+             "só com os dados anteriores à janela. Nenhuma janela participou da própria escolha.</p>")
+    else:
+        html("<p>Você deixou o treino escolher. Antes de cada janela de teste, testamos os 4 ritmos só com os dados anteriores a ela e ficamos com o "
+             "maior índice de Sharpe. Nenhuma janela participou da própria escolha.</p>")
+    ritmos = esc["comparacao_ritmos"]
+    tabela(["Ritmo", "Sharpe no treino inicial"], [[f"{ln['curta']} e {ln['longa']} dias", num(ln["sharpe_treino"])] for ln in ritmos],
+           cores=[[x] for x in melhor_e_pior([ln["sharpe_treino"] for ln in ritmos], casas=2)])
+    leitura_de("Esta é a comparação feita para a 1ª janela. Zero significa render igual à Selic. Entre os ritmos, vence o maior: "
+               "o verde com ✓ é o ritmo escolhido, e o vermelho, o pior.")
+    if esc["ritmo_muda"]:
+        nota("O ritmo mudou entre as janelas: " + "; ".join(f"{j['n']}ª janela, {escape(j['rotulo_ritmo'])}" for j in res["janelas"] if j["rotulo_ritmo"]) + ".")
 
 
 def tela_carteira(res: dict):
@@ -498,18 +529,22 @@ def tela_dinheiro(res: dict):
     e = res["desempenho"]
     cap = res["escolhas"]["capital"]
     final = e["inteiro"]
-    grafico("curvas", f"{brl(cap)} viraram {brl(final['estrategia']['valor_final'])} com a regra e {brl(final['buy_hold']['valor_final'])} ao comprar e segurar"
-            + (f"; na Selic, seriam {brl(final['selic']['valor_final'])}" if "selic" in final else ""), g.fig_curvas(res))
-    nota(tx.DINHEIRO_NAO_E_PASSAR)
     pior = res["pior_momento"]["estrategia"]
-    if pior["data_recuperacao"]:
-        volta = f"O patrimônio voltou ao valor do pico em {data_br(pior['data_recuperacao'])}, {num(pior['pregoes_recuperacao'], 0)} pregões depois do fundo."
-    else:
-        volta = "Até o fim do histórico, o patrimônio não voltou ao valor do pico."
-    html(f"<p><b>O pior momento.</b> Entre {data_br(pior['data_pico'])} e {data_br(pior['data_fundo'])}, {brl(pior['valor_pico'])} viraram {brl(pior['valor_fundo'])}: "
-         f"uma queda de {pct(abs(pior['queda']))}. Essa é a queda máxima (drawdown), e para voltar ao pico seria preciso subir {pct(1 / (1 + pior['queda']) - 1)}. {volta} "
-         f"Para comparar, no mesmo histórico, a maior queda de comprar e segurar foi de {pct(abs(final['buy_hold']['max_drawdown']))}.</p>")
     ordem = [k for k in ("estrategia", "buy_hold", "selic", "ibovespa") if k in e["teste"]]
+
+    def evolucao():
+        grafico("curvas", f"{brl(cap)} viraram {brl(final['estrategia']['valor_final'])} com a regra e {brl(final['buy_hold']['valor_final'])} ao comprar e segurar"
+                + (f"; na Selic, seriam {brl(final['selic']['valor_final'])}" if "selic" in final else ""), g.fig_curvas(res))
+        nota(tx.DINHEIRO_NAO_E_PASSAR)
+
+    def pior_momento():
+        if pior["data_recuperacao"]:
+            volta = f"O patrimônio voltou ao valor do pico em {data_br(pior['data_recuperacao'])}, {num(pior['pregoes_recuperacao'], 0)} pregões depois do fundo."
+        else:
+            volta = "Até o fim do histórico, o patrimônio não voltou ao valor do pico."
+        numeros([(brl(pior["valor_pico"]), f"no pico, em {data_br(pior['data_pico'])}"), (brl(pior["valor_fundo"]), f"no fundo, em {data_br(pior['data_fundo'])}"),
+                 (pct(abs(pior["queda"])), "de queda máxima (drawdown)", f"Comprar e segurar, no mesmo histórico: {pct(abs(final['buy_hold']['max_drawdown']))}.")])
+        html(f"<p>Para voltar ao pico, seria preciso subir {pct(1 / (1 + pior['queda']) - 1)}. {volta}</p>")
 
     def medidas(periodo: str):
         def mostrar():
@@ -518,70 +553,77 @@ def tela_dinheiro(res: dict):
             def quadro(linhas):
                 cores = [melhor_e_pior([e[periodo][k][c] for k in ordem], c not in menor_melhor, 3 if f is pct else 2) for _, c, f in linhas]
                 tabela(["Medida", *[g.NOME[k] for k in ordem]], [[r, *[f(e[periodo][k][c]) for k in ordem]] for r, c, f in linhas], cores=cores)
-            # Uma aba para "quanto rendeu e quanto caiu" e outra para as razões entre retorno e risco.
-            def rendimento():
-                quadro([("Retorno total", "retorno_total", pct), (("Retorno ao ano", como_ler("retorno_anualizado")), "retorno_anualizado", pct),
-                        (("Oscilação ao ano", como_ler("volatilidade")), "volatilidade_anual", pct), (("Queda máxima", como_ler("drawdown")), "max_drawdown", pct)])
-                leitura_de(LEGENDA_CORES + " Na oscilação, vence a menor. Nas demais, a maior; na queda máxima, a mais perto de zero.")
-
-            def risco():
-                quadro([(("Sharpe", como_ler("sharpe")), "sharpe", num), (("Sortino", como_ler("sortino")), "sortino", num),
-                        (("Retorno por queda", como_ler("retorno_por_queda")), "retorno_por_queda", num)])
-                leitura_de(LEGENDA_CORES + " Nas três medidas, vence a maior.")
-                with st.expander("Entenda melhor: Sharpe, Sortino e retorno por queda"):
-                    lista(tx.METRICAS_DESEMPENHO)
-                    fontes(["sharpe1994", "sortino1994"])
-
-            um_por_vez("item_medidas", [("Rendimento e queda", rendimento), ("Retorno pelo risco", risco)])
+            # "Quanto rendeu e quanto caiu" e, abaixo, as razões entre retorno e risco (sem um terceiro nível de abas).
+            sub("Rendimento e queda")
+            quadro([("Retorno total", "retorno_total", pct), (("Retorno ao ano", como_ler("retorno_anualizado")), "retorno_anualizado", pct),
+                    (("Oscilação ao ano", como_ler("volatilidade")), "volatilidade_anual", pct), (("Queda máxima", como_ler("drawdown")), "max_drawdown", pct)])
+            leitura_de(LEGENDA_CORES + " Na oscilação, vence a menor. Nas demais, a maior; na queda máxima, a mais perto de zero.")
+            sub("Retorno pelo risco")
+            quadro([(("Sharpe", como_ler("sharpe")), "sharpe", num), (("Sortino", como_ler("sortino")), "sortino", num),
+                    (("Retorno por queda", como_ler("retorno_por_queda")), "retorno_por_queda", num)])
+            leitura_de(LEGENDA_CORES + " Nas três medidas, vence a maior.")
+            with st.expander("Entenda melhor: Sharpe, Sortino e retorno por queda"):
+                lista(tx.METRICAS_DESEMPENHO)
+                fontes(["sharpe1994", "sortino1994"])
         return mostrar
 
-    sub("As medidas de cada alternativa")
-    um_por_vez("item_periodo", [("Teste (janelas)", medidas("teste")), ("Treino inicial", medidas("treino")), ("Histórico inteiro", medidas("inteiro"))])
-    with st.expander(tx.DINHEIRO_TITULO):
+    def todas_as_medidas():
+        um_por_vez("item_periodo", [("Teste (janelas)", medidas("teste")), ("Treino inicial", medidas("treino")), ("Histórico inteiro", medidas("inteiro"))])
+
+    def alternativas():
         sub("O que é cada alternativa")
         lista(tx.DINHEIRO_ALTERNATIVAS)
         html(f"<p>No histórico inteiro, a regra ficou comprada em {pct(res['operacoes']['tempo_comprado'], 0)} dos pregões. "
              "No resto do tempo, o dinheiro ficou parado, rendendo zero.</p>")
         sub("Os três períodos das tabelas")
         lista(tx.DINHEIRO_PERIODOS)
+        sub(tx.CAPITAL_FIXO[0])
+        html(f"<p>{tx.CAPITAL_FIXO[1]}</p>")
         fontes(["bcb_selic", "b3_ibov"])
-    with st.expander(tx.DIFICIL_TITULO):
+
+    def dificil():
         html(f"<p>{tx.DIFICIL_INTRO}</p>")
         lista(tx.DIFICIL)
         fontes(["bcb_selic", "b3_tarifas", "lei_11033", "brock1992", "jensen1968"])
+
+    um_por_vez("item_dinheiro", [("A evolução", evolucao), ("O pior momento", pior_momento), ("As medidas", todas_as_medidas),
+                                 ("As alternativas", alternativas), ("Por que é difícil vencer", dificil)])
 
 
 def tela_sharpe(res: dict):
     contas, e = res["conta_sharpe"], res["desempenho"]
     html(f"<p>{tx.SHARPE_IDEIA}</p>")
-    nota(tx.SHARPE_EXEMPLO)
-    sub("A conta da regra nesta análise")
     tr, te = contas["treino"]["estrategia"], contas["teste"]["estrategia"]
 
     def linha(rotulo, chave, formato):
         return [rotulo, formato(tr[chave]), formato(te[chave])]
 
     em_pontos = lambda v: "—" if v is None else pontos(v) + " pontos"   # noqa: E731
-    tabela(["Passo da conta", "Treino inicial", "Teste (janelas)"], [
-        linha("1. Retorno médio da regra, ao ano", "retorno_medio_anual", pct),
-        linha("2. Selic média, ao ano", "selic_media_anual", pct),
-        linha("3. Retorno acima da Selic (1 − 2)", "excesso_anual", em_pontos),
-        linha("4. Oscilação da regra, ao ano", "oscilacao_anual", pct),
-        linha("5. Índice de Sharpe (3 ÷ 4)", "sharpe", num),
-    ], 4)
-    leitura_de(tx.SHARPE_CONTA_NOTA)
-    sub("Como ler o valor")
-    lista(tx.SHARPE_LEITURA)
-    sub("Com o que comparar")
-    html(f"<p>{escape(res['frase_sharpe'])}</p>")
-    series = [k for k in ("estrategia", "buy_hold", "ibovespa") if k in e["teste"]]
-    periodos = ("treino", "teste", "inteiro")
-    tabela(["Sharpe", "Treino inicial", "Teste (janelas)", "Histórico inteiro"], [[g.NOME[k], *[num(e[p][k]["sharpe"]) for p in periodos]] for k in series], 0,
-           cores=por_coluna([melhor_e_pior([e[p][k]["sharpe"] for k in series], casas=2) for p in periodos]))
-    leitura_de(LEGENDA_CORES + " Cada coluna é uma comparação: vence o maior Sharpe do período.")
-    with st.expander("Entenda melhor: os limites do Sharpe"):
+
+    def conta():
+        tabela(["Passo da conta", "Treino inicial", "Teste (janelas)"], [
+            linha("1. Retorno médio da regra, ao ano", "retorno_medio_anual", pct),
+            linha("2. Selic média, ao ano", "selic_media_anual", pct),
+            linha("3. Retorno acima da Selic (1 − 2)", "excesso_anual", em_pontos),
+            linha("4. Oscilação da regra, ao ano", "oscilacao_anual", pct),
+            linha("5. Índice de Sharpe (3 ÷ 4)", "sharpe", num),
+        ], 4)
+        leitura_de(tx.SHARPE_CONTA_NOTA)
+
+    def comparar():
+        html(f"<p>{escape(res['frase_sharpe'])}</p>")
+        series = [k for k in ("estrategia", "buy_hold", "ibovespa") if k in e["teste"]]
+        periodos = ("treino", "teste", "inteiro")
+        tabela(["Sharpe", "Treino inicial", "Teste (janelas)", "Histórico inteiro"], [[g.NOME[k], *[num(e[p][k]["sharpe"]) for p in periodos]] for k in series], 0,
+               cores=por_coluna([melhor_e_pior([e[p][k]["sharpe"] for k in series], casas=2) for p in periodos]))
+        leitura_de(LEGENDA_CORES + " Cada coluna é uma comparação: vence o maior Sharpe do período.")
+
+    def limites():
         lista(tx.SHARPE_LIMITES)
         fontes(["sharpe1994", "sharpe1994_texto"])
+
+    um_por_vez("item_sharpe", [("Um exemplo", lambda: nota(tx.SHARPE_EXEMPLO)), ("A conta desta análise", conta),
+                               ("Como ler o valor", lambda: lista(tx.SHARPE_LEITURA)), ("Com o que comparar", comparar), ("Os limites", limites)])
 
 
 SAIU_POR = {"sinal": ["Sinal", "da regra"], "stop": ["Limite", "de perda"], "alvo": ["Limite", "de ganho"],     # em duas linhas
@@ -645,7 +687,19 @@ def tela_operacoes(res: dict):
 
     inteiro = lambda v: num(v, 0)   # noqa: E731
     percentual = lambda v: "—" if v is None else num(v, 1) + "%"    # noqa: E731
-    with st.expander("Todas as métricas, por período: treino inicial, teste e histórico inteiro"):
+
+    def uma_a_uma():
+        quadro_operacoes(res)
+        salto = nota_salto(o["lista"], res["escolhas"]["stop"])
+        if salto:
+            nota(salto)
+
+    def distribuicao():
+        grafico("hist_operacoes", f"O resultado de cada operação, em todo o histórico: maior perda de {percentual(i['maior_perda_pct'])} e maior ganho de {percentual(i['maior_ganho_pct'])}",
+                g.fig_histograma(o["histograma_retornos"], "Resultado da operação", marcas=[(0, "Empate")], rotulo_quantidade="Número de operações"))
+
+    def metricas():
+        leitura_de("Todas as métricas, por período: treino inicial, teste e histórico inteiro.")
         tabela_grupos(["Métrica", "Treino inicial", "Teste (janelas)", "Histórico inteiro"], [
             ("Quantidade", [por_periodo("Operações", "n_trades", inteiro), por_periodo("Com ganho", "n_ganhos", inteiro),
                             por_periodo("Com perda", "n_perdas", inteiro), por_periodo(("Taxa de acerto", como_ler("taxa_acerto")), "win_rate", pct),
@@ -665,33 +719,34 @@ def tela_operacoes(res: dict):
                                               saidas("No fim da janela, porque as escolhas mudaram", "fim_janela"), saidas("No fim dos dados", "fim_dados")]),
         ])
         nota(tx.AVISO_REAIS)
-    ir = res["imposto"]
-    if ir["aplicado"]:
-        sub("O imposto de renda")
-        est_ir, bh_ir = ir["estrategia"], ir["buy_hold"]
-        isentos = (f" Em {est_ir['meses_isentos']} meses, as vendas somaram até R$ 20 mil, e esses meses ficaram isentos."
-                   if est_ir["meses_isentos"] else "")
-        numeros([(brl(est_ir["total"]), "de imposto pago pela regra", f"Pago em {est_ir['meses_pagos']} meses.{isentos}"),
-                 (brl(ir["antes_estrategia"]), "seria o valor final sem o imposto", f"Com o imposto, é {brl(res['desempenho']['inteiro']['estrategia']['valor_final'])}. A diferença não é igual ao imposto pago, "
-                  "porque o dinheiro usado para pagá-lo deixa de ganhar ou de perder com a regra."),
-                 (brl(bh_ir["total"]), "de imposto pago por comprar e segurar", "Ele só vende quando as escolhas mudam entre janelas e no fim do histórico, então paga menos vezes e mais tarde.")])
-        with st.expander("Como o imposto é calculado"):
-            lista(tx.IMPOSTO)
-            html(f"<p>{tx.IMPOSTO_FORA}</p>")
-            fontes(["in_rfb_1585", "lei_11033"])
-    sub(f"Cada operação, uma a uma ({num(len(o['lista']), 0)})")
-    quadro_operacoes(res)
+        with st.expander("Entenda melhor: as métricas"):
+            html(f"<p>{tx.OPERACOES}</p>")
+            lista(tx.METRICAS_OPERACOES)
+
+    def custos():
+        html(f"<p>{tx.CUSTOS_FIXOS[1]}</p>")
+        ir = res["imposto"]
+        if ir["aplicado"]:
+            sub("O imposto de renda nesta análise")
+            est_ir, bh_ir = ir["estrategia"], ir["buy_hold"]
+            isentos = (f" Em {est_ir['meses_isentos']} meses, as vendas somaram até R$ 20 mil, e esses meses ficaram isentos."
+                       if est_ir["meses_isentos"] else "")
+            numeros([(brl(est_ir["total"]), "de imposto pago pela regra", f"Pago em {est_ir['meses_pagos']} meses.{isentos}"),
+                     (brl(ir["antes_estrategia"]), "seria o valor final sem o imposto", f"Com o imposto, é {brl(res['desempenho']['inteiro']['estrategia']['valor_final'])}. A diferença não é igual ao imposto pago, "
+                      "porque o dinheiro usado para pagá-lo deixa de ganhar ou de perder com a regra."),
+                     (brl(bh_ir["total"]), "de imposto pago por comprar e segurar", "Ele só vende quando as escolhas mudam entre janelas e no fim do histórico, então paga menos vezes e mais tarde.")])
+            with st.expander("Como o imposto é calculado"):
+                lista(tx.IMPOSTO)
+                html(f"<p>{tx.IMPOSTO_FORA}</p>")
+                fontes(["in_rfb_1585", "lei_11033"])
+        with st.expander("De onde vem a tarifa de 0,03%"):
+            html(f"<p>{tx.CUSTO_B3}</p>")
+            fontes(["b3_tarifas"])
+
+    itens = [(f"Uma a uma ({num(len(o['lista']), 0)})", uma_a_uma)]
     if o["histograma_retornos"]:
-        grafico("hist_operacoes", f"O resultado de cada operação, em todo o histórico: maior perda de {percentual(i['maior_perda_pct'])} e maior ganho de {percentual(i['maior_ganho_pct'])}",
-                g.fig_histograma(o["histograma_retornos"], "Resultado da operação", marcas=[(0, "Empate")], rotulo_quantidade="Número de operações"))
-    salto = nota_salto(o["lista"], res["escolhas"]["stop"])
-    if salto:
-        nota(salto)
-    with st.expander("Entenda melhor"):
-        html(f"<p>{tx.OPERACOES}</p>")
-        lista(tx.METRICAS_OPERACOES)
-        html(f"<p>{tx.CUSTO_B3}</p>")
-        fontes(["b3_tarifas"])
+        itens.append(("Ganhos e perdas", distribuicao))
+    um_por_vez("item_operacoes", itens + [("Todas as métricas", metricas), ("Custos e imposto", custos)])
 
 
 def tela_sorte(res: dict):
@@ -806,38 +861,46 @@ def tela_compartilhar(res: dict):
     perguntas = "".join(f'<div class="bloco">{escape(q["pergunta"])}<span class="resposta">{escape(q["resposta"])}</span></div><p class="det">{escape(q["texto"])}</p>'
                         for q in v["perguntas"])
     html(f'<div class="boletim perguntas">{perguntas}<p class="porque">{escape(v["por_que_nao_passou"])}</p></div>')
-    sub("Os testes, por bloco")
-    blocos = "".join(f'<div class="bloco">{escape(b["titulo"])}<span>passou em {b["n_passou"]} de {b["n_aplicaveis"]} testes aplicáveis</span></div>' for b in v["blocos"])
-    html(f'<div class="boletim"><p class="frase">{escape(v["frase"])}</p>{blocos}'
-         f'<p class="contagem">A regra passou em {v["n_passou"]} de {v["n_aplicaveis"]} testes aplicáveis. {escape(v["nota_contagem"])}</p></div>')
     if res["avisos"]:
         alerta("<b>Avisos sobre os dados.</b> " + " ".join(escape(a) for a in res["avisos"]))
     html(f'<p><a class="btn btn-outline-primary" href="{st.url("pdf")}" title="Duas páginas com as escolhas, a resposta, o resultado em R$, '
          f'os testes e os limites.">Baixar o resumo executivo em PDF</a></p>')
-    with st.expander("Entenda melhor: todos os testes"):
+
+    def por_bloco():
+        blocos = "".join(f'<div class="bloco">{escape(b["titulo"])}<span>passou em {b["n_passou"]} de {b["n_aplicaveis"]} testes aplicáveis</span></div>' for b in v["blocos"])
+        html(f'<div class="boletim"><p class="frase">{escape(v["frase"])}</p>{blocos}'
+             f'<p class="contagem">A regra passou em {v["n_passou"]} de {v["n_aplicaveis"]} testes aplicáveis. {escape(v["nota_contagem"])}</p></div>')
+
+    def todos():
         for b in v["blocos"]:
             sub(b["titulo"])
             html("".join(f'<div class="teste-linha"><span>{escape(t["nome"])}</span>{selo(t["status"])}</div>' for t in b["testes"]))
-    with st.expander("Como foram definidos os critérios de “passou”"):
+
+    def criterios():
         st.markdown(tx.CRITERIOS_INTRO)
         lista([escape(x) for x in v["criterios_tecnicos"].values()])
         st.markdown(tx.PARAMETROS)
+
+    um_por_vez("item_resultado", [("Os testes, por bloco", por_bloco), ("Todos os testes", todos), ("Os critérios de “passou”", criterios)])
 
 
 # ----------------------------------------------------------------------------- 6. agir
 def tela_agir(res: dict):
     alerta(escape(res["aviso_legal"]))
-    sub(tx.LIMITES_TITULO)
-    lista([x.format(data=DATA_CARTEIRA) for x in tx.LIMITES])
-    html(f"<p>{tx.PROXIMOS_PASSOS}</p>")
-    html(f'<p><a class="btn btn-outline-primary" href="{st.url("mudar")}">{tx.MUDAR}</a></p>')
-    with st.expander("Entenda melhor: glossário"):
+
+    def limites():
+        sub(tx.LIMITES_TITULO)
+        lista([x.format(data=DATA_CARTEIRA) for x in tx.LIMITES])
+        html(f"<p>{tx.PROXIMOS_PASSOS}</p>")
+        html(f'<p><a class="btn btn-outline-primary" href="{st.url("mudar")}">{tx.MUDAR}</a></p>')
+
+    def glossario():
         for t in res["glossario"].values():
             cit = "; ".join(f"[{REFERENCIAS[i]['citacao'].split('.')[0]}]({REFERENCIAS[i]['url']})" for i in t["fontes"])
             ler = f"  \nComo ler: {t['como_ler']}" if t.get("como_ler") else ""
             st.markdown(f"**{t['nome']}.** {t['o_que_e']}  \nConta: {t['formula']}  \nExemplo: {t['exemplo']}{ler}" + (f"  \n*Fonte: {cit}.*" if cit else ""))
-    with st.expander("Todas as referências"):
-        fontes(list(REFERENCIAS))
+
+    um_por_vez("item_agir", [("Os limites", limites), ("Glossário", glossario), ("Todas as referências", lambda: fontes(list(REFERENCIAS)))])
 
 
 # ----------------------------------------------------------------------------- navegação
@@ -907,7 +970,6 @@ def pagina(res: dict, atual: int, urls: dict) -> dict:
         "n_telas": len(telas),
         "resumo": resumo_escolhas(res),
         "etapas": _itens_etapas(t["passo"]),
-        "linha_veredito": None if t["id"] == "compartilhar" else res["leitura"]["linha"],
         "opcoes": [(i, f"Ir para: {x['passo']}. {tx.ETAPAS[x['passo']][0]} · {x['titulo']}") for i, x in enumerate(telas)],
         "onde": f"Passo {t['passo']} de 6 · {nome_passo} · {t['titulo']}",
         "titulo": pergunta if t["id"] in ("preparar", "processar", "compartilhar", "agir") else t["titulo"],

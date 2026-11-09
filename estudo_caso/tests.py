@@ -102,17 +102,19 @@ class PaginasTests(SimpleTestCase):
         self.assertEqual(r.status_code, 200)
         n = len(re.findall(r'<option value="\d+"', r.content.decode()))
         self.assertGreaterEqual(n, 13)
-        titulos = []
+        titulos, self.paginas = [], []
         for i in range(n):
             html = self.client.get(f"/estudo-caso/analise/?{qs}&tela={i}").content.decode()
             titulos.append(re.search(r'<h2 class="tela">(.*?)</h2>', html).group(1))
+            self.paginas.append(html)
         return titulos
 
     def test_passo_1(self):
         r = self.client.get("/estudo-caso/")
         self.assertContains(r, "Esta regra de compra e venda teria dado certo?")
-        self.assertContains(r, "Dinheiro inicial: R$ 100.000")
-        self.assertContains(r, "Custos: tarifas da B3 e imposto de renda")
+        # Custo e capital são explicados dentro da análise, não no formulário.
+        self.assertNotContains(r, "Dinheiro inicial: R$ 100.000")
+        self.assertNotContains(r, "tarifa da B3")
         self.assertNotContains(r, 'name="capital"')
         self.assertNotContains(r, 'name="custo"')
         self.assertNotContains(r, "Voltar ao resultado")
@@ -123,6 +125,10 @@ class PaginasTests(SimpleTestCase):
         self.assertEqual(titulos[0], "De onde vêm os dados?")
         self.assertEqual(titulos[-1], "O que fazer com isso?")
         self.assertNotIn("A divisão do dinheiro", titulos)
+        tudo = "".join(self.paginas)
+        self.assertIn("Dinheiro inicial: R$ 100.000", tudo)     # saíram do passo 1 e vivem nas abas da análise
+        self.assertIn("tarifa da B3", tudo)
+        self.assertGreaterEqual(tudo.count('class="um-por-vez"'), 10)     # o conteúdo das telas fica em abas
 
     def test_todas_as_telas_com_duas_acoes(self):
         self.calcular(DUAS)

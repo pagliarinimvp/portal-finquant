@@ -12,20 +12,11 @@
 {% block content %}
 <div class="estudo-caso">
     <div class="cabecalho">
-        <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
-            <div class="resumo-escolhas">{{ p.resumo }}</div>
+        <div class="escolhas-atuais">
             <a class="btn btn-outline-primary btn-sm" href="{{ urls.mudar }}">{{ tx.MUDAR }}</a>
+            <div class="resumo-escolhas">{{ p.resumo }}</div>
         </div>
-        <ol class="etapas mt-2">{{ p.etapas|safe }}</ol>
-        {% if p.linha_veredito %}<p class="linha-veredito">Resultado final, detalhado no passo 5: {{ p.linha_veredito }}</p>{% endif %}
-        <form class="ir-para d-flex gap-2" method="get" action="{% url 'estudo_caso:analise' %}">
-            {% for nome, valor in parametros %}<input type="hidden" name="{{ nome }}" value="{{ valor }}">{% endfor %}
-            <label class="visually-hidden" for="ir-para">Ir para</label>
-            <select class="form-select" id="ir-para" name="tela">
-                {% for i, rotulo in p.opcoes %}<option value="{{ i }}"{% if i == p.atual %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}
-            </select>
-            <button type="submit" class="btn btn-outline-primary">Ir</button>
-        </form>
+        <ol class="etapas mt-3">{{ p.etapas|safe }}</ol>
     </div>
 
     <p class="onde">{{ p.onde }}</p>
@@ -39,5 +30,13 @@
         {% if proxima %}<a class="btn btn-primary" href="{{ proxima }}">Próximo →</a>
         {% else %}<span class="btn btn-primary disabled" aria-disabled="true">Próximo →</span>{% endif %}
     </nav>
+    <form class="ir-para d-flex gap-2" method="get" action="{% url 'estudo_caso:analise' %}">
+        {% for nome, valor in parametros %}<input type="hidden" name="{{ nome }}" value="{{ valor }}">{% endfor %}
+        <label class="visually-hidden" for="ir-para">Ir para</label>
+        <select class="form-select" id="ir-para" name="tela">
+            {% for i, rotulo in p.opcoes %}<option value="{{ i }}"{% if i == p.atual %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="btn btn-outline-primary">Ir</button>
+    </form>
 </div>
 {% endblock %}

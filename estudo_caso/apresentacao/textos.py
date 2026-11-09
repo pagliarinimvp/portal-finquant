@@ -33,7 +33,7 @@ CUSTOS_FIXOS = ("Custos: tarifas da B3 e imposto de renda",
                 "e de cada venda: numa compra de R$ 10.000, são R$ 3. O <b>imposto de renda</b> incide sobre o lucro: 15% nas operações "
                 "comuns, com isenção no mês em que as vendas somam até R$ 20 mil, e 20% no day trade, quando a compra e a venda acontecem "
                 "no mesmo dia. A Selic de comparação também paga o imposto da renda fixa, de 22,5% a 15% conforme o prazo. O custo pesa "
-                "mais em quem opera muito. Os detalhes estão na tela “As operações”.")
+                "mais em quem opera muito.")
 CUSTO_B3 = ("<b>De onde vem o 0,03%.</b> É a tarifa que a B3, a bolsa brasileira, cobra sobre o valor de cada compra e de cada venda de ações "
             "à vista, fora do day trade, de quem negocia até R$ 3 milhões por dia em média, como a maioria das pessoas físicas. Ela soma três "
             "partes: 0,005% de negociação, 0,0224% de contraparte central (a antiga taxa de liquidação, que garante que a operação se "

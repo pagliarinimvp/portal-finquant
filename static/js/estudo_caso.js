@@ -8,10 +8,12 @@
     // No tema escuro, as cores de fundo, texto e grade trocam pelas equivalentes do portal; as das séries ficam.
     var FONTE = "'Source Sans', 'Source Sans Pro', system-ui, 'Segoe UI', sans-serif";
     var FONTE_PORTAL = "'IBM Plex Sans', system-ui, -apple-system, sans-serif";
+    // Também clareia as séries que somem no fundo escuro (azul da regra, vinho de comprar e segurar, laranja da escala).
     var ESCURO = [
-        ['"#16323F"', '"#F4F5F7"'], ['"#5B6F7A"', '"#939BA8"'], ['"#DCE4E8"', '"#2B313A"'],
+        ['"#16323F"', '"#F4F5F7"'], ['"#5B6F7A"', '"#BDC4CE"'], ['"#DCE4E8"', '"#333A44"'],
         ['"#FFFFFF"', '"#1B1F26"'], ['"#FFF"', '"#1B1F26"'], ['"rgba(255,255,255,.9)"', '"rgba(27,31,38,.9)"'],
-        ['"#DCE7F3"', '"#22303F"'], ['"#F4F6F7"', '"#2B313A"']
+        ['"#DCE7F3"', '"#22303F"'], ['"#F4F6F7"', '"#2B313A"'], ['"#7A8E99"', '"#8796A3"'],
+        ['"#2563EB"', '"#6B9BF2"'], ['"#9D174D"', '"#E27FA8"'], ['"#B45309"', '"#E39A4F"']
     ];
     var CONFIG = { displayModeBar: false, scrollZoom: false, responsive: true };
 

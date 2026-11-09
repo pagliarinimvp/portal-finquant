@@ -18,8 +18,10 @@
 
     <form method="get" action="{% url 'estudo_caso:analise' %}" class="escolhas" novalidate>
         {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors|join:" " }}</div>{% endif %}
-        <div class="row gx-5 gy-2">
-            <div class="col-md-6">
+        {% comment %}Cada escolha num cartão próprio. Custo e capital são fixos e ficam explicados dentro da análise
+           ("As operações" > "Custos e imposto" e "Quanto o dinheiro teria virado" > "As alternativas").{% endcomment %}
+        <div class="grade-escolhas">
+            <section class="bloco-escolha">
                 <fieldset class="escolhas-selecao" aria-describedby="ajuda-selecao">
                     <legend>{{ form.selecao.label }}</legend>
                     <small class="ajuda-campo" id="ajuda-selecao">{{ form.selecao.help_text }}</small>
@@ -31,17 +33,12 @@
                     {% if form.tickers.errors %}<div class="text-danger small">{{ form.tickers.errors|join:" " }}</div>{% endif %}
                 </div>
                 <p class="descricao" data-so-automatica hidden>{{ descricao_automatica }}</p>
-            </div>
-            <div class="col-md-6">{% include "estudo_caso/_campo.html" with campo=form.medias descricao=descricao_atual.medias %}</div>
-            <div class="col-md-6">{% include "estudo_caso/_campo.html" with campo=form.protecao descricao=descricao_atual.protecao %}</div>
-            <div class="col-md-6" data-campo-divisao>{% include "estudo_caso/_campo.html" with campo=form.divisao descricao=descricao_atual.divisao %}</div>
+            </section>
+            <section class="bloco-escolha">{% include "estudo_caso/_campo.html" with campo=form.medias descricao=descricao_atual.medias %}</section>
+            <section class="bloco-escolha">{% include "estudo_caso/_campo.html" with campo=form.protecao descricao=descricao_atual.protecao %}</section>
+            <section class="bloco-escolha" data-campo-divisao>{% include "estudo_caso/_campo.html" with campo=form.divisao descricao=descricao_atual.divisao %}</section>
         </div>
-        {# Custo e capital são fixos (decisão de 09/11/2026): aparecem como premissas, não como escolhas. #}
-        <div class="row gx-5 gy-2 premissas">
-            <div class="col-md-6"><p class="premissa-titulo">{{ tx.CUSTOS_FIXOS.0 }}</p><p class="descricao">{{ tx.CUSTOS_FIXOS.1|safe }}</p></div>
-            <div class="col-md-6"><p class="premissa-titulo">{{ tx.CAPITAL_FIXO.0 }}</p><p class="descricao">{{ tx.CAPITAL_FIXO.1|safe }}</p></div>
-        </div>
-        <div class="alerta" data-so-automatica hidden>{{ tx.ALERTA_SELECAO_CURTO|safe }}</div>
+        <div class="alerta mt-3" data-so-automatica hidden>{{ tx.ALERTA_SELECAO_CURTO|safe }}</div>
 
         <div class="alert alert-info mt-3" data-aviso-sem-acao hidden>Escolha ao menos uma ação para rodar a análise.</div>
         <div class="botoes-escolhas">

@@ -49,7 +49,7 @@
     --fq-paper: #14171C;
     --fq-paper-raised: #1B1F26;
     --fq-ink: #F4F5F7;
-    --fq-ink-muted: #939BA8;
+    --fq-ink-muted: #A9B1BD;
     --fq-teal: #6C93B8;
     --fq-teal-dark: #8FB0D1;
     --fq-gold: #7FB39A;
@@ -340,6 +340,18 @@ h1, h2, h3, h4, h5, h6,
     --bs-btn-active-bg: var(--fq-teal);
     --bs-btn-active-border-color: var(--fq-teal);
     --bs-btn-focus-shadow-rgb: 53, 80, 107;
+}
+
+/* No tema escuro o teal fica claro: texto branco sobre ele não passa de ~3:1. Texto escuro dá ~6:1. */
+[data-bs-theme="dark"] .btn-primary {
+    --bs-btn-color: #0F1318;
+    --bs-btn-hover-color: #0F1318;
+    --bs-btn-active-color: #0F1318;
+    --bs-btn-disabled-color: #0F1318;
+}
+[data-bs-theme="dark"] .btn-outline-primary {
+    --bs-btn-hover-color: #0F1318;
+    --bs-btn-active-color: #0F1318;
 }
 
 /* --- Tabelas (usadas no simulador) ---
