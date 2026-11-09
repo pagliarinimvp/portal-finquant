@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Calculando a análise — Portal FinQuant{% endblock %}
+
+{% block extra_head %}
+<link href="{% static 'css/estudo_caso.css' %}?v={% now 'U' %}" rel="stylesheet">
+<noscript><meta http-equiv="refresh" content="5"></noscript>
+{% endblock %}
+
+{% block content %}
+<div class="estudo-caso" data-status-url="{% url 'estudo_caso:status' chave %}">
+    <p class="onde">Análise de ações</p>
+    <h1 class="h2 tela">Calculando a análise</h1>
+    <p class="frase-tela">
+        Tempo previsto: <b>{{ tempo }}</b>.
+        {% if automatica %}A seleção automática testa a regra em dezenas de ações, por isso demora mais.{% endif %}
+    </p>
+
+    <ol class="progresso" aria-label="Andamento">
+        {% for chave_etapa, rotulo in etapas %}
+        <li data-etapa="{{ chave_etapa }}"{% if estado.etapa == chave_etapa %} class="atual"{% endif %}>{{ rotulo }}</li>
+        {% endfor %}
+    </ol>
+    <p class="nota" data-fila{% if estado.situacao != "na_fila" %} hidden{% endif %}>
+        {% if estado.na_frente == 1 %}Há 1 análise na sua frente.{% else %}Há {{ estado.na_frente }} análises na sua frente.{% endif %}
+    </p>
+
+    <p>Pode fechar esta página: o cálculo continua, e o resultado fica guardado. Para ver depois, abra o mesmo link desta página.</p>
+    <p><a href="{{ urls.mudar }}">{{ tx.MUDAR }}</a></p>
+
+    <details class="entenda" open>
+        <summary>Enquanto calcula: como a análise funciona</summary>
+        <div class="entenda-corpo">
+            <p>{{ tx.REGRA|safe }}</p>
+            <p>{{ tx.SOBRE_ETAPAS|safe }}</p>
+        </div>
+    </details>
+</div>
+<script src="{% static 'js/estudo_caso.js' %}?v={% now 'U' %}"></script>
+{% endblock %}

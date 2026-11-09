@@ -1,0 +1,6 @@
+{# Um campo do passo 1: título, ajuda, a lista e a descrição da opção escolhida (trocada pelo estudo_caso.js). #}
+<label class="form-label" for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+{% if campo.help_text %}<small class="ajuda-campo" id="ajuda-{{ campo.name }}">{{ campo.help_text }}</small>{% endif %}
+{{ campo }}
+{% if descricao %}<p class="descricao" data-descricao="{{ campo.name }}">{{ descricao }}</p>{% endif %}
+{% if campo.errors %}<div class="text-danger small">{{ campo.errors|join:" " }}</div>{% endif %}

@@ -1,0 +1,29 @@
+# Atualiza os preços da análise de ações toda semana.
+#
+# O build do Render baixa os preços (manage.py atualizar_dados_estudo) e deixa
+# prontas as configurações padrão (manage.py precalcular_estudo). Esta rotina só
+# dispara um novo deploy, toda segunda às 06:00 de Brasília (09:00 UTC).
+#
+# Configuração, uma vez só: no painel do Render, serviço portal-finquant >
+# Settings > Deploy Hook, copie a URL; no GitHub, Settings > Secrets and
+# variables > Actions > New repository secret, nome RENDER_DEPLOY_HOOK.
+name: Atualizar dados da análise de ações
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar o deploy no Render
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK" ]; then
+            echo "::error::Falta o secret RENDER_DEPLOY_HOOK (veja o comentário no topo deste arquivo)."
+            exit 1
+          fi
+          curl --fail --silent --show-error -X POST "$RENDER_DEPLOY_HOOK"

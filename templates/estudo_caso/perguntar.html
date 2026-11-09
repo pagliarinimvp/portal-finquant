@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Análise de ações — Portal FinQuant{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<link href="{% static 'css/estudo_caso.css' %}?v={% now 'U' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="estudo-caso">
+    <div class="cabecalho"><ol class="etapas">{{ abertura.etapas|safe }}</ol></div>
+    {{ abertura.corpo|safe }}
+    <div class="divisoria" role="separator"></div>
+
+    {% if erro %}<div class="alert alert-danger" role="alert">{{ erro }}</div>{% endif %}
+
+    <form method="get" action="{% url 'estudo_caso:analise' %}" class="escolhas" novalidate>
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+        <div class="row gx-5 gy-2">
+            <div class="col-md-6">
+                <fieldset class="escolhas-selecao" aria-describedby="ajuda-selecao">
+                    <legend>{{ form.selecao.label }}</legend>
+                    <small class="ajuda-campo" id="ajuda-selecao">{{ form.selecao.help_text }}</small>
+                    {{ form.selecao }}
+                </fieldset>
+                <div data-so-manual class="mt-2">
+                    <label class="visually-hidden" for="{{ form.tickers.id_for_label }}">Ações</label>
+                    {{ form.tickers }}
+                    {% if form.tickers.errors %}<div class="text-danger small">{{ form.tickers.errors|join:" " }}</div>{% endif %}
+                </div>
+                <p class="descricao" data-so-automatica hidden>{{ descricao_automatica }}</p>
+            </div>
+            <div class="col-md-6">{% include "estudo_caso/_campo.html" with campo=form.medias descricao=descricao_atual.medias %}</div>
+            <div class="col-md-6">{% include "estudo_caso/_campo.html" with campo=form.protecao descricao=descricao_atual.protecao %}</div>
+            <div class="col-md-6">{% include "estudo_caso/_campo.html" with campo=form.custo descricao=descricao_atual.custo %}</div>
+            <div class="col-md-6">{% include "estudo_caso/_campo.html" with campo=form.capital %}</div>
+            <div class="col-md-6" data-campo-divisao>{% include "estudo_caso/_campo.html" with campo=form.divisao descricao=descricao_atual.divisao %}</div>
+        </div>
+        <div class="alerta" data-so-automatica hidden>{{ tx.ALERTA_SELECAO_CURTO|safe }}</div>
+
+        <div class="alert alert-info mt-3" data-aviso-sem-acao hidden>Escolha ao menos uma ação para rodar a análise.</div>
+        <div class="botoes-escolhas">
+            <button type="submit" class="btn btn-primary">{{ tx.BOTAO }}</button>
+            {% if voltar %}<a class="btn btn-outline-primary" href="{{ voltar }}">{{ tx.VOLTAR }}</a>{% endif %}
+        </div>
+    </form>
+</div>
+{{ descricoes|json_script:"descricoes-escolhas" }}
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script src="{% static 'js/estudo_caso.js' %}?v={% now 'U' %}"></script>
+{% endblock %}

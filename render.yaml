@@ -15,8 +15,14 @@ services:
     # bootstrap_admin ficam no buildCommand mesmo (ver histórico do
     # commit que tentou mover para pre-deploy: o Blueprint Sync rejeitou
     # com "pre-deploy command is not supported for free tier services").
-    buildCommand: 'pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py bootstrap_admin && python manage.py bootstrap_site'
-    startCommand: 'gunicorn config.wsgi'
+    # Análise de ações: createcachetable cria a tabela dos resultados guardados,
+    # atualizar_dados_estudo baixa os preços da semana (se falhar, valem os CSVs
+    # do git) e precalcular_estudo deixa prontas as configurações padrão. O
+    # deploy semanal (.github/workflows/atualizar-dados.yml) repete o build.
+    buildCommand: 'pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py bootstrap_admin && python manage.py bootstrap_site && python manage.py createcachetable && python manage.py atualizar_dados_estudo && python manage.py precalcular_estudo'
+    # Um processo só, para caber nos 512 MB do plano free; as threads atendem
+    # as páginas enquanto uma análise roda em segundo plano (estudo_caso/execucao.py).
+    startCommand: 'gunicorn config.wsgi --workers 1 --threads 4 --timeout 120'
     envVars:
       # Mesma versão do venv local: sem isso, o Render usa a versão padrão
       # dele, que muda com o tempo e pode quebrar o build sem aviso.

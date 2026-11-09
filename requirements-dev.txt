@@ -1,0 +1,3 @@
+# Só para desenvolvimento: os testes do núcleo da análise (pytest estudo_caso/quant_tests).
+-r requirements.txt
+pytest==9.1.1

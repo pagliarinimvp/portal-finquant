@@ -37,7 +37,23 @@ Projeto Django monolítico (`config/`) com um app por funcionalidade do MVP, seg
 
 As configurações (`config/settings.py`) são lidas de variáveis de ambiente via `django-environ`, a partir de um `.env` local (ignorado pelo git; veja o modelo em `.env.example`). O banco é SQLite, a menos que `DATABASE_URL` esteja definida (produção/Render usa PostgreSQL). Arquivos estáticos são servidos via Whitenoise em produção.
 
-**Planejado, mas ainda não construído (fase 2):** um app `estudo_caso` comparando uma estratégia ativa de compra de ações brasileiras (análise técnica + fundamentalista) com renda fixa e investimento passivo, usando pandas/numpy/yfinance.
+- `estudo_caso/` — "Análise de ações" (`/estudo-caso/`): uma regra de médias móveis em ações do Ibovespa, comparada com a Selic, comprar e segurar e o Ibovespa, com testes estatísticos. Veja "Análise de ações" abaixo.
+
+## Análise de ações (`estudo_caso`)
+
+Veio do projeto `Script Analise Quantitativa` (pasta irmã), que era um app Streamlit. **Desde 09/11/2026 a cópia oficial do núcleo é a do portal** (`estudo_caso/quant/`); a pasta do Script ficou como versão Streamlit de referência. Mudanças no cálculo são feitas aqui.
+
+- `quant/` — o núcleo, Python puro (pandas/numpy/scipy, sem Django). Entrada única: `servico.executar(config) -> dict` JSON. Testes em `quant_tests/`, com `pytest estudo_caso/quant_tests` (precisa do `requirements-dev.txt`); não são achados pelo `manage.py test` de propósito (pasta sem `__init__.py`).
+- `apresentacao/` — textos da página (`textos.py`), formatação brasileira, gráficos Plotly e o resumo em PDF (reportlab, com a fonte DejaVu de `fontes/` no Linux). Para mudar um texto, edite `textos.py` ou `quant/leitura.py`.
+- `telas.py` — as funções `tela_*` copiadas do `app_streamlit.py`, linha por linha. O objeto `st` é um imitador (`_Pagina`) que escreve HTML. Não reescreva as telas em templates: a cópia fiel é o que garante que o conteúdo é o mesmo que foi revisado.
+- `execucao.py` — a análise roda numa thread (uma por vez) e o resultado vai compactado para o cache `analises` (tabela `estudo_caso_cache` no banco). A chave junta a versão do núcleo, a configuração e a data do último pregão nos CSVs.
+- `dados/` — CSVs de preços, Ibovespa e Selic, versionados no git. As requisições nunca baixam nada. `manage.py atualizar_dados_estudo` atualiza (roda no build do Render, disparado toda semana por `.github/workflows/atualizar-dados.yml`); `manage.py precalcular_estudo` deixa prontas as configurações padrão.
+
+Exceções deliberadas aos padrões do portal:
+- **`float`, não `Decimal`:** o núcleo calcula com pandas/numpy; a apresentação formata em texto (`formatacao.py`).
+- **GET, não POST:** as escolhas e a tela atual (`?tela=N`) ficam no link, que pode ser compartilhado.
+- **Plotly, não SVG à mão:** os gráficos são os de `graficos_plotly.py`, desenhados pelo plotly.js do CDN (versão lida da biblioteca Python). No tema escuro, o `static/js/estudo_caso.js` troca as cores de fundo, texto e grade.
+- **Thread em segundo plano:** no Render free, a seleção automática passa do limite de tempo de uma requisição. O gunicorn roda com 1 processo e 4 threads (`render.yaml`).
 
 ## Padrão dos simuladores
 

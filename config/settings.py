@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'conteudo',
     'simuladores',
     'avaliacoes',
+    'estudo_caso',
 ]
 
 SITE_ID = 1
@@ -236,6 +237,25 @@ STORAGES = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# Análise de ações (app `estudo_caso`)
+# Os CSVs de preços, Ibovespa e Selic que a análise lê. Atualizados no build
+# pelo `manage.py atualizar_dados_estudo`; as requisições nunca baixam nada.
+DADOS_ESTUDO = BASE_DIR / 'estudo_caso' / 'dados'
+
+# `analises` guarda os resultados no banco (tabela criada pelo
+# `manage.py createcachetable` no build): sobrevive à hibernação do Render e
+# aos deploys. Cada resultado vai compactado (70 a 200 KB): 500 entradas
+# ficam abaixo de ~100 MB, folgado no limite de 0,5 GB do Neon gratuito.
+CACHES = {
+    'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'},
+    'analises': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'estudo_caso_cache',
+        'OPTIONS': {'MAX_ENTRIES': 500},
+    },
+}
+
+
 # E-mail de contato mostrado no aviso de privacidade da avaliação, para quem
 # quiser pedir a exclusão das próprias respostas (LGPD). Vazio = não mostra.
 CONTATO_EMAIL = env('CONTATO_EMAIL', default='')
@@ -258,6 +278,7 @@ LOGGING = {
     'handlers': {'console': {'class': 'logging.StreamHandler'}},
     'loggers': {
         'contas': {'handlers': ['console'], 'level': 'INFO'},
+        'estudo_caso': {'handlers': ['console'], 'level': 'INFO'},
         'django.contrib.auth': {'handlers': ['console'], 'level': 'ERROR'},
     },
 }

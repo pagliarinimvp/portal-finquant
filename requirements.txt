@@ -9,3 +9,11 @@ psycopg2-binary==2.9.12
 sqlparse==0.6.0
 tzdata==2026.3
 whitenoise==6.12.0
+# Análise de ações (app estudo_caso). As mesmas versões do Script Analise Quantitativa.
+numpy==2.5.3
+pandas==3.0.6
+scipy==1.18.1
+plotly==7.1.0
+reportlab==5.1.0
+requests==2.34.2
+yfinance==1.7.0

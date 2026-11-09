@@ -13,6 +13,7 @@ Portal web de educação em finanças quantitativas para pessoas leigas, desenvo
 - Artigos educacionais (`conteudo`), gerenciados pelo Django Admin
 - Cadastro e login de usuário, com recuperação de senha por e-mail (`contas`)
 - Simulador de juros compostos (`simuladores`)
+- Análise de ações (`estudo_caso`, em `/estudo-caso/`): uma regra de compra e venda em ações do Ibovespa, comparada com a Selic, comprar e segurar e o Ibovespa nos últimos 10 anos, com testes estatísticos e resumo em PDF
 - Formulário de avaliação do site pelos usuários (`avaliacoes`), com dados exportáveis para análise de qualidade do projeto
 
 ## Como rodar localmente
@@ -38,9 +39,14 @@ python manage.py migrate
 # 5. Criar um usuário administrador (para acessar /admin/)
 python manage.py createsuperuser
 
-# 6. Rodar o servidor de desenvolvimento
+# 6. Criar a tabela onde a análise de ações guarda os resultados
+python manage.py createcachetable
+
+# 7. Rodar o servidor de desenvolvimento
 python manage.py runserver
 ```
+
+Análise de ações: os preços ficam em `estudo_caso/dados/` (no git). Para atualizar, `python manage.py atualizar_dados_estudo`. Testes do núcleo do cálculo: `pip install -r requirements-dev.txt` e `pytest estudo_caso/quant_tests`.
 
 Acesse http://127.0.0.1:8000/ no navegador.
 
@@ -53,6 +59,7 @@ contas/         # login, cadastro, logout
 conteudo/       # artigos educacionais (model, admin, views)
 simuladores/    # calculadora de juros compostos
 avaliacoes/     # avaliação do site pelos usuários
+estudo_caso/    # análise de ações (núcleo quant/, dados/, telas)
 templates/      # templates HTML (base.html + por app)
 static/         # CSS
 ```
@@ -88,9 +95,18 @@ Essa rota responde "ok" sem consultar o banco, então não mantém o Neon ligado
 1. Suba o repositório no GitHub.
 2. Crie um "Web Service" no Render apontando para o repositório.
 3. Build command: `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py bootstrap_admin && python manage.py bootstrap_site` (o plano free do Render não suporta pre-deploy command, então migrate e os bootstraps ficam no build mesmo)
-4. Start command: `gunicorn config.wsgi`
+   Para a análise de ações, acrescente ao fim: `&& python manage.py createcachetable && python manage.py atualizar_dados_estudo && python manage.py precalcular_estudo`
+4. Start command: `gunicorn config.wsgi --workers 1 --threads 4 --timeout 120`
 5. Crie um projeto PostgreSQL no Neon e copie a connection string da branch `main` para usar como `DATABASE_URL`.
 6. Configure as variáveis de ambiente no painel do Render: `SECRET_KEY`, `DEBUG=False`, `ALLOWED_HOSTS` (com o domínio `.onrender.com`), `CSRF_TRUSTED_ORIGINS` (com `https://` + o mesmo domínio), `DATABASE_URL`, `DJANGO_SUPERUSER_USERNAME`/`DJANGO_SUPERUSER_EMAIL`/`DJANGO_SUPERUSER_PASSWORD` (cria o admin no primeiro deploy — veja `contas/management/commands/bootstrap_admin.py`) e, se for usar login social, `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET` (veja o passo a passo em `docs/superpowers/specs/2026-08-17-login-social-design.md`, que inclui as URLs de callback de produção a cadastrar no Google e GitHub).
+
+### Atualização semanal dos dados da análise de ações
+
+`.github/workflows/atualizar-dados.yml` dispara um deploy toda segunda às 06:00 de Brasília, e o build baixa os preços novos. Configuração, uma vez só:
+
+1. No Render, serviço `portal-finquant` > Settings > Deploy Hook: copie a URL.
+2. No GitHub, Settings > Secrets and variables > Actions > New repository secret, com o nome `RENDER_DEPLOY_HOOK` e a URL como valor.
+3. Para testar, rode a rotina à mão em Actions > Atualizar dados da análise de ações > Run workflow.
 
 ## Próximos passos (fase 2)
 
