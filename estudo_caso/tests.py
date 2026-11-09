@@ -9,11 +9,12 @@ import shutil
 import tempfile
 import time
 from pathlib import Path
+from unittest import mock
 
 from django.test import SimpleTestCase, override_settings
 
 from . import execucao, telas
-from .forms import AnaliseForm
+from .forms import PADROES, AnaliseForm
 
 _spec = importlib.util.spec_from_file_location("conftest_quant", Path(__file__).parent / "quant_tests" / "conftest.py")
 conftest = importlib.util.module_from_spec(_spec)
@@ -161,3 +162,64 @@ class PaginasTests(SimpleTestCase):
             time.sleep(0.5)
         self.assertEqual(self.client.get(f"/estudo-caso/status/{k}/").json()["situacao"], "pronto")
         self.assertContains(self.client.get(f"/estudo-caso/analise/?{qs}"), "De onde vêm os dados?")
+
+
+@override_settings(CACHES=CACHE_TESTE)
+class PrecalculoTests(SimpleTestCase):
+    """O pré-cálculo de madrugada: a lista, a janela de horário e o ceder a vez a quem pede uma análise."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.pasta = Path(tempfile.mkdtemp())
+        conftest.gravar_cache(cls.pasta)
+        cls.dados = override_settings(DADOS_ESTUDO=cls.pasta)
+        cls.dados.enable()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.dados.disable()
+        shutil.rmtree(cls.pasta, ignore_errors=True)
+        super().tearDownClass()
+
+    def cfg(self):
+        return {**PADROES, "tickers": [conftest.TICKERS[0]]}
+
+    def test_lista_sem_repeticoes(self):
+        from .quant import config as c
+        from .quant.universo import IBOVESPA
+        lista = execucao.configs_ociosas()
+        automaticas = [x for x in lista if x["selecao"] == "automatica"]
+        self.assertEqual(len(automaticas), (len(c.MEDIAS) + 1) * len(c.PROTECOES) * len(c.DIVISOES))
+        self.assertEqual(len(lista) - len(automaticas), len(IBOVESPA))
+        self.assertEqual(lista[0], PADROES)                         # a mais provável vem primeiro
+        self.assertTrue(all(x["custo"] == "tarifas_b3" and x["capital"] == 100_000.0 for x in lista))
+
+    def test_janela_de_madrugada(self):
+        from datetime import datetime
+        b = execucao.BRASILIA
+        self.assertFalse(execucao.na_janela(datetime(2026, 11, 14, 1, 59, tzinfo=b)))
+        self.assertTrue(execucao.na_janela(datetime(2026, 11, 14, 2, 0, tzinfo=b)))
+        self.assertTrue(execucao.na_janela(datetime(2026, 11, 14, 4, 59, tzinfo=b)))
+        self.assertFalse(execucao.na_janela(datetime(2026, 11, 14, 5, 0, tzinfo=b)))
+
+    def test_calcula_e_guarda_quando_livre(self):
+        cfg = self.cfg()
+        k = execucao.chave(cfg)
+        self.assertTrue(execucao.rodar_ocioso(cfg, k))
+        self.assertIsNotNone(execucao.resultado(k))
+
+    def test_cede_a_vez_no_meio_e_libera_o_servidor(self):
+        cfg = {**self.cfg(), "protecao": "3_1"}
+        k = execucao.chave(cfg)
+        # livre ao começar; alguém entra na fila logo depois, e o cálculo para na troca de etapa
+        with mock.patch.object(execucao, "_alguem_esperando", side_effect=[False] + [True] * 20):
+            self.assertFalse(execucao.rodar_ocioso(cfg, k))
+        self.assertIsNone(execucao.resultado(k))
+        self.assertTrue(execucao._TRAVA.acquire(blocking=False))    # a trava foi devolvida
+        execucao._TRAVA.release()
+
+    def test_nao_comeca_com_alguem_na_fila(self):
+        cfg = {**self.cfg(), "protecao": "1_1"}
+        with mock.patch.object(execucao, "_alguem_esperando", return_value=True):
+            self.assertFalse(execucao.rodar_ocioso(cfg, execucao.chave(cfg)))

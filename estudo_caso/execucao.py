@@ -5,19 +5,29 @@ uma por vez (`_TRAVA`: o servidor tem 512 MB e pouco processador), e a página "
 O resultado vai compactado para o cache `analises` (tabela no banco), que sobrevive à hibernação e aos deploys.
 
 A chave junta a versão do núcleo, a configuração e a data do último pregão nos CSVs: com dados novos, a chave muda.
+
+Pré-cálculo no tempo ocioso (`precalcular_ocioso`): com o custo e o capital fixos, as escolhas mais lentas são finitas.
+Uma thread calcula, uma por vez, as 60 seleções automáticas e cada ação sozinha com os padrões, só de madrugada
+(`JANELA`, horário de Brasília), e cede a vez a quem pedir uma análise: na próxima troca de etapa, abandona o cálculo e
+tenta de novo quando a fila esvaziar. Os preços novos chegam no deploy de sábado à 01:00 (.github/workflows), logo antes.
 """
 import json
 import logging
 import threading
+import time
 import zlib
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from django.conf import settings
 from django.core.cache import caches
 from django.db import connection
 
+from .forms import PADROES
+from .quant import config as c
 from .quant import servico
 from .quant.dados import DadosIndisponiveis
+from .quant.universo import IBOVESPA
 
 log = logging.getLogger(__name__)
 
@@ -135,3 +145,98 @@ def tempo_previsto(cfg: dict) -> str:
     if n == 1:
         return "cerca de 15 segundos"
     return "menos de 1 minuto" if n <= 4 else "cerca de 1 minuto"
+
+
+# ------------------------------------------------------------------------------- pré-cálculo no tempo ocioso
+JANELA = (2, 5)                 # das 02:00 às 05:00 de Brasília: a volta completa leva ~90 min no Render
+BRASILIA = timezone(timedelta(hours=-3))    # sem horário de verão desde 2019
+PAUSA_ENTRE = 2                 # respiro entre uma análise e outra
+ESPERA_FILA = 5                 # de quanto em quanto tempo olha se a fila esvaziou
+ESPERA_JANELA = 5 * 60          # fora da janela, olha o relógio a cada 5 min
+
+
+class _Cedeu(Exception):
+    """O pré-cálculo parou para dar a vez a uma análise pedida por alguém."""
+
+
+def _alguem_esperando() -> bool:
+    with _FILA_TRAVA:
+        return bool(_FILA)
+
+
+def configs_ociosas() -> list[dict]:
+    """O que vale deixar pronto, das visitas mais prováveis às menos: os padrões, cada ação sozinha e as 60 automáticas."""
+    base = dict(PADROES)
+    auto = {**base, "selecao": "automatica", "tickers": []}
+    lista = [base, auto] + [{**auto, "divisao": d} for d in c.DIVISOES]
+    lista += [{**base, "tickers": [t]} for t in sorted(IBOVESPA)]
+    lista += [{**auto, "medias": m, "protecao": p, "divisao": d}
+              for m in [*c.MEDIAS, c.MEDIAS_PELO_TREINO] for p in c.PROTECOES for d in c.DIVISOES]
+    vistas, unicas = set(), []
+    for cfg in lista:
+        k = servico.chave_cache(cfg)
+        if k not in vistas:
+            vistas.add(k)
+            unicas.append(cfg)
+    return unicas
+
+
+def rodar_ocioso(cfg: dict, k: str) -> bool:
+    """Calcula e guarda, se o servidor estiver livre. Devolve False se cedeu a vez, se estava ocupado ou se não deu."""
+    if _alguem_esperando() or not _TRAVA.acquire(blocking=False):
+        return False
+    try:
+        def progresso(etapa: str):
+            if _alguem_esperando():
+                raise _Cedeu
+        res = servico.executar(config_completa(cfg), ao_progresso=progresso)
+        _guardar(k, res)
+        return True
+    except _Cedeu:
+        log.info("Pré-cálculo cedeu a vez a uma análise pedida: %s", k)
+        return False
+    except (ValueError, DadosIndisponiveis) as e:
+        log.info("Pré-cálculo pulou %s: %s", k, e)
+        return False
+    finally:
+        _TRAVA.release()
+
+
+def na_janela(agora: datetime | None = None) -> bool:
+    agora = agora or datetime.now(BRASILIA)
+    return JANELA[0] <= agora.astimezone(BRASILIA).hour < JANELA[1]
+
+
+def precalcular_ocioso(uma_volta: bool = False) -> int:
+    """Laço da thread de pré-cálculo (iniciada pelo `apps.py` no gunicorn): uma volta por noite, dentro da `JANELA`,
+    refazendo só o que falta no cache. Com `uma_volta`, roda já, ignora o horário e devolve quantas guardou."""
+    while True:
+        if not uma_volta:
+            while not na_janela():
+                time.sleep(ESPERA_JANELA)
+        guardadas = 0
+        for cfg in configs_ociosas():
+            if not uma_volta and not na_janela():
+                log.info("Pré-cálculo: fim da janela, o resto fica para a próxima noite.")
+                break
+            try:
+                k = chave(cfg)
+                if _cache().has_key(f"res:{k}"):
+                    continue
+                while not rodar_ocioso(cfg, k):
+                    if not _alguem_esperando() and _TRAVA.acquire(blocking=False):
+                        _TRAVA.release()
+                        break           # estava livre e mesmo assim não deu (dados faltando): segue para a próxima
+                    time.sleep(ESPERA_FILA)
+                else:
+                    guardadas += 1
+                    time.sleep(PAUSA_ENTRE)
+            except Exception:   # noqa: BLE001 — a thread não pode morrer: registra e segue
+                log.exception("Falha no pré-cálculo de %s", cfg)
+            finally:
+                connection.close()      # thread longa: não deixa a conexão envelhecer entre uma análise e outra
+        log.info("Pré-cálculo: %d análises novas guardadas nesta noite.", guardadas)
+        if uma_volta:
+            return guardadas
+        while na_janela():          # uma volta por noite: espera a janela acabar antes de esperar a próxima
+            time.sleep(ESPERA_JANELA)
