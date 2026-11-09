@@ -11,6 +11,11 @@ Do `README.md` ("Próximos passos (fase 2)"): App `estudo_caso`: comparação de
 
 **No ar (09/11/2026):** app `estudo_caso` em `/estudo-caso/` ("Análise de ações" no menu), no `main` e no Render. Deploy Hook e secret `RENDER_DEPLOY_HOOK` configurados; o workflow semanal foi testado e disparou o deploy. Tempos medidos no Render: 1 ação 15 s, 4 ações 33 s, seleção automática ~75 s (textos de `execucao.tempo_previsto` ajustados). Falta só: abrir o resumo em PDF do Render e conferir os símbolos ✓ e − (o PDF já sai, 200, 70 KB).
 
+## Conferir a 1ª rodada completa do pré-cálculo das análises (14/11/2026)
+**Sugestão:** https://www.notion.so/413d653a12cb814894aad42acd4e59bd · **Registrado em:** 09/11/2026 · **Origem:** Manual
+
+O pré-cálculo de madrugada (02:00–05:00, `estudo_caso/execucao.py`) foi ligado em 09/11/2026, depois de um teste aprovado no Render. No sábado, 14/11/2026, o deploy da 01:00 traz preços novos e a rodada das 02:00 refaz as 136 análises (60 seleções automáticas + 76 ações sozinhas). Conferir: (1) abrir uma amostra de análises (devem abrir prontas, com a data nova); (2) o histórico do UptimeRobot entre 02:00 e 05:00, para garantir que o site não travou. Os logs do Render gratuito só guardam 1 hora; se houver travamento, o `estudo_caso/vigia.py` grava a pilha das threads no log.
+
 ## Exportar as avaliações para a análise de qualidade
 **Sugestão:** https://www.notion.so/3fdd653a12cb8127af26d5cfba4f775b · **Registrado em:** 18/10/2026 · **Origem:** Planejada
 
