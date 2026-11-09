@@ -23,6 +23,8 @@ No teste de tempo de 09/11/2026 em produção, Entrar e Cadastro levaram ~0,95 s
 
 **Tempos de referência (09/11/2026, produção no commit `bd84573`, sem as abas; mediana de 3 acessos):** simuladores (índice, os 3 e o cálculo POST), Esqueci a senha, Avaliação e Análise de ações passo 1: 0,23 a 0,25 s · Início 0,58 s (1º acesso 1,7 s) · Artigo 0,61 s · Artigos 0,76 s · Entrar e Cadastro ~0,95 s · telas da análise PETR4 (0 a 9) 0,9 a 1,5 s · resumo em PDF 2,6 s. Análises: padrão PETR4 e seleção automática já prontas no cache, 1,3 a 1,6 s (a automática levava ~75 s sem cache); 1 ação nova (WEGE3) 15,2 s; 4 ações novas (ITUB4, BBDC4, ABEV3, WEGE3) 26,9 s; página inicial durante o cálculo: mediana 0,64 s, máximo 1,13 s. Essas duas análises novas ficaram no cache: num próximo teste, use outras ações ou opções. Para repetir: `python scripts/medir_tempos.py resultado.json`.
 
+**2ª rodada (09/11/2026, versão com abas, commit `3c3cafe`):** páginas iguais à 1ª (variação de até 0,05 s); telas da análise 0,95 a 1,7 s; PDF novo 3,1 s (71 KB); padrão PETR4 e automática no cache 1,0 e 1,5 s; 1 ação nova (VALE3) 16,9 s; 4 ações novas (PETR4, VALE3, ITUB4, BBAS3) 32,7 s; página inicial durante o cálculo: mediana 0,65 s, máximo 1,94 s. Também ficaram no cache.
+
 ## Exportar as avaliações para a análise de qualidade
 **Sugestão:** https://www.notion.so/3fdd653a12cb8127af26d5cfba4f775b · **Registrado em:** 18/10/2026 · **Origem:** Planejada
 
