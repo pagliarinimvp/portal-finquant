@@ -305,12 +305,23 @@ LOGGING = {
 # E-mail
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-# Com EMAIL_HOST definido, envia por SMTP de verdade (produção, recuperação de
-# senha). Sem ele, o e-mail só aparece no terminal do runserver. O nome em
-# minúsculas é de propósito: o Django 6.1 recusa um setting EMAIL_HOST junto
-# com o MAILERS.
+# Três jeitos de enviar, nesta ordem:
+# 1. BREVO_API_KEY definida: envia pela API HTTPS do Brevo (django-anymail).
+#    É o caminho da produção, porque o Render gratuito bloqueia as portas SMTP.
+# 2. EMAIL_HOST definido: envia por SMTP (plano pago do Render ou local).
+# 3. Nenhum dos dois: o e-mail só aparece no terminal do runserver.
+# O nome em minúsculas é de propósito: o Django 6.1 recusa um setting
+# EMAIL_HOST junto com o MAILERS.
+_brevo_api_key = env('BREVO_API_KEY', default='')
 _email_host = env('EMAIL_HOST', default='')
-if _email_host:
+if _brevo_api_key:
+    MAILERS = {
+        'default': {
+            'BACKEND': 'anymail.backends.brevo.EmailBackend',
+            'OPTIONS': {'api_key': _brevo_api_key},
+        },
+    }
+elif _email_host:
     MAILERS = {
         'default': {
             'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
@@ -334,9 +345,8 @@ else:
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='Portal FinQuant <webmaster@localhost>')
 
 # Liga o formulário de "esqueci a senha". Desligado, a tela pede para falar
-# com o administrador: o Render gratuito bloqueia as portas SMTP, então o
-# e-mail nunca sairia. Ligue junto com um envio que funcione (plano pago ou
-# serviço de e-mail por API).
+# com o administrador. Ligue só com um envio que funcione (BREVO_API_KEY no
+# Render gratuito, ou SMTP num plano pago): sem isso o e-mail nunca sai.
 RECUPERACAO_SENHA_ATIVA = env.bool('RECUPERACAO_SENHA_ATIVA', default=False)
 
 # Validade do link de "esqueci a senha" (o padrão do Django é 3 dias).

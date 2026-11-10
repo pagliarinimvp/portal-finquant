@@ -68,9 +68,12 @@ services:
         sync: false
       - key: GITHUB_CLIENT_SECRET
         sync: false
-      # Envio de e-mail da recuperação de senha (veja o .env.example). Sem
-      # EMAIL_HOST, o portal não envia e-mail: só registra no log. Preencha
-      # os quatro juntos (com Gmail, EMAIL_HOST = smtp.gmail.com).
+      # Envio de e-mail da recuperação de senha (veja o .env.example). No
+      # plano gratuito o SMTP é bloqueado: use BREVO_API_KEY (API HTTPS),
+      # com o DEFAULT_FROM_EMAIL confirmado como remetente no Brevo. Sem
+      # BREVO_API_KEY nem EMAIL_HOST, o portal só registra o e-mail no log.
+      - key: BREVO_API_KEY
+        sync: false
       - key: EMAIL_HOST
         sync: false
       - key: EMAIL_HOST_USER

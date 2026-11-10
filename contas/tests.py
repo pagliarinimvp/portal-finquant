@@ -207,6 +207,34 @@ class RecuperacaoSenhaTests(TestCase):
         response = self.client.get(reverse('contas:senha_nova', args=['xx', 'token-falso']))
         self.assertContains(response, 'Este link não vale mais')
 
+    @override_settings(
+        MAILERS={'default': {
+            'BACKEND': 'anymail.backends.brevo.EmailBackend',
+            'OPTIONS': {'api_key': 'chave-de-teste'},
+        }},
+        DEFAULT_FROM_EMAIL='Portal FinQuant <remetente@exemplo.com>',
+    )
+    def test_com_brevo_o_pedido_sai_pela_api_https(self):
+        # Produção (Render gratuito) envia pela API do Brevo, não por SMTP.
+        # A chamada HTTPS é simulada: confere o que iria para o Brevo.
+        import json
+        from unittest import mock
+
+        resposta = mock.Mock(status_code=201, text='{}')
+        resposta.json.return_value = {'messageId': '<id@brevo>'}
+        with mock.patch('requests.Session.request', return_value=resposta) as chamada:
+            self.client.post(reverse('contas:senha_esqueci'), {'email': 'ana@exemplo.com'})
+
+        self.assertEqual(chamada.call_count, 1)
+        kwargs = chamada.call_args.kwargs
+        self.assertEqual(kwargs['method'].upper(), 'POST')
+        self.assertEqual(kwargs['url'], 'https://api.brevo.com/v3/smtp/email')
+        self.assertEqual(chamada.call_args.kwargs['headers']['api-key'], 'chave-de-teste')
+        corpo = json.loads(chamada.call_args.kwargs['data'])
+        self.assertEqual(corpo['to'], [{'email': 'ana@exemplo.com'}])
+        self.assertEqual(corpo['sender']['email'], 'remetente@exemplo.com')
+        self.assertIn('/contas/nova-senha/', corpo['textContent'])
+
 
 @override_settings(RECUPERACAO_SENHA_ATIVA=False, CONTATO_EMAIL='contato@exemplo.com')
 class RecuperacaoSenhaDesligadaTests(TestCase):
