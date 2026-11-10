@@ -1,0 +1,1 @@
+{% load conteudo_extras %}{% with url=artigo.capa|capa_url %}{% if url %}<img src="{{ url }}" alt="{{ artigo.capa_alt }}" class="card-img-top fq-capa-miniatura" width="1200" height="630" loading="lazy">{% endif %}{% endwith %}

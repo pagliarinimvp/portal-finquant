@@ -24,3 +24,6 @@ staticfiles/
 .claude/skills/neon
 .claude/skills/neon-postgres
 .claude/skills/formatar-artigo
+
+# Rascunhos de desenho e controle de execução das skills superpowers
+.superpowers/

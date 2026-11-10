@@ -35,4 +35,5 @@ def seo(request):
         # apontam para a mesma página nos buscadores.
         'seo_url': request.build_absolute_uri(request.path),
         'seo_imagem': request.build_absolute_uri(static('img/previa.png')),
+        'seo_imagem_alt': 'Portal FinQuant: finanças quantitativas, explicadas de forma simples',
     }

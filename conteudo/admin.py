@@ -6,8 +6,13 @@ from .models import Artigo
 
 @admin.register(Artigo)
 class ArtigoAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'categoria', 'status', 'publicado_em')
-    list_filter = ('status', 'categoria')
+    list_display = ('titulo', 'categoria', 'status', 'com_apoio_ia', 'publicado_em')
+    list_filter = ('status', 'categoria', 'com_apoio_ia')
+    fieldsets = (
+        (None, {'fields': ('titulo', 'slug', 'resumo', 'corpo', 'categoria')}),
+        ('Publicação', {'fields': ('status', 'publicado_em', 'com_apoio_ia')}),
+        ('Capa', {'fields': ('capa', 'capa_alt', 'capa_credito')}),
+    )
     search_fields = ('titulo', 'resumo', 'corpo')
     prepopulated_fields = {'slug': ('titulo',)}
     actions = ['marcar_como_publicado']

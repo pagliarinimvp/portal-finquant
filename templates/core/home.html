@@ -24,6 +24,7 @@
     {% for artigo in artigos_recentes %}
     <div class="col">
         <div class="card h-100">
+            {% include "conteudo/_capa_miniatura.html" %}
             <div class="card-body">
                 {% include "conteudo/_categoria_badge.html" with categoria=artigo.categoria label=artigo.get_categoria_display %}
                 <h3 class="h5 card-title mt-2">{{ artigo.titulo }}</h3>

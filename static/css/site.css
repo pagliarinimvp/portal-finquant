@@ -224,6 +224,110 @@ ul.fq-numeros {
     margin: 1rem 0;
 }
 
+/* --- Cabeçalho do artigo: linha fina, autoria, nota de IA e capa --- */
+.fq-linha-fina {
+    max-width: 42rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.15rem;
+    line-height: 1.5;
+    color: var(--fq-ink-muted);
+}
+
+.fq-artigo-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin-bottom: 0.25rem;
+    font-family: var(--fq-font-mono);
+    font-size: 0.8rem;
+    color: var(--fq-ink-muted);
+}
+
+.fq-nota-ia {
+    margin-bottom: 0;
+    font-size: 0.8rem;
+    font-style: italic;
+    color: var(--fq-ink-muted);
+}
+
+.fq-capa {
+    max-width: 42rem;
+    margin: 0 0 1.75rem;
+}
+
+.fq-capa img,
+.fq-capa-miniatura {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1200 / 630;
+    object-fit: cover;
+}
+
+.fq-capa img {
+    border: 1px solid var(--fq-rule);
+}
+
+.fq-capa figcaption {
+    margin-top: 0.5rem;
+    font-family: var(--fq-font-mono);
+    font-size: 0.75rem;
+    color: var(--fq-ink-muted);
+}
+
+/* --- Quadros dentro do corpo: "Em 30 segundos", sumário, "Na prática", glossário --- */
+.fq-artigo-corpo aside {
+    margin: 1.75rem 0;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--fq-rule);
+    border-left: 4px solid var(--fq-teal);
+    background: var(--fq-paper);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* O título do quadro é um h4: sem o espaço de cima que ele tem no corpo. */
+.fq-artigo-corpo aside > h4:first-child {
+    margin-top: 0;
+}
+
+.fq-artigo-corpo aside > :last-child {
+    margin-bottom: 0;
+}
+
+.fq-artigo-corpo aside.fq-sumario {
+    border-left-width: 1px;
+}
+
+.fq-artigo-corpo aside.fq-sumario ol {
+    padding-left: 1.25rem;
+}
+
+.fq-artigo-corpo aside.fq-na-pratica {
+    border-left-color: var(--fq-gold);
+}
+
+.fq-artigo-corpo aside.fq-na-pratica p,
+.fq-artigo-corpo aside.fq-na-pratica li {
+    font-family: var(--fq-font-mono);
+    font-size: 0.9rem;
+}
+
+.fq-artigo-corpo dt {
+    margin-top: 0.5rem;
+    font-weight: 600;
+}
+
+.fq-artigo-corpo dd {
+    margin-bottom: 0;
+    color: var(--fq-ink-muted);
+}
+
+/* Destino dos links do sumário: um respiro acima do título. */
+.fq-artigo-corpo h2[id] {
+    scroll-margin-top: 1rem;
+}
+
 /* --- Faixa de aviso de rascunho: só visível para staff logado --- */
 .fq-aviso-rascunho {
     border: 1px solid var(--fq-rust);

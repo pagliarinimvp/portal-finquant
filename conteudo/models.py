@@ -26,6 +26,22 @@ class Artigo(models.Model):
         help_text='Preenchida sozinha na primeira vez que o artigo é publicado.',
     )
     atualizado_em = models.DateTimeField(auto_now=True)
+    capa = models.CharField(
+        max_length=200, blank=True,
+        help_text='Caminho da imagem de capa dentro de static/, ex.: img/artigos/<slug>/capa.jpg (1200x630 px).',
+    )
+    capa_alt = models.CharField(
+        'texto alternativo da capa', max_length=200, blank=True,
+        help_text='Descrição da imagem para quem usa leitor de tela.',
+    )
+    capa_credito = models.CharField(
+        'crédito da capa', max_length=300, blank=True,
+        help_text='Ex.: Foto: Fulano / Unsplash.',
+    )
+    com_apoio_ia = models.BooleanField(
+        'feito com apoio de IA', default=False,
+        help_text='Mostra no artigo a nota "Pesquisa e redação com apoio de IA, revisado pelo autor."',
+    )
 
     class Meta:
         ordering = [F('publicado_em').desc(nulls_last=True)]

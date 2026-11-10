@@ -1,6 +1,7 @@
 from django.views.generic import DetailView, ListView
 
 from .models import Artigo
+from .templatetags.conteudo_extras import capa_url
 
 
 class ArtigoListView(ListView):
@@ -43,4 +44,8 @@ class ArtigoDetailView(DetailView):
         # Prévia do link (Google, WhatsApp): o próprio artigo, não o padrão do site.
         contexto['seo_titulo'] = self.object.titulo
         contexto['seo_descricao'] = self.object.resumo
+        url_capa = capa_url(self.object.capa)
+        if url_capa:
+            contexto['seo_imagem'] = self.request.build_absolute_uri(url_capa)
+            contexto['seo_imagem_alt'] = self.object.capa_alt
         return contexto

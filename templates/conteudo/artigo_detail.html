@@ -10,10 +10,22 @@
 <article class="card p-4">
     {% include "conteudo/_categoria_badge.html" with categoria=artigo.categoria label=artigo.get_categoria_display %}
     <h1 class="h3 mt-2">{{ artigo.titulo }}</h1>
-    {% if artigo.publicado_em %}
-    <p class="fq-eyebrow d-block mb-0">Publicado em {{ artigo.publicado_em|date:"d/m/Y" }}</p>
+    <p class="fq-linha-fina">{{ artigo.resumo }}</p>
+    <p class="fq-artigo-meta">
+        <span>Por Marcos Vinicius Pagliarini</span>
+        {% if artigo.publicado_em %}<span>Publicado em {{ artigo.publicado_em|date:"d/m/Y" }}</span>{% endif %}
+        <span>{{ artigo.corpo|tempo_leitura }} min de leitura</span>
+    </p>
+    {% if artigo.com_apoio_ia %}
+    <p class="fq-nota-ia">Pesquisa e redação com apoio de IA, revisado pelo autor.</p>
     {% endif %}
     <div class="fq-regua"></div>
+    {% with url_capa=artigo.capa|capa_url %}{% if url_capa %}
+    <figure class="fq-capa">
+        <img src="{{ url_capa }}" alt="{{ artigo.capa_alt }}" width="1200" height="630">
+        {% if artigo.capa_credito %}<figcaption>{{ artigo.capa_credito }}</figcaption>{% endif %}
+    </figure>
+    {% endif %}{% endwith %}
     <div class="fq-artigo-corpo">{{ artigo.corpo|corpo_seguro }}</div>
 </article>
 
