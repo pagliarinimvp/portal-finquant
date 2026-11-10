@@ -3,13 +3,29 @@ from django import forms
 from .models import Avaliacao
 
 
+def _com_selecione(choices):
+    """Põe "Selecione…" vazio no topo de uma lista suspensa.
+
+    Sem isso o navegador já abre a lista na primeira opção, e quem não mexe
+    no campo envia "Até R$ 2.000" ou "Masculino" sem ter escolhido, o que
+    distorce a pesquisa. Com o vazio, o required=True barra o envio.
+    """
+    return [('', 'Selecione…')] + list(choices)
+
+
+FAIXAS_ETARIAS_ACEITAS = [
+    (valor, rotulo) for valor, rotulo in Avaliacao.FaixaEtaria.choices
+    if valor != Avaliacao.FaixaEtaria.ATE_18
+]
+
+
 class AvaliacaoForm(forms.ModelForm):
     # Todos os campos de escolha abaixo são declarados explicitamente (em vez
     # de deixar o ModelForm gerar o campo sozinho) para evitar a opção em
     # branco que o Django adiciona por padrão quando o campo do model não tem
     # um "default" definido.
     nota = forms.TypedChoiceField(
-        label='Navegação no site',
+        label='Como você avalia a navegação no site?',
         choices=Avaliacao.Nota.choices,
         coerce=int,
         widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
@@ -18,14 +34,14 @@ class AvaliacaoForm(forms.ModelForm):
     )
     faixa_etaria = forms.ChoiceField(
         label='Faixa etária',
-        choices=Avaliacao.FaixaEtaria.choices,
+        choices=_com_selecione(FAIXAS_ETARIAS_ACEITAS),
         widget=forms.Select(attrs={'class': 'form-select'}),
         required=True,
         error_messages={'required': 'Selecione sua faixa etária.'},
     )
     sexo = forms.ChoiceField(
         label='Sexo',
-        choices=Avaliacao.Sexo.choices,
+        choices=_com_selecione(Avaliacao.Sexo.choices),
         widget=forms.Select(attrs={'class': 'form-select'}),
         required=True,
         error_messages={'required': 'Selecione uma opção.'},
@@ -47,20 +63,20 @@ class AvaliacaoForm(forms.ModelForm):
         error_messages={'required': 'Selecione uma opção.'},
     )
     faixa_renda_familiar = forms.ChoiceField(
-        label='Faixa de renda familiar',
-        choices=Avaliacao.FaixaRendaFamiliar.choices,
+        label='Faixa de renda familiar mensal',
+        choices=_com_selecione(Avaliacao.FaixaRendaFamiliar.choices),
         widget=forms.Select(attrs={'class': 'form-select'}),
         required=True,
-        error_messages={'required': 'Selecione sua faixa de renda familiar.'},
+        error_messages={'required': 'Selecione sua faixa de renda familiar mensal.'},
     )
 
     # O BooleanField do model vira um campo opcional no ModelForm; aqui ele é
     # obrigatório, porque sem o consentimento a resposta não pode ser usada.
     consentimento = forms.BooleanField(
-        label='Li o aviso de privacidade acima e concordo em participar da pesquisa.',
+        label='Tenho 18 anos ou mais, li o aviso de privacidade acima e concordo em participar da pesquisa.',
         required=True,
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        error_messages={'required': 'Para enviar, marque que concorda em participar.'},
+        error_messages={'required': 'Para enviar, confirme que tem 18 anos ou mais e concorda em participar.'},
     )
 
     class Meta:

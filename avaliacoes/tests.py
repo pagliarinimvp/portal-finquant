@@ -70,7 +70,7 @@ class AvaliacaoEnvioTests(TestCase):
 
         resposta = self.client.post(reverse('avaliacoes:avaliar'), dados)
 
-        self.assertContains(resposta, 'marque que concorda em participar')
+        self.assertContains(resposta, 'confirme que tem 18 anos ou mais e concorda em participar')
         self.assertEqual(Avaliacao.objects.count(), 0)
 
     def test_com_consentimento_salva_e_registra(self):
@@ -109,3 +109,38 @@ class AvaliacaoEnvioTests(TestCase):
         resposta = self.client.get(reverse('core:home'))
 
         self.assertFalse(resposta.context['mostrar_modal_avaliacao'])
+
+
+class AvaliacaoCamposTests(TestCase):
+    def test_listas_abrem_sem_opcao_escolhida(self):
+        # Antes de 10/11/2026 as listas abriam na primeira opção, e quem não
+        # mexia enviava "Até 18 anos", "Masculino" e "Até R$ 2.000".
+        resposta = self.client.get(reverse('avaliacoes:avaliar'))
+
+        self.assertContains(resposta, '<option value="" selected>Selecione…</option>', count=3)
+
+    def test_lista_nao_tocada_nao_e_aceita(self):
+        for campo in ('faixa_etaria', 'sexo', 'faixa_renda_familiar'):
+            with self.subTest(campo=campo):
+                dados = dict(RESPOSTA_VALIDA, **{campo: ''})
+
+                resposta = self.client.post(reverse('avaliacoes:avaliar'), dados)
+
+                self.assertEqual(resposta.status_code, 200)
+                self.assertTrue(resposta.context['form'].errors[campo])
+        self.assertEqual(Avaliacao.objects.count(), 0)
+
+    def test_menor_de_idade_nao_e_aceito(self):
+        dados = dict(RESPOSTA_VALIDA, faixa_etaria=Avaliacao.FaixaEtaria.ATE_18)
+
+        resposta = self.client.post(reverse('avaliacoes:avaliar'), dados)
+
+        self.assertNotContains(resposta, 'Até 18 anos')
+        self.assertTrue(resposta.context['form'].errors['faixa_etaria'])
+        self.assertEqual(Avaliacao.objects.count(), 0)
+
+    def test_consentimento_confirma_maioridade(self):
+        resposta = self.client.get(reverse('avaliacoes:avaliar'))
+
+        self.assertContains(resposta, 'Tenho 18 anos ou mais')
+        self.assertContains(resposta, 'Comentário')

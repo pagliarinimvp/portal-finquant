@@ -11,8 +11,10 @@ class Avaliacao(models.Model):
         CINCO = 5, 'Excelente'
 
     class FaixaEtaria(models.TextChoices):
-        ATE_18 = 'ATE_18', 'Até 18 anos'
-        DE_19_A_25 = '19_25', '19 a 25 anos'
+        # Desde 10/11/2026 a pesquisa é só para maiores de 18 anos. ATE_18 fica
+        # apenas para ler respostas antigas; o formulário não oferece mais.
+        ATE_18 = 'ATE_18', 'Até 18 anos (formulário antigo)'
+        DE_18_A_25 = '18_25', '18 a 25 anos'
         DE_26_A_35 = '26_35', '26 a 35 anos'
         DE_36_A_45 = '36_45', '36 a 45 anos'
         DE_46_A_60 = '46_60', '46 a 60 anos'
@@ -39,8 +41,8 @@ class Avaliacao(models.Model):
 
     class FaixaRendaFamiliar(models.TextChoices):
         ATE_2000 = 'ATE_2000', 'Até R$ 2.000'
-        DE_2000_A_5000 = '2000_5000', 'R$ 2.000 a R$ 5.000'
-        DE_5000_A_10000 = '5000_10000', 'R$ 5.000 a R$ 10.000'
+        DE_2000_A_5000 = '2000_5000', 'De R$ 2.000,01 a R$ 5.000'
+        DE_5000_A_10000 = '5000_10000', 'De R$ 5.000,01 a R$ 10.000'
         MAIS_10000 = 'MAIS_10000', 'Acima de R$ 10.000'
         NAO_INFORMAR = 'NAO_INFORMAR', 'Prefiro não informar'
 
@@ -54,7 +56,7 @@ class Avaliacao(models.Model):
     experiencia_investimentos = models.IntegerField(choices=ExperienciaInvestimentos.choices)
     conteudo_ajudou = models.IntegerField(choices=ConteudoAjudou.choices)
     faixa_renda_familiar = models.CharField(max_length=13, choices=FaixaRendaFamiliar.choices)
-    comentario = models.TextField(blank=True, help_text='Opcional: conte o que podemos melhorar.')
+    comentario = models.TextField('Comentário', blank=True, help_text='Opcional: conte o que podemos melhorar.')
     # Registro do consentimento (LGPD, art. 7º, I): o formulário só é aceito
     # com a caixa marcada, e o valor fica salvo como prova junto da resposta.
     consentimento = models.BooleanField('Consentiu em participar da pesquisa', default=False)

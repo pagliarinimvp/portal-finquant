@@ -88,7 +88,7 @@ class MinhaContaViewTests(TestCase):
         Avaliacao.objects.create(
             usuario=usuario,
             nota=Avaliacao.Nota.CINCO,
-            faixa_etaria=Avaliacao.FaixaEtaria.DE_19_A_25,
+            faixa_etaria=Avaliacao.FaixaEtaria.DE_18_A_25,
             sexo=Avaliacao.Sexo.FEMININO,
             experiencia_investimentos=Avaliacao.ExperienciaInvestimentos.INICIANTE,
             conteudo_ajudou=Avaliacao.ConteudoAjudou.CONCORDO_TOTALMENTE,
