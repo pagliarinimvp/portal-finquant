@@ -125,6 +125,13 @@ h1, h2, h3, h4, h5, h6,
     font-variant-numeric: tabular-nums;
 }
 
+/* Lista de totais dos simuladores: um saldo de 40 dígitos (taxa alta por 600
+   meses) quebra a linha em vez de vazar do card no celular. Só na lista: em
+   tabela, quebrar em qualquer ponto espremeria as colunas. */
+ul.fq-numeros {
+    overflow-wrap: anywhere;
+}
+
 /* --- Régua com marcações: motivo de assinatura do site --- */
 .fq-regua {
     position: relative;

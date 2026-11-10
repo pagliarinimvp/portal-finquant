@@ -1,0 +1,11 @@
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Mesmo desenho de templates/ilustracoes/marca.svg, sobre o fundo da navbar
+         (--fq-nav-bg), para aparecer na aba clara e na escura. -->
+    <rect width="24" height="24" rx="4" fill="#14161A"/>
+    <rect x="2.5" y="2.5" width="19" height="19" rx="3" stroke="#F4F5F7" stroke-width="1.8"/>
+    <g stroke="#F4F5F7" stroke-width="2.2" stroke-linecap="round">
+        <line x1="7" y1="16" x2="7" y2="12"/>
+        <line x1="12" y1="16" x2="12" y2="8"/>
+        <line x1="17" y1="16" x2="17" y2="10.5"/>
+    </g>
+</svg>

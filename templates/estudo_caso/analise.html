@@ -4,13 +4,15 @@
 {% block title %}{{ p.titulo }} · Análise de ações — Portal FinQuant{% endblock %}
 
 {% block extra_head %}
-<link href="{% static 'css/estudo_caso.css' %}?v={% now 'U' %}" rel="stylesheet">
+<link href="{% static 'css/estudo_caso.css' %}{{ versao_estatico }}" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@{{ versao_plotly }}/plotly.min.js" defer></script>
-<script src="{% static 'js/estudo_caso.js' %}?v={% now 'U' %}" defer></script>
+<script src="{% static 'js/estudo_caso.js' %}{{ versao_estatico }}" defer></script>
 {% endblock %}
 
 {% block content %}
 <div class="estudo-caso">
+    {# Título da página para leitores de tela: o de cada tela é h2, e o corpo usa h3. #}
+    <h1 class="visually-hidden">Análise de ações</h1>
     <div class="cabecalho">
         <div class="escolhas-atuais">
             <a class="btn btn-outline-primary btn-sm" href="{{ urls.mudar }}">{{ tx.MUDAR }}</a>

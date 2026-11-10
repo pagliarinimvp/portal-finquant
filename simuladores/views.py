@@ -1,4 +1,5 @@
 from decimal import ROUND_HALF_UP, ROUND_UP, Decimal, localcontext
+from functools import wraps
 
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
@@ -6,6 +7,22 @@ from django.views.generic.edit import FormView
 from .forms import DividaCartaoForm, JurosCompostosForm, MetaFinanceiraForm
 
 TETO_MESES = 600
+
+# Dígitos do Decimal nos cálculos que só crescem (juros compostos e meta).
+# Pior caso aceito pelo formulário: R$ 9.999.999.999,99 de valor inicial e
+# de aporte, 100% ao mês (forms.TAXA_MENSAL_MAXIMA), 600 meses — o saldo fica
+# perto de 10^191, ou 193 dígitos com os centavos. Com as 28 casas do
+# contexto padrão, 15% ao mês por 600 meses já derrubava a página (erro 500).
+PRECISAO = 220
+
+
+def _precisao_alta(calculo):
+    @wraps(calculo)
+    def envolvido(*args, **kwargs):
+        with localcontext() as ctx:
+            ctx.prec = PRECISAO
+            return calculo(*args, **kwargs)
+    return envolvido
 
 # Valores em reais vão para o centavo com ROUND_HALF_UP, o arredondamento
 # comercial (0,125 -> 0,13). O padrão do Decimal é ROUND_HALF_EVEN, que
@@ -24,6 +41,7 @@ class JurosCompostosView(FormView):
         return self.render_to_response(contexto)
 
     @staticmethod
+    @_precisao_alta
     def _calcular(dados):
         """Simula a evolução mês a mês com aportes e juros compostos.
 
@@ -156,6 +174,7 @@ class MetaFinanceiraView(FormView):
         return self.render_to_response(contexto)
 
     @staticmethod
+    @_precisao_alta
     def _calcular(dados):
         """Calcula o aporte mensal necessário para atingir uma meta financeira.
 

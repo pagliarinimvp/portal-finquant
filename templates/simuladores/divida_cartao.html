@@ -4,7 +4,7 @@
 {% block title %}Simulador de Dívida no Cartão — Portal FinQuant{% endblock %}
 
 {% block extra_head %}
-<link href="{% static 'css/grafico.css' %}?v={% now 'U' %}" rel="stylesheet">
+<link href="{% static 'css/grafico.css' %}{{ versao_estatico }}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -203,5 +203,5 @@
         width: 24%;
     }
 </style>
-<script src="{% static 'js/grafico.js' %}?v={% now 'U' %}"></script>
+<script src="{% static 'js/grafico.js' %}{{ versao_estatico }}"></script>
 {% endblock %}

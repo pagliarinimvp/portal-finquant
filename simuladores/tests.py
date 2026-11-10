@@ -2,8 +2,71 @@ from decimal import Decimal
 
 from django.test import TestCase
 
+from django.urls import reverse
+
 from .forms import JurosCompostosForm, taxa_anual_para_mensal
 from .views import DividaCartaoView, JurosCompostosView, MetaFinanceiraView
+
+
+class EntradasExtremasTests(TestCase):
+    """Taxa alta por prazo longo derrubava a página com erro 500 (09/11/2026).
+
+    O saldo passava das 28 casas do contexto padrão do Decimal e o `quantize`
+    levantava InvalidOperation. O teto de 100% ao mês no formulário mantém o
+    pior caso dentro da precisão usada no cálculo.
+    """
+
+    def test_juros_compostos_15_ao_mes_por_600_meses(self):
+        resultado = JurosCompostosView._calcular({
+            'valor_inicial': Decimal('1000'), 'aporte_mensal': Decimal('100'),
+            'taxa_mensal': Decimal('15'), 'periodo_meses': 600,
+        })
+        self.assertGreater(resultado['saldo_final'], Decimal('1e36'))
+
+    def test_pior_caso_permitido_nao_quebra(self):
+        dados = {
+            'valor_inicial': Decimal('9999999999.99'), 'aporte_mensal': Decimal('9999999999.99'),
+            'taxa_mensal': Decimal('100'), 'periodo_meses': 600,
+        }
+        resultado = JurosCompostosView._calcular(dados)
+        self.assertEqual(len(resultado['pontos_grafico']), 601)
+
+        meta = MetaFinanceiraView._calcular({
+            'valor_inicial': Decimal('0'), 'valor_meta': Decimal('9999999999.99'),
+            'taxa_mensal': Decimal('100'), 'periodo_meses': 600,
+        })
+        self.assertGreaterEqual(meta['saldo_final_projetado'], Decimal('9999999999.99'))
+
+    def test_meta_financeira_15_ao_mes_por_600_meses(self):
+        resultado = MetaFinanceiraView._calcular({
+            'valor_inicial': Decimal('1000'), 'valor_meta': Decimal('1000000'),
+            'taxa_mensal': Decimal('15'), 'periodo_meses': 600,
+        })
+        self.assertTrue(resultado['meta_ja_atingida'])
+
+    def test_taxa_acima_de_100_ao_mes_e_recusada_com_mensagem(self):
+        form = JurosCompostosForm({
+            'valor_inicial': '1000', 'aporte_mensal': '0', 'taxa_mensal': '150',
+            'periodo_taxa': 'mensal', 'periodo_meses': '12',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('100% ao mês', str(form.errors['taxa_mensal']))
+
+    def test_taxa_anual_alta_continua_aceita(self):
+        form = JurosCompostosForm({
+            'valor_inicial': '1000', 'aporte_mensal': '0', 'taxa_mensal': '9999.99',
+            'periodo_taxa': 'anual', 'periodo_meses': '600',
+        })
+        self.assertTrue(form.is_valid())
+
+    def test_pagina_responde_200_com_taxa_alta_e_prazo_longo(self):
+        for rota in ('simuladores:juros_compostos', 'simuladores:meta_financeira'):
+            dados = {
+                'valor_inicial': '1000', 'aporte_mensal': '100', 'valor_meta': '5000',
+                'taxa_mensal': '30', 'periodo_taxa': 'mensal', 'periodo_meses': '600',
+            }
+            with self.subTest(rota=rota):
+                self.assertEqual(self.client.post(reverse(rota), dados).status_code, 200)
 
 
 class ConversaoTaxaTests(TestCase):

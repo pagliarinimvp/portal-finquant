@@ -284,3 +284,50 @@ class ProvedoresSociaisSemBancoTests(TestCase):
         response = self.client.get("/contas/entrar/")
         self.assertContains(response, "/contas/social/google/login/")
         self.assertContains(response, "/contas/social/github/login/")
+
+
+@override_settings(PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
+class LimiteTentativasLoginTests(TestCase):
+    """Depois de 5 senhas erradas, o usuário fica bloqueado por 15 minutos (09/11/2026)."""
+
+    def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
+        self.user = User.objects.create_user(username='ana', password='senha-certa-123')
+
+    def errar(self, vezes, url=None):
+        for i in range(vezes):
+            self.client.post(url or reverse('contas:login'), {'username': 'ana', 'password': f'errada{i}'})
+
+    def test_quatro_erros_ainda_deixam_entrar(self):
+        self.errar(4)
+        r = self.client.post(reverse('contas:login'), {'username': 'ana', 'password': 'senha-certa-123'})
+        self.assertEqual(r.status_code, 302)
+
+    def test_cinco_erros_bloqueiam_mesmo_com_a_senha_certa(self):
+        self.errar(5)
+        r = self.client.post(reverse('contas:login'), {'username': 'ana', 'password': 'senha-certa-123'})
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, 'Muitas tentativas')
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_entrar_zera_o_contador(self):
+        self.errar(4)
+        self.client.post(reverse('contas:login'), {'username': 'ana', 'password': 'senha-certa-123'})
+        self.client.logout()
+        self.errar(4)
+        r = self.client.post(reverse('contas:login'), {'username': 'ana', 'password': 'senha-certa-123'})
+        self.assertEqual(r.status_code, 302)
+
+    def test_bloqueio_vale_tambem_no_admin(self):
+        User.objects.filter(pk=self.user.pk).update(is_staff=True, is_superuser=True)
+        self.errar(5, url='/admin/login/')
+        r = self.client.post('/admin/login/', {'username': 'ana', 'password': 'senha-certa-123'})
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_bloqueio_de_um_usuario_nao_afeta_outro(self):
+        User.objects.create_user(username='bia', password='outra-senha-456')
+        self.errar(5)
+        r = self.client.post(reverse('contas:login'), {'username': 'bia', 'password': 'outra-senha-456'})
+        self.assertEqual(r.status_code, 302)

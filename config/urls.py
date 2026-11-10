@@ -5,10 +5,17 @@ A lista `urlpatterns` roteia URLs para views. Para mais informações, veja:
     https://docs.djangoproject.com/en/6.1/topics/http/urls/
 """
 from django.contrib import admin
+from django.contrib.sitemaps.views import sitemap
 from django.urls import include, path
 from django.views.generic import RedirectView
 
+from core.sitemaps import SITEMAPS
+from core.views import favicon, robots_txt
+
 urlpatterns = [
+    path('robots.txt', robots_txt, name='robots_txt'),
+    path('sitemap.xml', sitemap, {'sitemaps': SITEMAPS}, name='sitemap'),
+    path('favicon.ico', favicon, name='favicon'),
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
     path('contas/', include('contas.urls')),

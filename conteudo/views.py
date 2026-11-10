@@ -37,3 +37,10 @@ class ArtigoDetailView(DetailView):
         if self.request.user.is_staff:
             return Artigo.objects.all()
         return Artigo.objects.filter(status=Artigo.Status.PUBLICADO)
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        # Prévia do link (Google, WhatsApp): o próprio artigo, não o padrão do site.
+        contexto['seo_titulo'] = self.object.titulo
+        contexto['seo_descricao'] = self.object.resumo
+        return contexto

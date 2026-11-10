@@ -5,7 +5,7 @@
 
 {% block extra_head %}
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
-<link href="{% static 'css/estudo_caso.css' %}?v={% now 'U' %}" rel="stylesheet">
+<link href="{% static 'css/estudo_caso.css' %}{{ versao_estatico }}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -49,5 +49,5 @@
 </div>
 {{ descricoes|json_script:"descricoes-escolhas" }}
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-<script src="{% static 'js/estudo_caso.js' %}?v={% now 'U' %}"></script>
+<script src="{% static 'js/estudo_caso.js' %}{{ versao_estatico }}"></script>
 {% endblock %}

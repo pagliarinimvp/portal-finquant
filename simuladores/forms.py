@@ -3,6 +3,7 @@ from decimal import Decimal
 from django import forms
 
 PERIODO_TAXA_CHOICES = [('mensal', 'ao mês'), ('anual', 'ao ano')]
+TAXA_MENSAL_MAXIMA = Decimal('100')
 
 
 def taxa_anual_para_mensal(taxa_anual):
@@ -35,6 +36,13 @@ class TaxaComPeriodoMixin:
         dados = super().clean()
         if dados.get('taxa_mensal') is not None and dados.get('periodo_taxa') == 'anual':
             dados['taxa_mensal'] = taxa_anual_para_mensal(dados['taxa_mensal'])
+        # Teto de 100% ao mês: nenhuma taxa real chega perto (o rotativo do
+        # cartão fica em torno de 15%), e acima disso o saldo de 600 meses
+        # passa da precisão do cálculo (views.PRECISAO) e do limite do float
+        # usado no gráfico. Taxas ao ano nunca chegam aqui: 9.999,99% ao ano,
+        # o máximo do campo, equivale a ~47% ao mês.
+        if dados.get('taxa_mensal') is not None and dados['taxa_mensal'] > TAXA_MENSAL_MAXIMA:
+            self.add_error('taxa_mensal', 'A taxa não pode passar de 100% ao mês.')
         return dados
 
 

@@ -4,7 +4,7 @@
 {% block title %}Calculando a análise — Portal FinQuant{% endblock %}
 
 {% block extra_head %}
-<link href="{% static 'css/estudo_caso.css' %}?v={% now 'U' %}" rel="stylesheet">
+<link href="{% static 'css/estudo_caso.css' %}{{ versao_estatico }}" rel="stylesheet">
 <noscript><meta http-equiv="refresh" content="5"></noscript>
 {% endblock %}
 
@@ -37,5 +37,5 @@
         </div>
     </details>
 </div>
-<script src="{% static 'js/estudo_caso.js' %}?v={% now 'U' %}"></script>
+<script src="{% static 'js/estudo_caso.js' %}{{ versao_estatico }}"></script>
 {% endblock %}

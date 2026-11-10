@@ -1,10 +1,24 @@
 import logging
 
 from django import forms
-from django.contrib.auth.forms import PasswordResetForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm, UserCreationForm
 from django.contrib.auth.models import User
 
 logger = logging.getLogger(__name__)
+
+
+class EntrarForm(AuthenticationForm):
+    """Login com aviso claro quando o usuário está bloqueado por excesso de tentativas.
+
+    Sem isto, o bloqueio (contas/limite_login.py) apareceria como "usuário ou
+    senha incorretos", e a pessoa continuaria tentando a senha certa.
+    """
+
+    def clean(self):
+        from .limite_login import MENSAGEM, bloqueado
+        if bloqueado(self.cleaned_data.get('username')):
+            raise forms.ValidationError(MENSAGEM, code='bloqueado')
+        return super().clean()
 
 
 class CadastroForm(UserCreationForm):

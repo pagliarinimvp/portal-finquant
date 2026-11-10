@@ -43,12 +43,13 @@ if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     # Endurecimento para produção (avisos do `manage.py check --deploy`):
     # força HTTPS e só envia os cookies de sessão/CSRF por conexão segura.
-    # HSTS começa curto (1 hora); suba para 1 ano (31536000) depois de
-    # confirmar que o site funciona inteiro em HTTPS.
+    # HSTS de 1 ano desde 09/11/2026 (era 1 hora até confirmar que o site
+    # funcionava inteiro em HTTPS). O navegador guarda a regra pelo prazo
+    # todo: voltar a servir HTTP só funcionaria para quem nunca visitou.
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=3600)
+    SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=31536000)
 
 
 # Definição da aplicação
@@ -61,6 +62,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'django.contrib.sitemaps',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -103,6 +105,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'avaliacoes.context_processors.modal_avaliacao',
+                'core.context_processors.versao_estatico',
+                'core.context_processors.seo',
             ],
         },
     },
@@ -162,7 +166,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
+    # ModelBackend com limite de 5 senhas erradas por usuário (contas/limite_login.py).
+    'contas.limite_login.BackendComLimite',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
