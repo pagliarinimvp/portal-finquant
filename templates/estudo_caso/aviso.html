@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ tx.AVISO_TITULO }} · Análise de ações — Portal FinQuant{% endblock %}
+
+{% block extra_head %}
+<link href="{% static 'css/estudo_caso.css' %}{{ versao_estatico }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="estudo-caso aviso-educativo">
+    <p class="onde">{{ tx.AVISO_ROTULO }}</p>
+    <h1 class="h2 tela">{{ tx.AVISO_TITULO }}</h1>
+    {% if calculando %}<p class="frase-tela"><i>{{ tx.AVISO_CALCULANDO }}</i></p>{% endif %}
+
+    <ul class="aviso-itens">
+        {% for titulo, texto in tx.AVISO_ITENS %}
+        <li><b>{{ titulo }}</b> {{ texto }}</li>
+        {% endfor %}
+    </ul>
+
+    <div class="botoes-escolhas">
+        <a class="btn btn-primary" href="{{ entendi }}">{{ tx.AVISO_ENTENDI }}</a>
+        <a class="btn btn-outline-primary" href="{{ urls.mudar }}">{{ tx.MUDAR }}</a>
+    </div>
+</div>
+{% endblock %}

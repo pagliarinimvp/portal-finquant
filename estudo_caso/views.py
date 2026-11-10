@@ -8,7 +8,7 @@ from datetime import date
 from urllib.parse import urlencode
 
 from django.http import Http404, HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views import View
 
@@ -53,6 +53,41 @@ class PerguntarView(View):
         return _perguntar(request, form, cfg=form.para_config() if form.is_valid() else None)
 
 
+# Combinações de escolhas cujo aviso a pessoa já confirmou ("Entendi"), guardadas na sessão do navegador.
+SESSAO_CIENTE = "estudo_caso_ciente"
+MAX_CIENTE = 50
+
+
+def _ja_ciente(request, k: str) -> bool:
+    return k in request.session.get(SESSAO_CIENTE, [])
+
+
+def _marcar_ciente(request, k: str) -> None:
+    lista = [x for x in request.session.get(SESSAO_CIENTE, []) if x != k]
+    request.session[SESSAO_CIENTE] = (lista + [k])[-MAX_CIENTE:]
+
+
+class AvisoView(View):
+    """Depois do passo 1: o aviso de que a ferramenta é educativa. A análise já começa a calcular por trás."""
+
+    def get(self, request):
+        form = AnaliseForm(request.GET)
+        if not form.is_valid():
+            return _perguntar(request, form)
+        cfg = form.para_config()
+        k = execucao.chave(cfg)
+        calculando = execucao.resultado(k) is None
+        if calculando:
+            est = execucao.estado(k)
+            if est["situacao"] == "erro":
+                return _perguntar(request, form, erro=est["erro"])
+            execucao.iniciar(cfg, k)
+        urls = _urls(cfg)
+        return render(request, "estudo_caso/aviso.html", {
+            "tx": tx, "urls": urls, "calculando": calculando, "entendi": f"{urls['analise']}&ciente=1",
+        })
+
+
 class AnaliseView(View):
     """Passos 2 a 6: mostra a tela pedida se o resultado já existe; senão, põe a análise na fila e mostra a espera."""
 
@@ -62,6 +97,13 @@ class AnaliseView(View):
             return _perguntar(request, form)
         cfg = form.para_config()
         k = execucao.chave(cfg)
+        # O aviso vem antes de tudo, inclusive de um link compartilhado. "ciente=1" vem do botão "Entendi" e sai do
+        # link logo em seguida, para não ir junto quando a pessoa compartilhar.
+        if request.GET.get("ciente") == "1":
+            _marcar_ciente(request, k)
+            return redirect(_urls(cfg)["analise"])
+        if not _ja_ciente(request, k):
+            return redirect(f"{reverse('estudo_caso:aviso')}?{_urls(cfg)['qs']}")
         res = execucao.resultado(k)
         if res is None:
             est = execucao.estado(k)

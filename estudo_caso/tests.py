@@ -20,6 +20,8 @@ _spec = importlib.util.spec_from_file_location("conftest_quant", Path(__file__).
 conftest = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(conftest)
 
+# Sessão em cookie: os testes da análise rodam sem banco (SimpleTestCase), e o "Entendi" do aviso fica na sessão.
+SESSAO_TESTE = "django.contrib.sessions.backends.signed_cookies"
 CACHE_TESTE = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
                "analises": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "LOCATION": "analises-teste"}}
 UMA = "selecao=manual&tickers=PETR4&divisao=igual&medias=intermediario&protecao=2_1"
@@ -72,7 +74,7 @@ class MarkdownTests(SimpleTestCase):
         self.assertIn("p &lt; 0,05", telas._md("p < 0,05"))
 
 
-@override_settings(CACHES=CACHE_TESTE)
+@override_settings(CACHES=CACHE_TESTE, SESSION_ENGINE=SESSAO_TESTE)
 class PaginasTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
@@ -97,7 +99,12 @@ class PaginasTests(SimpleTestCase):
     def calcular(self, qs: str):
         execucao.rodar_agora(self.config(qs))
 
+    def ciente(self, qs: str):
+        """Clica em "Entendi" no aviso, como a pessoa faria antes de ver a análise."""
+        self.client.get(f"/estudo-caso/analise/?{qs}&ciente=1")
+
     def todas_as_telas(self, qs: str) -> list[str]:
+        self.ciente(qs)
         r = self.client.get(f"/estudo-caso/analise/?{qs}")
         self.assertEqual(r.status_code, 200)
         n = len(re.findall(r'<option value="\d+"', r.content.decode()))
@@ -169,12 +176,57 @@ class PaginasTests(SimpleTestCase):
         self.calcular(UMA)
         self.assertContains(self.client.get(f"/estudo-caso/?{UMA}"), "Voltar ao resultado")
 
+    def test_passo_1_leva_ao_aviso(self):
+        self.assertContains(self.client.get("/estudo-caso/"), 'action="/estudo-caso/aviso/"')
+
+    def test_aviso_comeca_o_calculo_e_explica(self):
+        qs = UMA.replace("protecao=2_1", "protecao=sem")
+        k = execucao.chave(self.config(qs))
+        with mock.patch.object(execucao, "iniciar") as iniciar:
+            r = self.client.get(f"/estudo-caso/aviso/?{qs}")
+        iniciar.assert_called_once()
+        self.assertEqual(iniciar.call_args.args[1], k)
+        self.assertContains(r, "Antes de ver o resultado")
+        self.assertContains(r, "Não é recomendação de investimento.")
+        self.assertContains(r, "Enquanto você lê, a análise já está sendo calculada.")
+        self.assertContains(r, "ciente=1")
+
+    def test_aviso_com_resultado_pronto_nao_fala_em_calculo(self):
+        self.calcular(UMA)
+        r = self.client.get(f"/estudo-caso/aviso/?{UMA}")
+        self.assertContains(r, "Antes de ver o resultado")
+        self.assertNotContains(r, "já está sendo calculada")
+
+    def test_analise_sem_aviso_vai_para_o_aviso(self):
+        # Um link compartilhado também passa pelo aviso, uma vez.
+        self.calcular(UMA)
+        r = self.client.get(f"/estudo-caso/analise/?{UMA}&tela=2")
+        self.assertRedirects(r, f"/estudo-caso/aviso/?{UMA}", fetch_redirect_response=False)
+
+    def test_entendi_libera_as_telas_e_limpa_o_link(self):
+        self.calcular(UMA)
+        r = self.client.get(f"/estudo-caso/analise/?{UMA}&ciente=1")
+        self.assertRedirects(r, f"/estudo-caso/analise/?{UMA}", fetch_redirect_response=False)
+        for tela in (0, 1, 2):     # navegar entre as telas não repete o aviso
+            self.assertEqual(self.client.get(f"/estudo-caso/analise/?{UMA}&tela={tela}").status_code, 200)
+
+    def test_outras_escolhas_mostram_o_aviso_de_novo(self):
+        self.calcular(UMA)
+        self.ciente(UMA)
+        r = self.client.get(f"/estudo-caso/analise/?{DUAS}")
+        self.assertRedirects(r, f"/estudo-caso/aviso/?{DUAS}", fetch_redirect_response=False)
+
+    def test_aviso_com_escolhas_invalidas_volta_ao_formulario(self):
+        r = self.client.get("/estudo-caso/aviso/?selecao=manual&medias=intermediario&protecao=2_1")
+        self.assertContains(r, "Escolha ao menos uma ação para rodar a análise.")
+
     def test_escolhas_invalidas_voltam_ao_formulario(self):
         r = self.client.get("/estudo-caso/analise/?selecao=manual&medias=intermediario&protecao=2_1")
         self.assertContains(r, "Escolha ao menos uma ação para rodar a análise.")
 
     def test_espera_e_status(self):
         qs = UMA.replace("protecao=2_1", "protecao=1_1")
+        self.ciente(qs)
         r = self.client.get(f"/estudo-caso/analise/?{qs}")
         self.assertContains(r, "Calculando a análise")
         k = execucao.chave(self.config(qs))

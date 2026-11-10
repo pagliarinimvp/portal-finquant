@@ -28,7 +28,7 @@ def saude(request):
 
 @cache_control(max_age=86400, public=True)
 def robots_txt(request):
-    # /estudo-caso/analise/ fica fora: cada combinação de escolhas no link
+    # /estudo-caso/aviso/ e /estudo-caso/analise/ ficam fora: cada combinação de escolhas no link
     # dispara um cálculo pesado, e um robô seguindo as combinações ocuparia o
     # servidor gratuito. A página de escolhas (/estudo-caso/) continua aberta.
     linhas = [
@@ -36,6 +36,7 @@ def robots_txt(request):
         'Disallow: /admin/',
         'Disallow: /contas/',
         'Disallow: /avaliacao/',
+        'Disallow: /estudo-caso/aviso/',
         'Disallow: /estudo-caso/analise/',
         'Disallow: /estudo-caso/status/',
         'Disallow: /estudo-caso/pdf/',

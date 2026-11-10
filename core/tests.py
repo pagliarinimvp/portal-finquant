@@ -69,6 +69,7 @@ class SeoTests(TestCase):
     def test_robots_bloqueia_a_analise_e_aponta_o_sitemap(self):
         texto = self.client.get('/robots.txt').content.decode()
         self.assertIn('Disallow: /estudo-caso/analise/', texto)
+        self.assertIn('Disallow: /estudo-caso/aviso/', texto)
         self.assertIn('Sitemap: http://testserver/sitemap.xml', texto)
 
     def test_sitemap_lista_publicados_e_esconde_rascunho(self):

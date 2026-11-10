@@ -16,7 +16,7 @@
 
     {% if erro %}<div class="alert alert-danger" role="alert">{{ erro }}</div>{% endif %}
 
-    <form method="get" action="{% url 'estudo_caso:analise' %}" class="escolhas" novalidate>
+    <form method="get" action="{% url 'estudo_caso:aviso' %}" class="escolhas" novalidate>
         {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors|join:" " }}</div>{% endif %}
         {% comment %}Cada escolha num cartão próprio. Custo e capital são fixos e ficam explicados dentro da análise
            ("As operações" > "Custos e imposto" e "Quanto o dinheiro teria virado" > "As alternativas").{% endcomment %}

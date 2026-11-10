@@ -47,6 +47,11 @@ PAGINAS = {
         'Teste uma regra de médias móveis em ações do Ibovespa e compare o resultado com a '
         'Selic, com comprar e segurar e com o próprio Ibovespa.',
     ),
+    'estudo_caso:aviso': (
+        'Análise de ações — Portal FinQuant',
+        'Teste uma regra de médias móveis em ações do Ibovespa e compare o resultado com a '
+        'Selic, com comprar e segurar e com o próprio Ibovespa.',
+    ),
     'estudo_caso:analise': (
         'Análise de ações — Portal FinQuant',
         'Teste uma regra de médias móveis em ações do Ibovespa e compare o resultado com a '

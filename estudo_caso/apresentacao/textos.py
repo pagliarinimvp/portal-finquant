@@ -67,6 +67,30 @@ CAPITAL_FIXO = ("Dinheiro inicial: R$ 100.000",
 
 BOTAO = "Rodar a análise"
 VOLTAR = "Voltar ao resultado"
+
+# ------------------------------------------------------------------------------- aviso antes do resultado
+# Aparece depois do passo 1, a cada nova combinação de escolhas (views.AvisoView). Enquanto a pessoa lê, a análise
+# já está calculando, o que ocupa parte da espera.
+AVISO_ROTULO = "Aviso importante"
+AVISO_TITULO = "Antes de ver o resultado"
+AVISO_CALCULANDO = "Enquanto você lê, a análise já está sendo calculada."
+AVISO_ITENS = [
+    ("É uma ferramenta educativa.",
+     "Esta análise faz parte de um Trabalho de Conclusão de Curso (ADS, UNISINOS) e mostra, na prática, como se testa "
+     "uma regra de investimento com dados reais. Ela não foi feita para orientar decisões com o seu dinheiro."),
+    ("Não é recomendação de investimento.",
+     "Nenhum resultado aqui é indicação para comprar ou vender ações ou qualquer outro produto financeiro. "
+     "O autor não é analista de valores mobiliários credenciado pela CVM."),
+    ("Resultado passado não garante resultado futuro.",
+     "A análise usa preços históricos: uma regra que teria funcionado no passado pode dar prejuízo daqui para frente."),
+    ("É uma simulação simplificada.",
+     "Custos, imposto e o capital de R$ 100.000 seguem premissas fixas, e os dados vêm de fontes públicas "
+     "(Yahoo Finance e Banco Central), que podem ter erros ou atrasos."),
+    ("A decisão é sempre sua.",
+     "Antes de investir, avalie seus objetivos e o risco que aceita correr e, se precisar, procure um profissional "
+     "certificado."),
+]
+AVISO_ENTENDI = "Entendi, ver a análise"
 MUDAR = "Mudar escolhas"
 CARREGANDO = ("Baixando os preços e testando a regra. Com a seleção automática, são dezenas de ações, "
               "e a primeira vez do dia pode levar cerca de um minuto.")
