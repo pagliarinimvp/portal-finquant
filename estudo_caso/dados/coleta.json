@@ -1,0 +1,521 @@
+{
+ "coletado_em": "2026-11-09T14:57-03:00",
+ "arquivos": {
+  "copom_meta_selic.csv": {
+   "fonte": "Banco Central, meta Selic do Copom",
+   "linhas": 257,
+   "ultimo_dado": "2026-09-17",
+   "sha256": "0d4a8c8e9717744623c877bf91dc64e869cd479d4f82760fbed516543c781965"
+  },
+  "preco_ABEV3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "8de45d280e2f7092fdadfc946ec233dca0b5d85b84038efa56adc6bf5c41046c"
+  },
+  "preco_ALOS3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "5ce896aac606220a1a868276b557de3f0d3b4d7730820cbca028b3010e41623d"
+  },
+  "preco_ASAI3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1421,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "f3996ba121a76ae3ac33613e0971b6cb4f148f8bb979c8c676a19a2b07e014f7"
+  },
+  "preco_AURE3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1153,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "44ca9cb4be316c3dd544e0d563bc0d8feae62e7cf7f17723abc2eafad0c34dd0"
+  },
+  "preco_AXIA3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "468d3885b900637b2e915a54a166ceb226f79a7c505e5164cecec1b6064d415e"
+  },
+  "preco_AZZA3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "ddb903a2b730ac7b9c789e27902bd91fd8efde90427378f7ede95581af7478ae"
+  },
+  "preco_B3SA3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "ced1aa74848fcd9fd89b38ccefa3a2254746a7e05372d11bf502f167f1ad9ae0"
+  },
+  "preco_BBAS3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "88adb5cb9d45372b6dc6c0e0a5b629a26b3b3a19e529fdc7d1cdb01ef9176f86"
+  },
+  "preco_BBDC3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "c6b32d9462d5f748a01cb6ee5d0448be92f423cbb057ae573f2a8df9d372768e"
+  },
+  "preco_BBDC4_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "dae9cea38f0e65f8d418d06f25953e4c261a3a2c8404cf1d56fbf4577ed021c8"
+  },
+  "preco_BBSE3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "71bfa86289a5902ddb64be83fdcb466e4f4031f5a8938c1fabdd604a24ef85d7"
+  },
+  "preco_BEEF3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "9ff32d0e87e774d2575632e692ea9fe78f2ea181de7a4c8ffdb9ce40fb336ebe"
+  },
+  "preco_BPAC11_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2416,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "986cf89cb96ed7b946316033371c7edcdd71bd22bae9626bbf80fa92c216e1f5"
+  },
+  "preco_BRAP4_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "9ca966a571d4d2e347be2b7e70c3cd35f1cbe252a04477073f1cd8482f59245c"
+  },
+  "preco_BRAV3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "668e8d4eb39659d3b2d9a709338b92ceaeb0ce4bc24fd5ccb89fd0a5c317f524"
+  },
+  "preco_BRKM5_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2491,
+   "ultimo_dado": "2026-10-02",
+   "sha256": "7952be8be9039efac408733adfe9b0140605e41061afea5e36e3e6ddf6c6e3b3"
+  },
+  "preco_CEAB3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1742,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "d827121bd4a7c278ca81b5951bcd0f4883e01c073a3306533e21f230d7732804"
+  },
+  "preco_CMIG4_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "d893b702e86bc0d503afd603e00cbd6cf517deeae1cb35c02b7bf1299b9945ce"
+  },
+  "preco_CMIN3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1426,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "ee8035764a9ef107336f8649345610a557bfbfd2bb0fbfee5691c3ebf07a2eb1"
+  },
+  "preco_COGN3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "a60a88ed976a729cfd506d69af5fd0f8091122cf3f32e3cf490150179d276a06"
+  },
+  "preco_CPFE3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "2590c716320b906d038d617bed3cdf591bcd679bdc6b6a88e7aaa61f910244a8"
+  },
+  "preco_CPLE3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "3b5119d4e45868d31893c9779894eadd18be0243f37052844f4fab2fda39183d"
+  },
+  "preco_CSAN3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "337ea4a88285b8e54f24583556dfd3b8dd9f37000ec3a8bc139deeaf91f1a861"
+  },
+  "preco_CSMG3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "2578e03355842e4b1f5bbc6c4e1631fc5932c903f64311cf18ba5bc184b6869e"
+  },
+  "preco_CSNA3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "6b3248228d2b76c373110e220d3f01b62580b4d4d2df883d730212a63b09fb64"
+  },
+  "preco_CURY3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1526,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "3baa559317d94963260951abc6b9493b151c7ea0cbaa8136ff672852719ebdbd"
+  },
+  "preco_CXSE3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1379,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "72985c8cfab0e91d4e9b186231c7c77ec866f6d5fade762902ef6de24cb8a31f"
+  },
+  "preco_CYRE3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "a35315a3e063f6e65a73b5500381c9dcc879dc5776d9c854315eae7cf27f41c7"
+  },
+  "preco_DIRR3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "5d924cea9577c165723f7d12e0468b9caaf5fbf751f186b51253bb102bd6fabe"
+  },
+  "preco_EGIE3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "4f768b7634e20c153fa8c7b844dba7ea98a548e6e9e70c33dca2ff46ad487ba0"
+  },
+  "preco_EMBJ3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "b477a7a3caa181267e5d5365b62139b8b0bf616ed6b9193efd937569e44b762a"
+  },
+  "preco_ENEV3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "79fc02aaa657bb20a88ef5893417fa1104549de7927aed4fa46a1ef70b7a200f"
+  },
+  "preco_ENGI11_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "1697832d7404016468e8cb9ddb3cea066cd23c239e4ba00a1f6fcbcafb2757cb"
+  },
+  "preco_EQTL3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "51f176c687afda0dbbe8ba4ed99011cd7de4b305c619205d7ab168cfacc9f165"
+  },
+  "preco_FLRY3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "92166c660bcec013a037ac1a516f87afd76ca4b9eb378b28491af3d44c178874"
+  },
+  "preco_GGBR4_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "eb83d773e8a2a0c38e1750225d9b4af0033e6737a4b91abd7579a71551ef7b80"
+  },
+  "preco_GOAU4_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "09e270643562c933634a9a12bb631d52fb0d55bd07edb2c8def560e400cb9636"
+  },
+  "preco_HAPV3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2121,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "e5563d6d13371d17419b332019ab1fe7efdf1ab53195e49045b5479cf2dd685b"
+  },
+  "preco_HYPE3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "fc4216073d8b3a0fca5c3079f90a322466c3d5420ca4b5e2f0ee500fe3d820c0"
+  },
+  "preco_idx_BVSP.csv": {
+   "fonte": "Ibovespa (B3), via Yahoo Finance",
+   "linhas": 2482,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "c09f8321582c230c9e5ae517f640389a8f0daa3d8c4128afba30b1cc5abff02c"
+  },
+  "preco_IGTI11_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1239,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "39306827a2a9c1013cab3e6ec945d6ecffec322d1fb0c214955b199005b08884"
+  },
+  "preco_IRBR3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2287,
+   "ultimo_dado": "2026-10-02",
+   "sha256": "2e36c0448f7c31405a66dd0c4f3602712236da15f883f7c7e315047f60a62349"
+  },
+  "preco_ISAE4_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "d03cdbda0fd5669365356c5d4700b7860df242b9b9448c2d48df9702764bf05c"
+  },
+  "preco_ITSA4_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "fb9e9c2df306351e957024b708f88e455d142e9a93cfd8feaeeba7f6401d4e01"
+  },
+  "preco_ITUB4_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "b0aa736586a0d575d8c94cf4ddba779ab2a59bef834b3da47d121bd4aeaa565d"
+  },
+  "preco_KLBN11_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "6cab5c95b92a744e73cf4ce5e504c6a57f0ed727024cb3665ff20014549824f9"
+  },
+  "preco_LREN3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "dcea2ca6633b0ca4a051a9c5efad8823187bc9d1dc6d74986fb976fbfabf2a9d"
+  },
+  "preco_MBRF3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "bf90c30293fa5823bfbe5cba8b63c610ef507bd0e6e96e6895e0456cfb838076"
+  },
+  "preco_MGLU3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "0c1096f521036a8914d43076fe89dd4b3abd8c3f186206c7f791da476d49fb29"
+  },
+  "preco_MOTV3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "8ab51d72a855f5d4b76c5446b74e6ad73e9249082c5100768ade6a7218cf5591"
+  },
+  "preco_MRVE3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "0d1a118fc79231cb9e4a027ca128a9449a3055ce1615502fd0139aa111cb9384"
+  },
+  "preco_MULT3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "042708403a89b8be5f3396632deade44ff5bda73e8146ab977f07c5254584e72"
+  },
+  "preco_NATU3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1087,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "f6bb7d9ec3fd8d701976e0c185e96b97bc24af37dbd9e752964b5f6e54893636"
+  },
+  "preco_PCAR3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2491,
+   "ultimo_dado": "2026-10-02",
+   "sha256": "1dcebf3a1f690528670f0310b8224b576cfc017cb0af259d31dc9887835e6415"
+  },
+  "preco_PETR3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "859c92abe76d60ada883f25cc88fa16c60fecc31229b4ea9e926e4214cf7b9ae"
+  },
+  "preco_PETR4_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "56bbd6dbf30008390c2b11897282f4999f792724b893d7af6c935c2309a8abe4"
+  },
+  "preco_POMO4_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "3d1ce6d4c0520002109a51fe74bfa4abaf87d01fa3319b114f52113f94723a0b"
+  },
+  "preco_PRIO3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "1719f043ee38d631f08da6828e48347521e9df64ee29abfe1c1a79e13a7bd695"
+  },
+  "preco_PSSA3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "d74bf58fcd155f170e4dc62806f9d28909cb12b93a5b535ac2177bce207efcb4"
+  },
+  "preco_RADL3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "0a89fd8ee6329a83316d18ce674d2589513d41f0a3ff82f35eac9f0bc4731d6b"
+  },
+  "preco_RAIL3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "03fde237da5f8875e5dd2d7908db73abbc2911ee1bf5991cce4406fcb1e75bab"
+  },
+  "preco_RAIZ4_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1289,
+   "ultimo_dado": "2026-10-02",
+   "sha256": "1e8a04da26b1982886e04714198119dcacd59b2be464c796c3835a81e2319c31"
+  },
+  "preco_RDOR3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1468,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "0756059521f04f476867a44580244223fd2c89f20b59c91b3b2ae3d82e023b2b"
+  },
+  "preco_RECV3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1353,
+   "ultimo_dado": "2026-10-02",
+   "sha256": "844d149e720f517c147e5e1cd5d02a9b20860b61dc5fb8919af693d597d0b741"
+  },
+  "preco_RENT3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "17a1a00468d8a7057f58fa621c83d067d6901a14ae25efa940ee93bbcdb0ae89"
+  },
+  "preco_SANB11_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "6fa593fdd41987ac7ccdf99112b183287a1ec4f8bf0db7bfa4b3af7306d0cf1c"
+  },
+  "preco_SBSP3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "e06ded8dd49c09670e27e6f6f2fbe9566e5927b54141dd876f8b906ed56c99b8"
+  },
+  "preco_SLCE3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2491,
+   "ultimo_dado": "2026-10-02",
+   "sha256": "3abfcecc0747c1c6545db50eab0d6d701e4feb48fb21f44ef4b0e41c651bd69e"
+  },
+  "preco_SMFT3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1328,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "284b69534212410075c0cc6c4b85b8a736f34f9d1004aab692436def49653c30"
+  },
+  "preco_SMTO3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2491,
+   "ultimo_dado": "2026-10-02",
+   "sha256": "800da25f7bcda796124c68be6fa96c7f4df5b25f79cb0f1379433266b51dada9"
+  },
+  "preco_SUZB3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "b2eb3aaf1e81d0133e3d0d2593a9a61b060603a855d092b0f2cf48fef6ca0116"
+  },
+  "preco_TAEE11_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "5d38ffc339a66f5c01d4e3eaa2bffe43bd960691c12a60a921b1e7de87a28bd3"
+  },
+  "preco_TEND3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "bcb1fb105d3b447bd8d4f5b63ce066cc4706d9f818b4438c0c9fbfb4161e9423"
+  },
+  "preco_TIMS3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "d949a56b529e678340a468e23d16df47041861c410fc21933fad5e6858959fc8"
+  },
+  "preco_TOTS3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "d2fb952c9775036bb8e0926a1deae676b32c5cb61846fc8a6c326437b7c4402c"
+  },
+  "preco_UGPA3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "11d4a84d2ce2a172025808bc0874253859afbdcaa50fac5f4444cceae9f8b15f"
+  },
+  "preco_USIM5_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "c5322cb6773a3518032ab7e927a9e8a6efeba8089b82df26a1e69db4fc771a97"
+  },
+  "preco_VALE3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "174d9e13d2a03cd114afc1f53d1ae6d0db3bddfa41ec654363c44fedabe262fc"
+  },
+  "preco_VAMO3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1438,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "5e23e8fdd1b8798ddd9338ff189639c4306ff4d3247ea8611db97bf65879b142"
+  },
+  "preco_VBBR3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2151,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "076fb1e78b2960c7667c8dac52865279bb5644ae789e70354143d774bf13e99c"
+  },
+  "preco_VIVA3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 1759,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "ed8f01f6c4ede5025c649a453be8600f493e8560a3f42dd2aeaebc58bdee3903"
+  },
+  "preco_VIVT3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "4a3c6296e8d95db98bac59f850e14bd060aa86ade5fa7464418463cdea07a191"
+  },
+  "preco_WEGE3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "1601526ccae18c4008a7cb0d5505f113b498b22f4281c4c9465d50af71b323a6"
+  },
+  "preco_YDUQ3_SA.csv": {
+   "fonte": "Yahoo Finance",
+   "linhas": 2490,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "43d990dba9fbd6dbd5cb8ba78f85ff51e0001ce1cb803013150b7298ba113fa0"
+  },
+  "sgs_11.csv": {
+   "fonte": "Banco Central, SGS 11 (Selic diária)",
+   "linhas": 2508,
+   "ultimo_dado": "2026-11-06",
+   "sha256": "9e26acf663c5befcbe025e20b28ad3e897a4e060285298cbfa6516363f694bff"
+  }
+ }
+}

@@ -285,9 +285,26 @@ def tela_preparar(res: dict):
 
     def origem():
         html(f"<p>{tx.DADOS}</p>")
+        procedencia(res, per)
+        nota(tx.DADO_OU_CALCULO)
         fontes(["yahoo", "bcb_selic", "b3_ibov"])
 
     um_por_vez("item_dados", [("De onde vêm os dados", origem), ("Por que 10 anos", lambda: html(f"<p>{tx.POR_QUE_10_ANOS}</p>"))])
+
+
+def procedencia(res: dict, per: dict):
+    """Data da coleta e, num quadro recolhido, cada arquivo usado: fonte, último dado e o início do hash. Resultado antigo, sem isso: nada."""
+    p = res.get("procedencia")
+    if not p or not p.get("coletado_em"):
+        return
+    quando = p["coletado_em"]               # AAAA-MM-DDTHH:MM-03:00
+    html(f"<p>{tx.COLETA.format(data=data_br(quando), hora=quando[11:16], ultimo=data_br(per['fim']))}</p>")
+    referencias = [s for s in p["series"] if s["serie"] in ("Ibovespa", "Selic")]
+    series = referencias + [s for s in p["series"] if s not in referencias]
+    with st.expander("Os arquivos usados nesta análise"):
+        html(f"<p>{tx.ARQUIVOS_USADOS}</p>")
+        tabela(["Série", "Fonte", "Último dado", "Código de verificação"],
+               [[s["serie"], s["fonte"], data_br(s["ultimo_dado"]), s["sha256"][:12]] for s in series], classe="compacta")
 
 
 # ----------------------------------------------------------------------------- 3. processar
@@ -805,7 +822,7 @@ def tela_variacoes(res: dict):
     def ano_a_ano():
         abrir_teste(res, "ano_a_ano")
         a = v["ano_a_ano"]
-        grafico("ano_a_ano", f"A regra ganhou da Selic em {a['n_acima']} de {a['n_avaliados']} anos avaliados", g.fig_ano_a_ano(a["anos"]))
+        grafico("ano_a_ano", f"A regra ganhou da Selic em {a['n_acima']} de {a['n_avaliados']} anos avaliados", g.fig_ano_a_ano(a["anos"], res["periodo"]["inicio"], res["periodo"]["fim"]))
         fechar_teste(res, "ano_a_ano")
 
     def sensibilidade():

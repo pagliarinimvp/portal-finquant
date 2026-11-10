@@ -15,3 +15,14 @@ def test_nota_salto_explica_perda_maior_que_o_limite():
 def test_nota_salto_some_sem_salto_ou_sem_limite():
     assert nota_salto([_op("2018-08-21", -10.057)], 10.0) is None
     assert nota_salto([_op("2017-05-18", -21.1)], None) is None
+
+
+def test_rotulo_ano_marca_so_os_anos_incompletos():
+    from apresentacao.formatacao import rotulo_ano
+    inicio, fim = "2016-11-09", "2026-11-06T00:00:00"
+    assert rotulo_ano(2016, inicio, fim) == "2016 (desde 09/11)"
+    assert rotulo_ano(2020, inicio, fim) == "2020"
+    assert rotulo_ano(2026, inicio, fim, quebra="<br>") == "2026<br>(até 06/11)"
+    # começo e fim nas pontas do ano (feriados de virada) contam como ano inteiro
+    assert rotulo_ano(2017, "2017-01-02", "2025-12-30") == "2017"
+    assert rotulo_ano(2025, "2017-01-02", "2025-12-30") == "2025"

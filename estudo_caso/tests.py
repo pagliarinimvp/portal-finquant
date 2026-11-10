@@ -130,6 +130,22 @@ class PaginasTests(SimpleTestCase):
         self.assertIn("tarifa da B3", tudo)
         self.assertGreaterEqual(tudo.count('class="um-por-vez"'), 10)     # o conteúdo das telas fica em abas
 
+    def test_procedencia_dos_dados(self):
+        from .quant import dados
+        coleta = dados.registrar_coleta(self.pasta)
+        res = execucao.rodar_agora(self.config(UMA))
+        series = {s["serie"]: s for s in res["procedencia"]["series"]}
+        self.assertEqual(set(series), {conftest.TICKERS[0], "Ibovespa", "Selic"})
+        self.assertEqual(series["Selic"]["sha256"], coleta["arquivos"]["sgs_11.csv"]["sha256"])
+        self.todas_as_telas(UMA)
+        self.assertIn("Os dados foram coletados em", self.paginas[0])
+        self.assertIn(series[conftest.TICKERS[0]]["sha256"][:12], self.paginas[0])
+        self.assertIn("Dado da fonte ou cálculo?", self.paginas[0])
+        self.assertIn("Selic (Banco Central)", "".join(self.paginas))     # legenda do gráfico de evolução
+
+    def test_procedencia_sem_coleta_nao_quebra(self):
+        self.assertIsNone(execucao.procedencia({"tickers": ["PETR4"]}, Path(tempfile.mkdtemp())))
+
     def test_todas_as_telas_com_duas_acoes(self):
         self.calcular(DUAS)
         self.assertIn("A divisão do dinheiro", self.todas_as_telas(DUAS))

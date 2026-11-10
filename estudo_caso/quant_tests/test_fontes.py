@@ -173,3 +173,37 @@ def test_preco_da_bolsa_chega_ao_exemplo_e_as_operacoes(pasta_sintetica, tmp_pat
     assert "na bolsa, a PETR4 abriu a R$" in r["roteiro_treino"]["exemplo"]
     sem = servico.executar({"tickers": ["PETR4"]}, CsvFonte(pasta_sintetica))
     assert sem["operacoes"]["lista"][0]["preco_entrada_bolsa"] is None and "Esses são preços ajustados" in sem["roteiro_treino"]["exemplo"]
+
+
+# ------------------------------------------------------------------ procedência: só pregões fechados e registro da coleta
+def test_so_dias_fechados_tira_o_pregao_do_dia():
+    from datetime import date
+    df = pd.DataFrame({"Close": [10.0, 11.0, 12.0]}, index=pd.to_datetime(["2026-11-05", "2026-11-06", "2026-11-09"]))
+    fechados = dados.so_dias_fechados(df, hoje=date(2026, 11, 9))
+    assert list(fechados.index.strftime("%Y-%m-%d")) == ["2026-11-05", "2026-11-06"]
+    assert len(dados.so_dias_fechados(df, hoje=date(2026, 11, 10))) == 3      # baixado no dia seguinte, o 09/11 já fechou
+
+
+def test_registrar_coleta_grava_data_fonte_ultimo_dado_e_hash(tmp_path):
+    import hashlib
+    from datetime import datetime
+    serie_ohlc(30, 1, inicio="2026-09-01").to_csv(tmp_path / "preco_PETR4_SA.csv")
+    serie_ohlc(30, 2, inicio="2026-09-01", preco0=130000).to_csv(tmp_path / "preco_idx_BVSP.csv")
+    pd.DataFrame({"valor": [0.05, 0.05]}, index=pd.to_datetime(["2026-11-05", "2026-11-06"]).rename("data")).to_csv(tmp_path / "sgs_11.csv")
+
+    agora = datetime(2026, 11, 14, 4, 2, tzinfo=dados.timezone.utc)      # 01:02 em Brasília
+    coleta = dados.registrar_coleta(tmp_path, agora=agora)
+
+    assert coleta["coletado_em"] == "2026-11-14T01:02-03:00"
+    arqs = coleta["arquivos"]
+    assert set(arqs) == {"preco_PETR4_SA.csv", "preco_idx_BVSP.csv", "sgs_11.csv"}
+    assert arqs["preco_PETR4_SA.csv"]["fonte"] == "Yahoo Finance"
+    assert arqs["preco_idx_BVSP.csv"]["fonte"].startswith("Ibovespa (B3)")
+    assert arqs["sgs_11.csv"]["fonte"].startswith("Banco Central")
+    assert arqs["sgs_11.csv"]["ultimo_dado"] == "2026-11-06" and arqs["sgs_11.csv"]["linhas"] == 2
+    assert arqs["preco_PETR4_SA.csv"]["sha256"] == hashlib.sha256((tmp_path / "preco_PETR4_SA.csv").read_bytes()).hexdigest()
+    assert dados.ler_coleta(tmp_path) == coleta
+
+
+def test_ler_coleta_sem_arquivo_devolve_none(tmp_path):
+    assert dados.ler_coleta(tmp_path) is None

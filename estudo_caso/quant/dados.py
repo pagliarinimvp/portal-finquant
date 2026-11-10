@@ -7,8 +7,10 @@
 
 Só preços diários. Devolve DataFrames com índice de datas SEM fuso horário.
 """
+import hashlib
+import json
 import time
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -31,6 +33,56 @@ SALTO_SUSPEITO = 0.30          # variação em um dia que precisa ser confirmada
 MULTIPLO_VOLUME = 3.0          # salto real costuma vir com volume bem acima do normal
 JANELA_VOLUME = 20             # pregões usados para medir o volume normal
 MOVIMENTO_DE_MERCADO = 0.05    # com o Ibovespa variando isso no dia, o salto faz parte de um movimento geral
+
+
+FUSO_BRASILIA = timezone(timedelta(hours=-3))     # sem horário de verão desde 2019
+ARQUIVO_COLETA = "coleta.json"
+
+
+def hoje_brasilia() -> date:
+    return datetime.now(FUSO_BRASILIA).date()
+
+
+def so_dias_fechados(df: pd.DataFrame, hoje: date | None = None) -> pd.DataFrame:
+    """Tira a linha do próprio dia: baixada com a bolsa aberta, ela traz o preço do meio do pregão como se fosse o fechamento."""
+    return df[df.index < pd.Timestamp(hoje or hoje_brasilia())]
+
+
+def fonte_do_arquivo(nome: str) -> str:
+    if nome == "preco_idx_BVSP.csv":
+        return "Ibovespa (B3), via Yahoo Finance"
+    if nome.startswith("preco_"):
+        return "Yahoo Finance"
+    if nome == f"sgs_{SGS_SELIC_DIARIA}.csv":
+        return f"Banco Central, SGS {SGS_SELIC_DIARIA} (Selic diária)"
+    if nome == "copom_meta_selic.csv":
+        return "Banco Central, meta Selic do Copom"
+    return "desconhecida"
+
+
+def registrar_coleta(pasta: str | Path, agora: datetime | None = None) -> dict:
+    """Grava `coleta.json`: quando os CSVs foram baixados e, para cada um, a fonte, o último dado e o hash SHA-256.
+
+    O hash é a impressão digital do arquivo: com ele dá para provar que a análise usou exatamente aqueles dados."""
+    pasta = Path(pasta)
+    arquivos = {}
+    for arq in sorted(pasta.glob("*.csv")):
+        conteudo = arq.read_bytes()
+        df = pd.read_csv(arq, index_col=0, parse_dates=True)
+        arquivos[arq.name] = {"fonte": fonte_do_arquivo(arq.name), "linhas": int(len(df)),
+                              "ultimo_dado": df.index.max().strftime("%Y-%m-%d") if len(df) else None,
+                              "sha256": hashlib.sha256(conteudo).hexdigest()}
+    coleta = {"coletado_em": (agora or datetime.now(FUSO_BRASILIA)).astimezone(FUSO_BRASILIA).isoformat(timespec="minutes"),
+              "arquivos": arquivos}
+    (pasta / ARQUIVO_COLETA).write_text(json.dumps(coleta, ensure_ascii=False, indent=1), encoding="utf-8", newline="\n")
+    return coleta
+
+
+def ler_coleta(pasta: str | Path) -> dict | None:
+    try:
+        return json.loads((Path(pasta) / ARQUIVO_COLETA).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
 
 
 class DadosIndisponiveis(RuntimeError):
@@ -146,7 +198,7 @@ class YFinanceFonte(CsvFonte):
         if not (cobre and self._fresco(arq)):
             try:
                 novo = self._baixar_preco(simbolo, inicio)
-                novo.to_csv(arq)
+                novo.to_csv(arq, lineterminator="\n")   # LF em qualquer sistema: o hash do coleta.json bate com o do git
                 df = novo
             except Exception as e:  # noqa: BLE001 – cai para o cache, se houver
                 if df is None:
@@ -166,7 +218,7 @@ class YFinanceFonte(CsvFonte):
             if c not in h.columns:
                 h[c] = float("nan")
         h = h[COLUNAS_OHLCV].dropna(subset=["Close"])
-        h = h[h["Close"] > 0]
+        h = so_dias_fechados(h[h["Close"] > 0])
         try:                                    # o fator é só para mostrar: se falhar, os preços ajustados seguem valendo
             h[COLUNA_FATOR] = _fator_bolsa(yf.Ticker(simbolo).history(start=inicio, interval="1d", auto_adjust=False, actions=True), h["Close"])
         except Exception:  # noqa: BLE001
@@ -181,7 +233,7 @@ class YFinanceFonte(CsvFonte):
         if not (cobre and self._fresco(arq)):
             try:
                 novo = self._baixar_sgs(codigo, inicio)
-                novo.to_csv(arq)
+                novo.to_csv(arq, lineterminator="\n")   # LF em qualquer sistema: o hash do coleta.json bate com o do git
                 df = novo
             except Exception as e:  # noqa: BLE001
                 if df is None:
@@ -201,7 +253,7 @@ class YFinanceFonte(CsvFonte):
         if df is None or not self._fresco(arq):
             try:
                 novo = self._baixar_meta_selic()
-                novo.to_csv(arq)
+                novo.to_csv(arq, lineterminator="\n")   # LF em qualquer sistema: o hash do coleta.json bate com o do git
                 df = novo
             except Exception as e:  # noqa: BLE001
                 if df is None:
@@ -251,7 +303,7 @@ class YFinanceFonte(CsvFonte):
         df["data"] = pd.to_datetime(df["data"], format="%d/%m/%Y")
         df["valor"] = pd.to_numeric(df["valor"], errors="coerce")
         df = df.dropna().drop_duplicates("data").set_index("data")[["valor"]]
-        return _limpar_indice(df)
+        return so_dias_fechados(_limpar_indice(df))
 
 
 def selic_aproximada(meta: pd.DataFrame, dias: pd.DatetimeIndex, spread: float = SPREAD_SELIC_META) -> pd.DataFrame:
@@ -334,4 +386,5 @@ def atualizar_cache(tickers: list[str], inicio: str, pasta: str | Path = "cache_
         fonte.serie_sgs(SGS_SELIC_DIARIA, inicio, fim)
     except DadosIndisponiveis as e:
         falhas.append(str(e))
+    registrar_coleta(pasta)
     return falhas

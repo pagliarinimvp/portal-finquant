@@ -8,9 +8,12 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
+from .formatacao import rotulo_ano
+
 # Paleta validada para daltonismo (scripts/validate_palette.js da skill dataviz), nesta ordem.
 COR = {"estrategia": "#2563EB", "selic": "#D97706", "buy_hold": "#9D174D", "ibovespa": "#14A085"}
 NOME = {"estrategia": "Regra", "selic": "Selic", "buy_hold": "Comprar e segurar", "ibovespa": "Ibovespa"}
+FONTE_SERIE = {"selic": "Banco Central", "ibovespa": "B3"}     # dado oficial, como veio da fonte; o resto é calculado pela análise
 # Contraste contra o branco: TINTA 13,4:1 e TINTA_SUAVE 5,3:1 (textos); NEVOA 3,4:1 (marcas cinzas, mínimo de 3:1);
 # GRADE fica discreta de propósito, porque é só fundo.
 TINTA, TINTA_SUAVE, GRADE, NEVOA = "#16323F", "#5B6F7A", "#DCE4E8", "#7A8E99"
@@ -145,7 +148,8 @@ def fig_curvas(res: dict) -> go.Figure:
     finais = {}
     for k in ordem:
         x, y = _xy(curvas[k])
-        fig.add_scatter(x=x, y=y, name=NOME[k], mode="lines", line=dict(color=COR[k], width=2.5 if k == "estrategia" else 2),
+        legenda = f"{NOME[k]} ({FONTE_SERIE[k]})" if k in FONTE_SERIE else NOME[k]
+        fig.add_scatter(x=x, y=y, name=legenda, mode="lines", line=dict(color=COR[k], width=2.5 if k == "estrategia" else 2),
                         hovertemplate=f"{NOME[k]}: R$ %{{y:,.0f}}<extra></extra>")
         finais[k] = y[-1]
     desloc = _rotulos_sem_colisao(finais, 280)
@@ -317,9 +321,9 @@ def fig_intervalo(sorte: dict) -> go.Figure:
 
 
 # ------------------------------------------------------------------ aguenta variações?
-def fig_ano_a_ano(anos: list) -> go.Figure:
+def fig_ano_a_ano(anos: list, inicio=None, fim=None) -> go.Figure:
     fig = go.Figure()
-    rotulos = [str(a["ano"]) for a in anos]
+    rotulos = [rotulo_ano(a["ano"], inicio, fim, quebra="<br>") if inicio and fim else str(a["ano"]) for a in anos]
     for k in ("estrategia", "selic", "buy_hold"):
         if k in anos[0]:
             fig.add_bar(x=rotulos, y=[100 * a[k] for a in anos], name=NOME[k], marker=dict(color=COR[k]),

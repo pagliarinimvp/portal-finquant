@@ -109,6 +109,13 @@ RESUMO = {
 DADOS = ("Um pregão é um dia de negociação na bolsa. Para cada pregão, usamos o preço de abertura, o maior, o menor e o "
          "de fechamento de cada ação. Os preços vêm do Yahoo Finance, já ajustados por dividendos e desdobramentos, "
          "e a Selic vem do Banco Central.")
+COLETA = ("Os dados foram coletados em {data}, às {hora} (horário de Brasília). O último pregão usado é o de {ultimo}. "
+          "Só entram pregões já encerrados: o dia da coleta fica de fora, para que um preço do meio do pregão não seja lido como fechamento.")
+DADO_OU_CALCULO = ("<b>Dado da fonte ou cálculo?</b> Os preços das ações, o Ibovespa e a Selic são dados oficiais, usados como vieram das fontes. "
+                   "Todo o resto (retornos, Sharpe, quedas, pesos e testes) é calculado por esta análise a partir deles, e cada cálculo é "
+                   "explicado na tela em que aparece.")
+ARQUIVOS_USADOS = ("O código de verificação (hash SHA-256) é a impressão digital de cada arquivo: se um único número mudar, o código muda. "
+                   "Com ele, dá para conferir que esta análise usou exatamente esses arquivos. Aqui aparecem os 12 primeiros caracteres.")
 POR_QUE_10_ANOS = ("Usamos os últimos 10 anos porque um histórico longo passa por fases diferentes: bolsa em alta, bolsa em queda, "
                    "juros altos e juros baixos. Um período curto pode contar só um lado da história.")
 DIVISAO_HISTORICO = ("Pense em estudar e fazer uma prova. O treino é o estudo: é onde se pode tentar e escolher. O teste é a prova, com questões que "
@@ -400,7 +407,8 @@ CONTA = {
                  "esse p em um teste único. A conta supõe tentativas independentes, o caso mais simples.", ["harvey2015", "bailey2014"]),
     "treino_teste": ("Compara o Sharpe do treino inicial com o das janelas de teste em sequência, na mesma curva. Critério desta ferramenta: Sharpe do teste "
                      "positivo e de pelo menos metade do Sharpe do treino inicial.", ["bailey2014", "tashman2000"]),
-    "ano_a_ano": ("Retorno composto de cada ano civil. Anos com menos de 126 pregões aparecem no gráfico, mas não entram na contagem.", []),
+    "ano_a_ano": ("Retorno composto de cada ano civil. Anos que a análise não cobre inteiros aparecem com o período, como “(até 06/11)”. "
+                  "Anos com menos de 126 pregões aparecem no gráfico, mas não entram na contagem.", []),
     "sensibilidade": ("4 ritmos × 4 saídas = 16 simulações do período inteiro, pelas mesmas janelas, com as ações e os pesos escolhidos em cada uma. "
                       "A comparação é com a Selic no teste.", ["bailey2014"]),
     "custo": ("A mesma simulação com as tarifas da B3 (0,03%) e o imposto de renda, e sem nenhum dos dois. A Selic de comparação "

@@ -26,8 +26,8 @@ from django.db import connection
 from .forms import PADROES
 from .quant import config as c
 from .quant import servico
-from .quant.dados import DadosIndisponiveis
-from .quant.universo import IBOVESPA
+from .quant.dados import SGS_SELIC_DIARIA, CsvFonte, DadosIndisponiveis, ler_coleta
+from .quant.universo import IBOVESPA, SIMBOLO_IBOV, simbolo_yahoo
 
 log = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ def ultimo_pregao() -> str:
 
 
 # Sobe quando um texto guardado no resultado muda (vem do núcleo, como a leitura), para não servir o texto antigo do cache.
-REVISAO_TEXTOS = 2  # 2: custo e capital fixos (09/11/2026)
+REVISAO_TEXTOS = 3  # 2: custo e capital fixos (09/11/2026) · 3: procedência dos dados (09/11/2026)
 
 
 def chave(cfg: dict) -> str:
@@ -77,7 +77,29 @@ def resultado(k: str) -> dict | None:
     return json.loads(zlib.decompress(bruto)) if bruto else None
 
 
+def procedencia(res: dict, pasta: Path | None = None) -> dict | None:
+    """De onde e de quando vieram os CSVs desta análise: data da coleta e, por série, fonte, último dado e hash (`coleta.json`).
+
+    Sem `coleta.json` (dados de antes de 09/11/2026), None: a página só não mostra o quadro."""
+    pasta = pasta or pasta_dados()
+    coleta = ler_coleta(pasta)
+    if not coleta:
+        return None
+    arquivos, fonte = coleta.get("arquivos", {}), CsvFonte(pasta)
+    tickers = [x["ticker"] for x in res["selecao"]["ranking"]] if res.get("selecao") else res.get("tickers", [])
+    nomes = {t: fonte._arq_preco(simbolo_yahoo(t)).name for t in tickers}
+    nomes["Ibovespa"] = fonte._arq_preco(SIMBOLO_IBOV).name
+    nomes["Selic"] = f"sgs_{SGS_SELIC_DIARIA}.csv" if f"sgs_{SGS_SELIC_DIARIA}.csv" in arquivos else "copom_meta_selic.csv"
+    series = [{"serie": s, "arquivo": n, **arquivos[n]} for s, n in nomes.items() if n in arquivos]
+    return {"coletado_em": coleta.get("coletado_em"), "series": series}
+
+
 def _guardar(k: str, res: dict):
+    try:
+        res["procedencia"] = procedencia(res)
+    except Exception:       # noqa: BLE001 — o quadro de procedência nunca pode impedir o resultado de ser guardado
+        log.exception("Falha ao ler a procedência dos dados")
+        res["procedencia"] = None
     _cache().set(f"res:{k}", zlib.compress(json.dumps(res).encode(), 6), VALIDADE_RESULTADO)
 
 

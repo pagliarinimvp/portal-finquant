@@ -43,6 +43,18 @@ def data_br(v) -> str:
     return f"{dia}/{mes}/{ano}"
 
 
+def rotulo_ano(ano: int, inicio, fim, quebra: str = " ") -> str:
+    """'2026 (até 06/11)': o ano civil que a análise não cobre inteiro é marcado, para não ser lido como um ano completo.
+
+    Primeiro ano parcial se começa depois de 10/01; último, se termina antes de 20/12 (folga para feriados de virada)."""
+    ini, fi = str(inicio)[:10], str(fim)[:10]
+    if ano == int(ini[:4]) and ini[5:] > "01-10":
+        return f"{ano}{quebra}(desde {ini[8:10]}/{ini[5:7]})"
+    if ano == int(fi[:4]) and fi[5:] < "12-20":
+        return f"{ano}{quebra}(até {fi[8:10]}/{fi[5:7]})"
+    return str(ano)
+
+
 def nota_salto(operacoes: list, stop: float | None) -> str | None:
     """Explica as perdas maiores que o limite: a ação abriu abaixo dele, e a venda saiu na abertura."""
     if not stop:
