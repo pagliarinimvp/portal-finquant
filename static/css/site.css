@@ -154,9 +154,16 @@ ul.fq-numeros {
     background-repeat: no-repeat, repeat-x;
 }
 
-/* --- Corpo de artigo: coluna de leitura estreita, no estilo de matéria de jornal --- */
+/* --- Página de artigo: cartão estreito e centralizado (decisão do autor, 10/11/2026).
+   O cartão tem a largura de uma coluna de leitura (~70-80 letras por linha) e o texto,
+   a linha fina e a capa ocupam o cartão inteiro. Até então o cartão ia de borda a borda
+   e o texto ficava numa coluna de 42rem encostada à esquerda, sobrando um vazio. --- */
+.fq-artigo-pagina {
+    max-width: 46rem;
+    margin-inline: auto;
+}
+
 .fq-artigo-corpo {
-    max-width: 42rem;
     font-size: 1.0625rem;
     line-height: 1.7;
 }
@@ -226,7 +233,6 @@ ul.fq-numeros {
 
 /* --- Cabeçalho do artigo: linha fina, autoria, nota de IA e capa --- */
 .fq-linha-fina {
-    max-width: 42rem;
     margin-bottom: 0.75rem;
     font-size: 1.15rem;
     line-height: 1.5;
@@ -251,7 +257,6 @@ ul.fq-numeros {
 }
 
 .fq-capa {
-    max-width: 42rem;
     margin: 0 0 1.75rem;
 }
 

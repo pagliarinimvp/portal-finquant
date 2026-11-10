@@ -10,7 +10,7 @@ class ArtigoAdmin(admin.ModelAdmin):
     list_filter = ('status', 'categoria', 'com_apoio_ia')
     fieldsets = (
         (None, {'fields': ('titulo', 'slug', 'resumo', 'corpo', 'categoria')}),
-        ('Publicação', {'fields': ('status', 'publicado_em', 'com_apoio_ia')}),
+        ('Publicação', {'fields': ('status', 'publicado_em', 'revisado_em', 'com_apoio_ia')}),
         ('Capa', {'fields': ('capa', 'capa_alt', 'capa_credito')}),
     )
     search_fields = ('titulo', 'resumo', 'corpo')

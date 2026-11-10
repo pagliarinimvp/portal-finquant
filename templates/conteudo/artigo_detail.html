@@ -4,6 +4,7 @@
 {% block title %}{{ artigo.titulo }} — Portal FinQuant{% endblock %}
 
 {% block content %}
+<div class="fq-artigo-pagina">
 {% if artigo.status == artigo.Status.RASCUNHO %}
 <div class="fq-aviso-rascunho mb-3">Rascunho — não publicado. Visível apenas para a equipe do site.</div>
 {% endif %}
@@ -14,6 +15,7 @@
     <p class="fq-artigo-meta">
         <span>Por Marcos Vinicius Pagliarini</span>
         {% if artigo.publicado_em %}<span>Publicado em {{ artigo.publicado_em|date:"d/m/Y" }}</span>{% endif %}
+        {% if artigo.revisado_em %}<span>Atualizado em {{ artigo.revisado_em|date:"d/m/Y" }}</span>{% endif %}
         <span>{{ artigo.corpo|tempo_leitura }} min de leitura</span>
     </p>
     {% if artigo.com_apoio_ia %}
@@ -30,4 +32,5 @@
 </article>
 
 <a href="{% url 'conteudo:lista' %}" class="btn btn-link mt-3">&larr; Voltar para artigos</a>
+</div>
 {% endblock %}

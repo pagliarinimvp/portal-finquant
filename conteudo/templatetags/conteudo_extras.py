@@ -41,9 +41,11 @@ def _atributo_permitido(tag, nome, valor):
 
 
 def _abrir_em_nova_aba(attrs, new=False):
-    # Links internos da página (sumário) ficam na mesma aba, sem target/rel
-    # vindos do texto.
-    if attrs.get((None, 'href'), '').startswith('#'):
+    # Links para a própria página (sumário, "#...") e para o próprio portal
+    # ("/simuladores/...") ficam na mesma aba e sem nofollow, descartando
+    # target/rel vindos do texto. "//dominio" é link externo sem protocolo.
+    href = attrs.get((None, 'href'), '')
+    if href.startswith('#') or (href.startswith('/') and not href.startswith('//')):
         attrs.pop((None, 'target'), None)
         attrs.pop((None, 'rel'), None)
         return attrs

@@ -85,6 +85,20 @@ class CorpoSeguroTests(TestCase):
         self.assertIn('target="_blank"', limpo)
         self.assertIn('noopener', limpo)
 
+    def test_link_para_o_proprio_portal_abre_na_mesma_aba_sem_nofollow(self):
+        limpo = corpo_seguro(
+            '<a href="/simuladores/juros-compostos/" target="_blank" rel="nofollow">Simulador</a>')
+
+        self.assertIn('href="/simuladores/juros-compostos/"', limpo)
+        self.assertNotIn('target', limpo)
+        self.assertNotIn('nofollow', limpo)
+
+    def test_link_com_duas_barras_continua_externo(self):
+        limpo = corpo_seguro('<a href="//exemplo.com/x">fonte</a>')
+
+        self.assertIn('target="_blank"', limpo)
+        self.assertIn('nofollow', limpo)
+
 
 class ArtigoFiltroCategoriaTests(TestCase):
     def setUp(self):
@@ -278,6 +292,17 @@ class PaginaDoArtigoTests(TestCase):
 
         self.assertContains(resposta, 'Por Marcos Vinicius Pagliarini')
         self.assertNotContains(resposta, 'apoio de IA')
+
+    def test_mostra_atualizado_em_quando_o_conteudo_foi_revisado(self):
+        criar_artigo('revisado')
+        Artigo.objects.filter(slug='revisado').update(revisado_em='2026-11-10')
+
+        self.assertContains(self.pagina('revisado'), 'Atualizado em 10/11/2026')
+
+    def test_sem_revisao_nao_mostra_atualizado_em(self):
+        criar_artigo('nunca-revisado')
+
+        self.assertNotContains(self.pagina('nunca-revisado'), 'Atualizado em')
 
     def test_mostra_linha_fina(self):
         criar_artigo('fina')
@@ -507,3 +532,82 @@ class ExportarArtigoMigracaoTests(TestCase):
     def test_slug_inexistente_da_erro(self):
         with self.assertRaisesMessage(CommandError, 'nao-existe'):
             call_command('exportar_artigo_migracao', 'nao-existe', pasta=str(self.pasta))
+
+
+class SubstituirArtigoTests(TestCase):
+    """`exportar_artigo_migracao <novo> --substituir <antigo>`: a versão nova entra
+    no lugar da antiga, que mantém endereço, status e data de publicação."""
+
+    def setUp(self):
+        pasta = tempfile.TemporaryDirectory()
+        self.addCleanup(pasta.cleanup)
+        self.pasta = Path(pasta.name)
+        self.antigo = criar_artigo('antigo', titulo='Título antigo', corpo='<p>Velho.</p>')
+        self.publicado_em = Artigo.objects.get(slug='antigo').publicado_em
+        criar_artigo('novo', status=Artigo.Status.RASCUNHO, titulo='Título novo',
+                     corpo=CORPO_DIFICIL, categoria=Artigo.Categoria.ANALISE_QUANTITATIVA)
+        Artigo.objects.filter(slug='novo').update(
+            capa='img/artigos/novo/capa.jpg', capa_alt='Alt', capa_credito='Foto: B', com_apoio_ia=True)
+
+    def exportar(self, novo='novo', antigo='antigo'):
+        call_command('exportar_artigo_migracao', novo, substituir=antigo,
+                     pasta=str(self.pasta), stdout=StringIO())
+        (arquivo,) = self.pasta.iterdir()
+        spec = importlib.util.spec_from_file_location('migracao_substituicao', arquivo)
+        modulo = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(modulo)
+        return arquivo, modulo
+
+    def test_nome_do_arquivo_indica_a_substituicao(self):
+        grafo = MigrationLoader(None, ignore_no_migrations=True).graph
+        folha = next(nome for app, nome in grafo.leaf_nodes() if app == 'conteudo')
+
+        arquivo, _ = self.exportar()
+
+        self.assertEqual(arquivo.name, f'{int(folha[:4]) + 1:04d}_substitui_artigo_antigo.py')
+
+    def test_troca_o_conteudo_e_mantem_endereco_status_e_data(self):
+        _, modulo = self.exportar()
+
+        modulo.substituir_artigo(django_apps, None)
+
+        artigo = Artigo.objects.get(pk=self.antigo.pk)
+        self.assertEqual(artigo.slug, 'antigo')
+        self.assertEqual(artigo.titulo, 'Título novo')
+        self.assertEqual(artigo.corpo, CORPO_DIFICIL)
+        self.assertEqual(artigo.categoria, Artigo.Categoria.ANALISE_QUANTITATIVA)
+        self.assertEqual(artigo.capa, 'img/artigos/novo/capa.jpg')
+        self.assertTrue(artigo.com_apoio_ia)
+        self.assertEqual(artigo.status, Artigo.Status.PUBLICADO)
+        self.assertEqual(artigo.publicado_em, self.publicado_em)
+        self.assertIsNotNone(artigo.revisado_em)
+
+    def test_desfazer_devolve_o_conteudo_anterior(self):
+        _, modulo = self.exportar()
+        modulo.substituir_artigo(django_apps, None)
+
+        modulo.desfazer_substituicao(django_apps, None)
+
+        artigo = Artigo.objects.get(pk=self.antigo.pk)
+        self.assertEqual(artigo.titulo, 'Título antigo')
+        self.assertEqual(artigo.corpo, '<p>Velho.</p>')
+        self.assertIsNone(artigo.revisado_em)
+
+    def test_sem_o_antigo_no_banco_cria_a_versao_nova_como_rascunho(self):
+        _, modulo = self.exportar()
+        Artigo.objects.filter(slug__in=['antigo', 'novo']).delete()
+
+        modulo.substituir_artigo(django_apps, None)
+
+        self.assertFalse(Artigo.objects.filter(slug='antigo').exists())
+        self.assertEqual(Artigo.objects.get(slug='novo').status, Artigo.Status.RASCUNHO)
+
+    def test_antigo_inexistente_no_banco_local_da_erro(self):
+        with self.assertRaisesMessage(CommandError, 'nao-existe'):
+            call_command('exportar_artigo_migracao', 'novo', substituir='nao-existe',
+                         pasta=str(self.pasta))
+
+    def test_nao_substitui_um_artigo_por_ele_mesmo(self):
+        with self.assertRaisesMessage(CommandError, 'ele mesmo'):
+            call_command('exportar_artigo_migracao', 'novo', substituir='novo',
+                         pasta=str(self.pasta))

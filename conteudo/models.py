@@ -26,6 +26,11 @@ class Artigo(models.Model):
         help_text='Preenchida sozinha na primeira vez que o artigo é publicado.',
     )
     atualizado_em = models.DateTimeField(auto_now=True)
+    revisado_em = models.DateField(
+        'conteúdo revisado em', null=True, blank=True,
+        help_text='Preencha quando o conteúdo for revisado ou atualizado. Aparece no artigo como '
+                  '"Atualizado em". (Diferente de "atualizado_em", que muda a qualquer gravação.)',
+    )
     capa = models.CharField(
         max_length=200, blank=True,
         help_text='Caminho da imagem de capa dentro de static/, ex.: img/artigos/<slug>/capa.jpg (1200x630 px).',
