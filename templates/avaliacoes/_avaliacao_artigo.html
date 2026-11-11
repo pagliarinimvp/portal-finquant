@@ -2,6 +2,7 @@
 <section class="card p-4 mt-3 fq-avaliacao-artigo" id="avaliacao-artigo" aria-labelledby="avaliacao-artigo-titulo">
     {% if ja_avaliou_artigo %}
     <p class="mb-0">Obrigado! Sua resposta sobre este artigo foi registrada.</p>
+    {% include "avaliacoes/_convite.html" with texto="Conte também o que achou do portal inteiro: sua resposta entra na pesquisa deste TCC." %}
     {% else %}
     <p class="fq-eyebrow mb-1">Sua opinião</p>
     <h2 class="h5 mb-3" id="avaliacao-artigo-titulo">Este artigo te ajudou?</h2>

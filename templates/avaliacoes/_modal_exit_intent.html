@@ -3,37 +3,71 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="fq-eyebrow">Antes de você ir</span>
+                <span class="fq-eyebrow">Sua opinião</span>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
             <div class="modal-body">
-                <h2 class="h5" id="modalAvaliacaoLabel">Ainda não vimos sua avaliação do site</h2>
-                <p class="text-muted mb-0">Sua opinião ajuda a melhorar o Portal FinQuant e será usada na análise final deste projeto. Leva menos de 2 minutos.</p>
+                <h2 class="h5" id="modalAvaliacaoLabel">O que você achou do Portal FinQuant?</h2>
+                <p class="text-muted mb-0">Sua resposta entra na pesquisa deste Trabalho de Conclusão de Curso e ajuda a melhorar o site. Leva menos de 2 minutos, sem cadastro.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Agora não</button>
-                <a href="{% url 'avaliacoes:avaliar' %}" class="btn btn-primary" id="linkAvaliarModal">Avaliar o site</a>
+                <a href="{% url 'avaliacoes:avaliar' %}" class="btn btn-primary" id="linkAvaliarModal">Responder</a>
             </div>
         </div>
     </div>
 </div>
 <script>
     (function () {
+        // Desde 10/11/2026 o aviso só abre para quem já usou o site nesta
+        // visita: viu um resultado de simulador ou da análise de ações, leu um
+        // artigo até o fim ou passou por 3 páginas. Antes disso, pedir opinião
+        // só cansa (quem acabou de chegar não tem o que avaliar).
         var CHAVE_DISPENSADO = 'avaliacaoModalDispensado';
+        var CHAVE_USOU = 'fqUsouSite';
+        var CHAVE_PAGINAS = 'fqPaginasVistas';
+        var PAGINAS_PARA_CONTAR_COMO_USO = 3;
         var modalEl = document.getElementById('modalAvaliacao');
         var modal = new bootstrap.Modal(modalEl);
         var mostrado = false;
 
-        function jaDispensado() {
-            return sessionStorage.getItem(CHAVE_DISPENSADO) === '1';
+        // sessionStorage pode falhar (aba anônima, dados bloqueados): sem ele,
+        // o aviso simplesmente não abre, e os convites na página continuam.
+        function ler(chave) {
+            try { return sessionStorage.getItem(chave); } catch (e) { return null; }
+        }
+        function gravar(chave, valor) {
+            try { sessionStorage.setItem(chave, valor); } catch (e) {}
         }
 
-        function marcarDispensado() {
-            sessionStorage.setItem(CHAVE_DISPENSADO, '1');
+        function marcarUso() { gravar(CHAVE_USOU, '1'); }
+        function usou() { return ler(CHAVE_USOU) === '1'; }
+        function marcarDispensado() { gravar(CHAVE_DISPENSADO, '1'); }
+
+        var paginas = (parseInt(ler(CHAVE_PAGINAS), 10) || 0) + 1;
+        gravar(CHAVE_PAGINAS, String(paginas));
+        if (paginas >= PAGINAS_PARA_CONTAR_COMO_USO) { marcarUso(); }
+
+        // Resultado na tela: simulador (gráfico), análise de ações ou o convite
+        // que aparece depois de responder sobre um artigo.
+        var convite = document.querySelector('.fq-convite-avaliacao');
+        if (convite || document.getElementById('pontos-grafico') || document.querySelector('.estudo-caso .navegacao')) {
+            marcarUso();
+        }
+
+        // Artigo lido até o fim: a pergunta sobre o artigo apareceu na tela.
+        var fimArtigo = document.getElementById('avaliacao-artigo');
+        if (fimArtigo && 'IntersectionObserver' in window) {
+            new IntersectionObserver(function (entradas, observador) {
+                if (entradas.some(function (e) { return e.isIntersecting; })) {
+                    marcarUso();
+                    observador.disconnect();
+                }
+            }).observe(fimArtigo);
         }
 
         function mostrar() {
-            if (mostrado || jaDispensado()) {
+            if (mostrado || !usou() || ler(CHAVE_DISPENSADO) === '1') {
                 return;
             }
             mostrado = true;
@@ -49,14 +83,18 @@
         });
 
         // Celular e tablet não têm mouse, então o gatilho acima nunca dispara.
-        // Neles o aviso abre depois de um tempo na página, mais cedo quando há
-        // um resultado de simulador na tela (o usuário acabou de usar o site).
-        if (window.matchMedia('(hover: none)').matches) {
-            var temResultado = document.getElementById('pontos-grafico') !== null;
-            setTimeout(mostrar, temResultado ? 15000 : 45000);
+        // Neles o aviso abre numa pausa entre uma tarefa e outra: numa página
+        // sem formulário (início, listas), depois de a pessoa já ter usado o
+        // site. Nunca por cima de um artigo, simulador ou análise em andamento,
+        // que têm formulário, nem onde o convite já está na tela.
+        if (window.matchMedia('(hover: none)').matches && !convite && !document.querySelector('main form')) {
+            setTimeout(mostrar, 5000);
         }
 
         modalEl.addEventListener('hidden.bs.modal', marcarDispensado);
         document.getElementById('linkAvaliarModal').addEventListener('click', marcarDispensado);
+        document.querySelectorAll('.fq-convite-avaliacao a').forEach(function (link) {
+            link.addEventListener('click', marcarDispensado);
+        });
     })();
 </script>

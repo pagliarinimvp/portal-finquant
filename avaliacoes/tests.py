@@ -253,3 +253,58 @@ class AvaliacaoArtigoTests(TestCase):
 
         with self.assertRaises(ProtectedError):
             artigo.delete()
+
+
+# --- Convites para avaliar o site, desde 10/11/2026 --------------------------
+# Aparecem logo depois de a pessoa receber algo útil (resultado de simulador,
+# fim da análise de ações, resposta sobre um artigo) e somem para quem já avaliou.
+
+CONVITE = 'aria-label="Avaliar o site"'
+LINK_SIMULADOR = {
+    'valor_inicial': '1000', 'aporte_mensal': '100', 'taxa_mensal': '1',
+    'periodo_taxa': 'mensal', 'periodo_meses': '3',
+}
+
+
+class ConviteAvaliacaoTests(TestCase):
+    def test_resultado_de_simulador_convida(self):
+        resposta = self.client.get(reverse('simuladores:juros_compostos'), LINK_SIMULADOR)
+
+        self.assertContains(resposta, CONVITE)
+
+    def test_simulador_sem_resultado_nao_convida(self):
+        self.assertNotContains(self.client.get(reverse('simuladores:juros_compostos')), CONVITE)
+
+    def test_quem_ja_avaliou_nao_ve_convite(self):
+        self.client.post(reverse('avaliacoes:avaliar'), RESPOSTA_VALIDA)
+
+        resposta = self.client.get(reverse('simuladores:juros_compostos'), LINK_SIMULADOR)
+
+        self.assertNotContains(resposta, CONVITE)
+
+    def test_artigo_respondido_convida_para_o_site(self):
+        artigo = _artigo()
+        self.assertNotContains(self.client.get(artigo.get_absolute_url()), CONVITE)
+
+        self.client.post(reverse('avaliacoes:artigo', args=[artigo.slug]), {'ajudou': '1'})
+
+        self.assertContains(self.client.get(artigo.get_absolute_url()), CONVITE)
+
+    def test_rodape_tem_link_para_avaliar(self):
+        resposta = self.client.get(reverse('core:home'))
+
+        self.assertContains(resposta, 'fq-rodape-avaliar')
+
+
+class OrdemFormularioTests(TestCase):
+    def test_opiniao_vem_antes_do_perfil(self):
+        # Desde 10/11/2026: opinião primeiro, perfil no fim (menos desistência).
+        html = self.client.get(reverse('avaliacoes:avaliar')).content.decode()
+
+        nota = html.index('name="nota"')
+        ajudou = html.index('name="conteudo_ajudou"')
+        idade = html.index('name="faixa_etaria"')
+        renda = html.index('name="faixa_renda_familiar"')
+        self.assertLess(nota, idade)
+        self.assertLess(ajudou, idade)
+        self.assertLess(ajudou, renda)

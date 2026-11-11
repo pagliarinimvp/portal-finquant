@@ -81,9 +81,10 @@ class AvaliacaoForm(forms.ModelForm):
 
     class Meta:
         model = Avaliacao
+        # Mesma ordem da página (desde 10/11/2026): opinião primeiro, perfil no fim.
         fields = [
-            'faixa_etaria', 'sexo', 'experiencia_investimentos',
-            'conteudo_ajudou', 'faixa_renda_familiar', 'nota', 'comentario',
+            'nota', 'conteudo_ajudou', 'comentario',
+            'experiencia_investimentos', 'faixa_etaria', 'sexo', 'faixa_renda_familiar',
             'consentimento',
         ]
         widgets = {

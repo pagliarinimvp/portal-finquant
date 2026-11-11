@@ -26,6 +26,10 @@
     <p class="frase-tela">{{ p.frase }}</p>
     {{ p.corpo|safe }}
 
+    {% if not proxima %}
+        {% include "avaliacoes/_convite.html" with texto="Você chegou ao fim da análise. Conte o que achou do portal: sua resposta entra na pesquisa deste TCC." %}
+    {% endif %}
+
     <nav class="navegacao" aria-label="Telas da análise">
         {% if anterior %}<a class="btn btn-outline-primary" href="{{ anterior }}">← Anterior</a>
         {% else %}<a class="btn btn-outline-primary" href="{{ urls.mudar }}">← Voltar às escolhas</a>{% endif %}

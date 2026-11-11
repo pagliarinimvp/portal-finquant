@@ -1,0 +1,16 @@
+{% comment %}
+Convite discreto para avaliar o site, mostrado logo depois de a pessoa receber
+algo útil (resultado de simulador, fim da análise de ações, resposta sobre um
+artigo). Some para quem já avaliou. Uso:
+{% include "avaliacoes/_convite.html" with texto="..." %}
+O aviso que abre sozinho (_modal_exit_intent.html) trata a página com este
+convite como "a pessoa já usou o site" e, no celular, não abre por cima dele.
+{% endcomment %}
+{% if mostrar_modal_avaliacao %}
+<aside class="card p-3 mt-3 fq-convite-avaliacao" aria-label="Avaliar o site">
+    <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-2 gap-sm-3">
+        <p class="mb-0 flex-grow-1">{{ texto }} <span class="text-muted">Menos de 2 minutos, sem cadastro.</span></p>
+        <a href="{% url 'avaliacoes:avaliar' %}" class="btn btn-outline-primary btn-sm flex-shrink-0 align-self-start align-self-sm-center">Avaliar o site</a>
+    </div>
+</aside>
+{% endif %}
