@@ -163,6 +163,31 @@ ul.fq-numeros {
     margin-inline: auto;
 }
 
+/* "Leia também" na lateral em tela larga; no celular, desce para o fim da página. */
+@media (min-width: 992px) {
+    .fq-artigo-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 46rem) 17rem;
+        gap: 2rem;
+        justify-content: center;
+        align-items: start;
+    }
+
+    .fq-artigo-layout .fq-artigo-pagina {
+        margin-inline: 0;
+    }
+
+    /* Fica no alto da lateral e sobe com a página (decisão do autor, 10/11/2026). */
+    .fq-artigo-lateral {
+        /* Alinha com o cartão do artigo, abaixo da trilha. */
+        margin-top: 2.25rem;
+    }
+
+    .fq-artigo-lateral .fq-leia-tambem {
+        margin-top: 0 !important;
+    }
+}
+
 .fq-artigo-corpo {
     font-size: 1.0625rem;
     line-height: 1.7;
@@ -281,7 +306,8 @@ ul.fq-numeros {
 }
 
 /* --- Quadros dentro do corpo: "Em 30 segundos", sumário, "Na prática", glossário --- */
-.fq-artigo-corpo aside {
+.fq-artigo-corpo aside,
+.fq-artigo-corpo details.fq-quadro {
     margin: 1.75rem 0;
     padding: 1rem 1.25rem;
     border: 1px solid var(--fq-rule);
@@ -296,8 +322,50 @@ ul.fq-numeros {
     margin-top: 0;
 }
 
-.fq-artigo-corpo aside > :last-child {
+.fq-artigo-corpo aside > :last-child,
+.fq-artigo-corpo details.fq-quadro > :last-child {
     margin-bottom: 0;
+}
+
+/* "Na prática" e glossário abrem e fecham: o título (summary) é o botão. */
+.fq-artigo-corpo details.fq-quadro > summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    list-style: none;
+    cursor: pointer;
+    font-family: var(--fq-font-display);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fq-ink-muted);
+}
+
+.fq-artigo-corpo details.fq-quadro > summary::-webkit-details-marker {
+    display: none;
+}
+
+.fq-artigo-corpo details.fq-quadro > summary::after {
+    content: "Abrir +";
+    font-family: var(--fq-font-mono);
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--fq-teal);
+}
+
+.fq-artigo-corpo details.fq-quadro[open] > summary {
+    margin-bottom: 0.75rem;
+}
+
+.fq-artigo-corpo details.fq-quadro[open] > summary::after {
+    content: "Fechar −";
+}
+
+.fq-artigo-corpo details.fq-quadro > summary:focus-visible {
+    outline: 2px solid var(--fq-teal);
+    outline-offset: 4px;
 }
 
 .fq-artigo-corpo aside.fq-sumario {
@@ -308,12 +376,12 @@ ul.fq-numeros {
     padding-left: 1.25rem;
 }
 
-.fq-artigo-corpo aside.fq-na-pratica {
+.fq-artigo-corpo .fq-na-pratica {
     border-left-color: var(--fq-gold);
 }
 
-.fq-artigo-corpo aside.fq-na-pratica p,
-.fq-artigo-corpo aside.fq-na-pratica li {
+.fq-artigo-corpo .fq-na-pratica p,
+.fq-artigo-corpo .fq-na-pratica li {
     font-family: var(--fq-font-mono);
     font-size: 0.9rem;
 }
@@ -538,6 +606,22 @@ ul.fq-numeros {
     color: var(--fq-gold);
 }
 
+/* --- Destaque da análise de ações na página inicial (ferramenta principal) --- */
+.fq-destaque-ferramenta {
+    border-left: 4px solid var(--fq-teal);
+    overflow: hidden;
+}
+
+/* A foto preenche a coluna inteira, recortada, sem esticar o cartão. */
+.fq-destaque-foto {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 12rem;
+    max-height: 16rem;
+    object-fit: cover;
+}
+
 /* --- Toggle de tema (mantido do ajuste original) --- */
 #toggle-tema {
     width: 2.5rem;
@@ -583,4 +667,21 @@ footer {
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid var(--fq-rule);
+}
+
+/* Ícones das redes no compartilhar (Bootstrap Icons, carregado só na página do artigo). */
+.fq-compartilhar .bi {
+    margin-right: 0.35rem;
+}
+
+/* Página inicial: link "Ver todos" ao lado do título de cada bloco. */
+.fq-ver-todos {
+    font-size: .9rem;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.fq-ver-todos:hover,
+.fq-ver-todos:focus-visible {
+    text-decoration: underline;
 }

@@ -3,7 +3,17 @@
 
 {% block title %}{{ artigo.titulo }} — Portal FinQuant{% endblock %}
 
+{% block extra_head %}
+{# Prévia do link: a capa, o título e o resumo vêm da view (seo_*); aqui, os dados de artigo. #}
+{% if artigo.publicado_em %}<meta property="article:published_time" content="{{ artigo.publicado_em|date:'c' }}">{% endif %}
+{% if artigo.revisado_em %}<meta property="article:modified_time" content="{{ artigo.revisado_em|date:'c' }}">{% endif %}
+<meta property="article:section" content="{{ artigo.get_categoria_display }}">
+<meta property="article:author" content="Marcos Vinicius Pagliarini">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
+
 {% block content %}
+<div class="fq-artigo-layout">
 <div class="fq-artigo-pagina">
 <nav aria-label="Trilha de navegação">
     <ol class="breadcrumb fq-trilha">
@@ -39,11 +49,16 @@
 </article>
 
 {% if artigo.status == artigo.Status.PUBLICADO %}
-{% include "conteudo/_compartilhar.html" %}
 {% include "avaliacoes/_avaliacao_artigo.html" %}
+{% include "conteudo/_compartilhar.html" %}
 {% endif %}
-{% include "conteudo/_leia_tambem.html" %}
 
 <a href="{% url 'conteudo:lista' %}" class="btn btn-link mt-3">&larr; Voltar para artigos</a>
+</div>
+{% if leia_tambem %}
+<div class="fq-artigo-lateral">
+{% include "conteudo/_leia_tambem.html" %}
+</div>
+{% endif %}
 </div>
 {% endblock %}

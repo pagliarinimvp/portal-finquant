@@ -192,7 +192,10 @@ class CamposNovosTests(TestCase):
         # Desde 10/11/2026 as migrações 0008-0011 põem a versão nova (feita com IA) nos
         # artigos de exemplo, então o estado final do banco já não mostra o que a 0006
         # fez. O teste roda a função da 0006 num estado controlado.
+        # A 0012 apagou o artigo do Galípolo; ele é recriado para a 0006 ter o que marcar.
         modulo = importlib.import_module('conteudo.migrations.0006_artigo_capa_e_apoio_ia')
+        if not Artigo.objects.filter(slug=SLUG_GALIPOLO).exists():
+            criar_artigo(SLUG_GALIPOLO)
         Artigo.objects.update(com_apoio_ia=False)
         modulo.marcar_galipolo(django_apps, None)
 
@@ -213,19 +216,54 @@ class CamposNovosTests(TestCase):
         self.assertTrue(exemplos.exists())
         self.assertFalse(exemplos.filter(com_apoio_ia=True).exists())
 
-    def test_migracoes_0008_a_0011_poem_a_versao_nova_nos_mesmos_enderecos(self):
-        for slug in SLUGS_DA_0002 + [SLUG_GALIPOLO]:
+    def test_migracoes_0008_a_0010_poem_a_versao_nova_nos_mesmos_enderecos(self):
+        for slug in SLUGS_DA_0002:
             artigo = Artigo.objects.get(slug=slug)
             self.assertEqual(artigo.revisado_em.isoformat(), '2026-11-10')
             self.assertTrue(artigo.capa.startswith('img/artigos/'))
             self.assertTrue(artigo.com_apoio_ia)
 
+    def test_migracao_0012_apaga_o_artigo_do_galipolo(self):
+        self.assertFalse(Artigo.objects.filter(slug=SLUG_GALIPOLO).exists())
+
+    def test_migracao_0012_apaga_tambem_as_avaliacoes_do_artigo(self):
+        from avaliacoes.models import AvaliacaoArtigo
+        modulo = importlib.import_module('conteudo.migrations.0012_remove_artigo_galipolo')
+        artigo = criar_artigo(SLUG_GALIPOLO)
+        AvaliacaoArtigo.objects.create(artigo=artigo, ajudou=True)
+
+        modulo.remover(django_apps, None)
+
+        self.assertFalse(Artigo.objects.filter(slug=SLUG_GALIPOLO).exists())
+        self.assertFalse(AvaliacaoArtigo.objects.exists())
+
 
 class QuadrosNoCorpoTests(TestCase):
     def test_aceita_quadro_com_classe_da_lista(self):
-        limpo = corpo_seguro('<aside class="fq-na-pratica"><p>x</p></aside>')
+        limpo = corpo_seguro('<aside class="fq-em-30s"><p>x</p></aside>')
 
-        self.assertIn('<aside class="fq-na-pratica">', limpo)
+        self.assertIn('<aside class="fq-em-30s">', limpo)
+
+    def test_na_pratica_e_glossario_viram_quadro_que_abre_e_fecha(self):
+        limpo = corpo_seguro(
+            '<aside class="fq-na-pratica"><h4>Na prática</h4><p>conta</p></aside>'
+            '<aside class="fq-glossario"><h4>Glossário</h4><dl><dt>A</dt><dd>B</dd></dl></aside>'
+        )
+
+        self.assertIn('<details class="fq-quadro fq-na-pratica"><summary>Na prática</summary><p>conta</p></details>', limpo)
+        self.assertIn('<details class="fq-quadro fq-glossario"><summary>Glossário</summary><dl>', limpo)
+        self.assertNotIn('<aside', limpo)
+
+    def test_quadro_sem_titulo_ganha_o_titulo_padrao(self):
+        limpo = corpo_seguro('<aside class="fq-glossario"><dl><dt>A</dt><dd>B</dd></dl></aside>')
+
+        self.assertIn('<summary>Glossário</summary><dl>', limpo)
+
+    def test_texto_do_titulo_continua_escapado(self):
+        limpo = corpo_seguro('<aside class="fq-na-pratica"><h4>A &lt;b&gt; <script>x</script></h4><p>y</p></aside>')
+
+        self.assertNotIn('<script', limpo)
+        self.assertIn('<summary>A &lt;b&gt; &lt;script&gt;x&lt;/script&gt;</summary>', limpo)
 
     def test_remove_classe_fora_da_lista(self):
         limpo = corpo_seguro('<aside class="btn btn-danger"><p>x</p></aside>')
@@ -342,6 +380,25 @@ class PaginaDoArtigoTests(TestCase):
         self.assertEqual(resposta.context['seo_imagem'], 'http://testserver/static/img/previa.png')
         self.assertEqual(resposta.context['seo_imagem_alt'], 'Moedas')
         self.assertContains(resposta, '<meta property="og:image:alt" content="Moedas">', html=True)
+
+    def test_previa_do_link_identifica_o_artigo(self):
+        # Título e resumo do próprio artigo, tipo "article", seção e datas (WhatsApp, LinkedIn, X).
+        criar_artigo('previa', titulo='Título do artigo')
+
+        resposta = self.pagina('previa')
+
+        self.assertContains(resposta, '<meta property="og:title" content="Título do artigo">', html=True)
+        self.assertContains(resposta, '<meta property="og:description" content="Resumo.">', html=True)
+        self.assertContains(resposta, '<meta property="og:type" content="article">', html=True)
+        self.assertContains(resposta, '<meta property="article:section" content="Fundamentos">', html=True)
+        self.assertContains(resposta, 'property="article:published_time"')
+        self.assertNotContains(resposta, 'article:modified_time')
+
+    def test_pagina_que_nao_e_artigo_continua_website(self):
+        resposta = self.client.get(reverse('conteudo:lista'))
+
+        self.assertContains(resposta, '<meta property="og:type" content="website">', html=True)
+        self.assertNotContains(resposta, 'article:section')
 
     def test_artigo_sem_capa_mantem_previa_padrao(self):
         criar_artigo('sem-capa')

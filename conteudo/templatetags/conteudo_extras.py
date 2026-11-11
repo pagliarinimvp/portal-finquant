@@ -63,7 +63,26 @@ def corpo_seguro(valor):
         skip_tags=['pre', 'code'],
         parse_email=False,
     )
-    return mark_safe(limpo)
+    return mark_safe(_quadros_que_abrem_e_fecham(limpo))
+
+
+# "Na prática" e glossário são consulta, não leitura corrida: aparecem
+# fechados, com o título do quadro como botão para abrir (<details>).
+# Roda depois do bleach, sobre o HTML já limpo e normalizado.
+QUADROS_RECOLHIVEIS = {'fq-na-pratica': 'Na prática', 'fq-glossario': 'Glossário'}
+_QUADRO_RECOLHIVEL = re.compile(
+    r'<aside class="(fq-na-pratica|fq-glossario)">\s*(?:<h4>(.*?)</h4>)?(.*?)</aside>',
+    re.DOTALL,
+)
+
+
+def _quadros_que_abrem_e_fecham(html):
+    def trocar(achado):
+        classe, titulo, resto = achado.groups()
+        titulo = (titulo or '').strip() or QUADROS_RECOLHIVEIS[classe]
+        return f'<details class="fq-quadro {classe}"><summary>{titulo}</summary>{resto}</details>'
+
+    return _QUADRO_RECOLHIVEL.sub(trocar, html)
 
 
 @register.filter(name='tempo_leitura')

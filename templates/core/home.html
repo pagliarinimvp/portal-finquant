@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Portal FinQuant — Finanças quantitativas para todos{% endblock %}
 
@@ -9,7 +10,7 @@
         <h1 class="display-6 mt-2">Finanças quantitativas, explicadas de forma simples</h1>
         <p class="lead mb-0">
             O Portal FinQuant traduz conceitos de finanças quantitativas para quem está começando,
-            com artigos em linguagem acessível e simuladores interativos.
+            com artigos em linguagem acessível, simuladores interativos e uma análise de ações com dados reais.
         </p>
     </div>
     <div class="col-md-5 d-none d-md-block">
@@ -17,8 +18,35 @@
     </div>
 </div>
 
+<span class="fq-eyebrow">Ferramenta</span>
+<h2 class="h4 mb-2">Análise de ações</h2>
+<div class="fq-regua"></div>
+<div class="card fq-destaque-ferramenta mb-5">
+    <div class="row g-0">
+        <div class="col-md-5">
+            <img src="{% static 'img/home/analise-acoes.jpg' %}" class="fq-destaque-foto" width="1200" height="630"
+                 alt="Gráfico de preços de uma ação, com candles e linhas de médias móveis, numa tela escura">
+        </div>
+        <div class="col-md-7">
+            <div class="card-body p-4">
+                <h3 class="h5 card-title">Médias móveis em ações do Ibovespa</h3>
+                <p class="card-text text-muted">
+                    Teste uma regra de médias móveis em ações do Ibovespa, com dados reais, e compare o resultado
+                    com a Selic, com comprar e segurar e com o próprio Ibovespa. Testes estatísticos mostram se a
+                    diferença pode ter sido acaso.
+                </p>
+                <a href="{% url 'estudo_caso:index' %}" class="btn btn-primary btn-sm">Fazer uma análise</a>
+                <p class="small text-muted mt-3 mb-0">Ferramenta educativa: não é recomendação de investimento. Foto: Maxim Hopman / Unsplash.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <span class="fq-eyebrow">Acervo</span>
-<h2 class="h4 mb-2">Artigos recentes</h2>
+<div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-2">
+    <h2 class="h4 mb-0">Artigos recentes</h2>
+    <a href="{% url 'conteudo:lista' %}" class="fq-ver-todos">Ver todos os artigos <span aria-hidden="true">&rarr;</span></a>
+</div>
 <div class="fq-regua"></div>
 <div class="row row-cols-1 row-cols-md-3 g-4">
     {% for artigo in artigos_recentes %}
@@ -39,11 +67,15 @@
 </div>
 
 <span class="fq-eyebrow mt-5 d-block">Ferramentas</span>
-<h2 class="h4 mb-2">Simuladores interativos</h2>
+<div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-2">
+    <h2 class="h4 mb-0">Simuladores interativos</h2>
+    <a href="{% url 'simuladores:index' %}" class="fq-ver-todos">Ver todos os simuladores <span aria-hidden="true">&rarr;</span></a>
+</div>
 <div class="fq-regua"></div>
 <div class="row row-cols-1 row-cols-md-3 g-4">
     <div class="col">
         <div class="card h-100">
+            <img src="{% static 'img/home/juros-compostos.jpg' %}" alt="Pote de vidro cheio de moedas com uma planta crescendo" class="card-img-top fq-capa-miniatura" width="1200" height="630" loading="lazy">
             <div class="card-body">
                 <h3 class="h5 card-title mt-2">Juros compostos</h3>
                 <p class="card-text text-muted">
@@ -55,6 +87,7 @@
     </div>
     <div class="col">
         <div class="card h-100">
+            <img src="{% static 'img/home/divida-cartao.jpg' %}" alt="Cartão de crédito preto sobre fundo branco" class="card-img-top fq-capa-miniatura" width="1200" height="630" loading="lazy">
             <div class="card-body">
                 <h3 class="h5 card-title mt-2">Dívida no rotativo do cartão</h3>
                 <p class="card-text text-muted">
@@ -66,6 +99,7 @@
     </div>
     <div class="col">
         <div class="card h-100">
+            <img src="{% static 'img/home/meta-financeira.jpg' %}" alt="Pessoas planejando com papel, caneta e notebooks" class="card-img-top fq-capa-miniatura" width="1200" height="630" loading="lazy">
             <div class="card-body">
                 <h3 class="h5 card-title mt-2">Meta financeira</h3>
                 <p class="card-text text-muted">
@@ -76,4 +110,5 @@
         </div>
     </div>
 </div>
+<p class="small text-muted mt-3 mb-0">Fotos dos simuladores: micheile henderson, Markus Winkler e Scott Graham / Unsplash.</p>
 {% endblock %}

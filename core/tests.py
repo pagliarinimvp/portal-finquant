@@ -8,6 +8,18 @@ from conteudo.models import Artigo
 
 
 class HomeTests(TestCase):
+    def test_home_tem_destaque_da_analise_de_acoes(self):
+        response = self.client.get(reverse('core:home'))
+
+        self.assertContains(response, 'Análise de ações')
+        self.assertContains(response, f'href="{reverse("estudo_caso:index")}"')
+
+    def test_home_tem_links_para_todos_os_artigos_e_simuladores(self):
+        response = self.client.get(reverse('core:home'))
+
+        self.assertContains(response, f'href="{reverse("conteudo:lista")}" class="fq-ver-todos"')
+        self.assertContains(response, f'href="{reverse("simuladores:index")}" class="fq-ver-todos"')
+
     def test_home_mostra_os_tres_publicados_mais_recentes(self):
         agora = timezone.now()
         for numero in range(4):

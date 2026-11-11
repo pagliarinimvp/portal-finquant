@@ -46,6 +46,7 @@ class ArtigoDetailView(DetailView):
         # Prévia do link (Google, WhatsApp): o próprio artigo, não o padrão do site.
         contexto['seo_titulo'] = self.object.titulo
         contexto['seo_descricao'] = self.object.resumo
+        contexto['seo_tipo'] = 'article'   # as datas e a seção ficam em extra_head do template
         contexto['ja_avaliou_artigo'] = avaliou_artigo(self.request, self.object)
         contexto['url_absoluta'] = self.request.build_absolute_uri(self.object.get_absolute_url())
         contexto['leia_tambem'] = self._leia_tambem(self.object)
