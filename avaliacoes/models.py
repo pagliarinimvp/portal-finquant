@@ -70,3 +70,38 @@ class Avaliacao(models.Model):
     def __str__(self):
         quem = self.usuario.username if self.usuario else 'anônimo'
         return f'Nota {self.nota} de {quem}'
+
+
+class AvaliacaoArtigo(models.Model):
+    """Resposta rápida ao "Este artigo te ajudou?", no fim de cada artigo.
+
+    Complementa a pesquisa do site (`Avaliacao`) com um dado por artigo, para a
+    análise de qualidade do TCC comparar conteúdos. É anônima (não pede dado
+    pessoal); `usuario` só é guardado para quem está logado.
+    """
+
+    artigo = models.ForeignKey(
+        'conteudo.Artigo', on_delete=models.PROTECT, related_name='avaliacoes',
+        help_text='Artigo com respostas não pode ser apagado, para os dados do TCC não sumirem.',
+    )
+    ajudou = models.BooleanField('o artigo ajudou')
+    comentario = models.TextField('Comentário', blank=True, max_length=1000)
+    # Separa as respostas de cada versão do artigo quando o texto é substituído
+    # (`exportar_artigo_migracao --substituir`), que mantém o mesmo artigo.
+    versao_revisada_em = models.DateField(
+        'versão (conteúdo revisado em)', null=True, blank=True,
+        help_text='Valor de "conteúdo revisado em" do artigo no momento da resposta.',
+    )
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='avaliacoes_artigos',
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-criado_em']
+        verbose_name = 'Avaliação de artigo'
+        verbose_name_plural = 'Avaliações de artigos'
+
+    def __str__(self):
+        return f'{"Ajudou" if self.ajudou else "Não ajudou"}: {self.artigo}'

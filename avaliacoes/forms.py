@@ -89,3 +89,10 @@ class AvaliacaoForm(forms.ModelForm):
         widgets = {
             'comentario': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
         }
+
+
+class AvaliacaoArtigoForm(forms.Form):
+    """"Este artigo te ajudou?": os botões Sim e Não enviam ajudou=1 ou ajudou=0."""
+
+    ajudou = forms.TypedChoiceField(choices=[('1', 'Sim'), ('0', 'Não')], coerce=lambda valor: valor == '1')
+    comentario = forms.CharField(required=False, max_length=1000)

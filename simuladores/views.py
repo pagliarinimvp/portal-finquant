@@ -30,7 +30,24 @@ def _precisao_alta(calculo):
 CENTAVO = Decimal('0.01')
 
 
-class JurosCompostosView(FormView):
+
+class PreenchidoPeloLinkMixin:
+    """Aceita os valores do formulário no link (GET) e já mostra o resultado.
+
+    Usado pelo "Refaça a conta" dos artigos (desde 10/11/2026), que leva o
+    leitor ao simulador com o exemplo do quadro "Na prática" preenchido, ex.:
+    /simuladores/juros-compostos/?valor_inicial=10000&taxa_mensal=13.75&periodo_taxa=anual&periodo_meses=12.
+    Sem nenhum campo do formulário no link, a página abre vazia, como antes.
+    """
+
+    def get(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        if any(nome in request.GET for nome in form_class.base_fields):
+            form = form_class(data=request.GET)
+            return self.form_valid(form) if form.is_valid() else self.form_invalid(form)
+        return super().get(request, *args, **kwargs)
+
+class JurosCompostosView(PreenchidoPeloLinkMixin, FormView):
     template_name = 'simuladores/juros_compostos.html'
     form_class = JurosCompostosForm
 
@@ -80,7 +97,7 @@ class JurosCompostosView(FormView):
         }
 
 
-class DividaCartaoView(FormView):
+class DividaCartaoView(PreenchidoPeloLinkMixin, FormView):
     template_name = 'simuladores/divida_cartao.html'
     form_class = DividaCartaoForm
 
@@ -163,7 +180,7 @@ class DividaCartaoView(FormView):
             }
 
 
-class MetaFinanceiraView(FormView):
+class MetaFinanceiraView(PreenchidoPeloLinkMixin, FormView):
     template_name = 'simuladores/meta_financeira.html'
     form_class = MetaFinanceiraForm
 

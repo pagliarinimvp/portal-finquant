@@ -273,3 +273,41 @@ class ArredondamentoComercialTests(TestCase):
 
         self.assertEqual(resultado['total_juros'], Decimal('0.13'))
         self.assertEqual(resultado['total_pago'], Decimal('12.63'))
+
+
+class PreenchidoPeloLinkTests(TestCase):
+    """Os simuladores aceitam os valores no link e já mostram o resultado
+    (usado pelo "Refaça a conta" dos artigos, desde 10/11/2026)."""
+
+    def test_link_com_os_valores_ja_mostra_o_resultado(self):
+        resposta = self.client.get(reverse('simuladores:juros_compostos'), {
+            'valor_inicial': '10000', 'aporte_mensal': '0', 'taxa_mensal': '13.75',
+            'periodo_taxa': 'anual', 'periodo_meses': '12',
+        })
+
+        resultado = resposta.context['resultado']
+        self.assertIsNotNone(resultado)
+        self.assertEqual(resposta.context['form']['valor_inicial'].value(), '10000')
+
+    def test_sem_valores_no_link_mostra_o_formulario_vazio(self):
+        resposta = self.client.get(reverse('simuladores:juros_compostos'))
+
+        self.assertIsNone(resposta.context.get('resultado'))
+        self.assertFalse(resposta.context['form'].is_bound)
+
+    def test_link_com_valor_invalido_mostra_o_erro_sem_resultado(self):
+        resposta = self.client.get(reverse('simuladores:juros_compostos'), {
+            'valor_inicial': 'abc', 'taxa_mensal': '1', 'periodo_taxa': 'mensal', 'periodo_meses': '12',
+        })
+
+        self.assertIsNone(resposta.context.get('resultado'))
+        self.assertTrue(resposta.context['form'].errors)
+
+    def test_vale_para_os_outros_simuladores(self):
+        resposta = self.client.get(reverse('simuladores:divida_cartao'), {
+            'saldo_devedor': '1000', 'taxa_mensal': '10', 'periodo_taxa': 'mensal',
+            'pagamento_mensal': '200',
+        })
+
+        self.assertEqual(resposta.status_code, 200)
+        self.assertTrue(resposta.context['form'].is_bound)

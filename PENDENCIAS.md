@@ -23,3 +23,23 @@ As versões novas dos artigos (rascunhos de 10/11/2026) citam a Selic de 04/11/2
 **Sugestão:** https://www.notion.so/414d653a12cb81b1879af70e4f7dbd5f · **Registrado em:** 10/11/2026 · **Origem:** Manual
 
 A senha do administrador local (`pagliarinimvp`) foi esquecida e o `python manage.py changepassword pagliarinimvp` não deu certo em 10/11/2026. Sem o Admin local não dá para publicar nem editar rascunhos pelo caminho normal (em 10/11/2026 as prévias foram geradas com `Client.force_login`, como contorno). Refazer o `changepassword` com o Claude guiando e ver em que passo trava.
+
+## Indicadores automáticos nos artigos (Selic, IPCA)
+**Sugestão:** https://www.notion.so/414d653a12cb814ea3c7c0d56699afa7 · **Registrado em:** 10/11/2026 · **Origem:** Manual
+
+Um quadro nos artigos com a Selic e o IPCA atuais, lidos das APIs oficiais (BCB e IBGE SIDRA, tabela 1737) e mostrados com a data do dado, para os números não envelhecerem entre uma revisão e outra. Os dados entrariam pelo mesmo caminho dos CSVs do `estudo_caso` (coleta semanal no build), nunca baixados na requisição.
+
+## Glossário único do portal
+**Sugestão:** https://www.notion.so/414d653a12cb81c99e6ffb36f679dc63 · **Registrado em:** 10/11/2026 · **Origem:** Manual
+
+Uma página `/glossario/` que junte os termos dos quadros `fq-glossario` de todos os artigos, com os artigos apontando para ela. Evita definições repetidas ou divergentes entre artigos.
+
+## Dados estruturados JSON-LD Article nos artigos
+**Sugestão:** https://www.notion.so/414d653a12cb81729e10d482a49836d5 · **Registrado em:** 10/11/2026 · **Origem:** Manual
+
+Bloco schema.org `Article` no `artigo_detail.html` (headline, description, image, datePublished, dateModified a partir de `revisado_em`, author), para o Google mostrar o artigo com data e imagem. Complementa o `core/seo.py`.
+
+## Aviso no importar_artigo quando o sanitizador cortar algo
+**Sugestão:** https://www.notion.so/414d653a12cb81ac9886e6e66ad9507c · **Registrado em:** 10/11/2026 · **Origem:** Manual
+
+O `corpo_seguro` remove sem avisar tags, classes e atributos fora da lista. O `manage.py importar_artigo` passaria a comparar o corpo antes e depois do sanitizador e listar o que seria cortado, para a skill `formatar-artigo` corrigir antes de criar o rascunho.

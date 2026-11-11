@@ -31,6 +31,8 @@
     <div class="fq-artigo-corpo">{{ artigo.corpo|corpo_seguro }}</div>
 </article>
 
+{% if artigo.status == artigo.Status.PUBLICADO %}{% include "avaliacoes/_avaliacao_artigo.html" %}{% endif %}
+
 <a href="{% url 'conteudo:lista' %}" class="btn btn-link mt-3">&larr; Voltar para artigos</a>
 </div>
 {% endblock %}

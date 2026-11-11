@@ -144,3 +144,112 @@ class AvaliacaoCamposTests(TestCase):
 
         self.assertContains(resposta, 'Tenho 18 anos ou mais')
         self.assertContains(resposta, 'Comentário')
+
+
+# --- Avaliação por artigo ("Este artigo te ajudou?"), desde 10/11/2026 -------
+from datetime import date
+
+from django.db.models import ProtectedError
+
+from conteudo.models import Artigo
+
+from .models import AvaliacaoArtigo
+
+
+def _artigo(slug='selic', status=Artigo.Status.PUBLICADO):
+    return Artigo.objects.create(
+        titulo='Selic', slug=slug, resumo='Resumo.', corpo='<p>Corpo.</p>', status=status)
+
+
+class AvaliacaoArtigoTests(TestCase):
+    def votar(self, artigo, **dados):
+        return self.client.post(reverse('avaliacoes:artigo', args=[artigo.slug]), dados)
+
+    def test_artigo_publicado_mostra_a_pergunta(self):
+        artigo = _artigo()
+
+        self.assertContains(self.client.get(artigo.get_absolute_url()), 'Este artigo te ajudou?')
+
+    def test_registra_sim_com_comentario_e_volta_ao_artigo(self):
+        artigo = _artigo()
+
+        resposta = self.votar(artigo, ajudou='1', comentario='Explicou bem.')
+
+        self.assertRedirects(resposta, artigo.get_absolute_url() + '#avaliacao-artigo',
+                             fetch_redirect_response=False)
+        voto = AvaliacaoArtigo.objects.get()
+        self.assertEqual(voto.artigo, artigo)
+        self.assertTrue(voto.ajudou)
+        self.assertEqual(voto.comentario, 'Explicou bem.')
+        self.assertIsNone(voto.usuario)
+
+    def test_registra_nao(self):
+        self.votar(_artigo(), ajudou='0')
+
+        self.assertFalse(AvaliacaoArtigo.objects.get().ajudou)
+
+    def test_guarda_a_versao_do_artigo_no_momento_do_voto(self):
+        artigo = _artigo()
+        Artigo.objects.filter(pk=artigo.pk).update(revisado_em='2026-11-10')
+
+        self.votar(artigo, ajudou='1')
+
+        self.assertEqual(AvaliacaoArtigo.objects.get().versao_revisada_em, date(2026, 11, 10))
+
+    def test_um_voto_por_artigo_na_mesma_sessao(self):
+        artigo = _artigo()
+
+        self.votar(artigo, ajudou='1')
+        self.votar(artigo, ajudou='0')
+
+        self.assertEqual(AvaliacaoArtigo.objects.count(), 1)
+
+    def test_depois_de_votar_a_pagina_agradece_em_vez_de_perguntar(self):
+        artigo = _artigo()
+        self.votar(artigo, ajudou='1')
+
+        resposta = self.client.get(artigo.get_absolute_url())
+
+        self.assertContains(resposta, 'Obrigado! Sua resposta sobre este artigo foi registrada.')
+        self.assertNotContains(resposta, 'Este artigo te ajudou?')
+
+    def test_voto_em_outro_artigo_e_aceito(self):
+        self.votar(_artigo('a'), ajudou='1')
+        self.votar(_artigo('b'), ajudou='1')
+
+        self.assertEqual(AvaliacaoArtigo.objects.count(), 2)
+
+    def test_resposta_invalida_nao_grava(self):
+        self.votar(_artigo(), ajudou='talvez')
+
+        self.assertFalse(AvaliacaoArtigo.objects.exists())
+
+    def test_rascunho_nao_recebe_voto(self):
+        resposta = self.votar(_artigo(status=Artigo.Status.RASCUNHO), ajudou='1')
+
+        self.assertEqual(resposta.status_code, 404)
+        self.assertFalse(AvaliacaoArtigo.objects.exists())
+
+    def test_get_nao_grava(self):
+        resposta = self.client.get(reverse('avaliacoes:artigo', args=[_artigo().slug]))
+
+        self.assertEqual(resposta.status_code, 405)
+
+    def test_usuario_logado_fica_registrado_e_nao_vota_duas_vezes(self):
+        usuario = User.objects.create_user(username='ana', password='x')
+        artigo = _artigo()
+        self.client.force_login(usuario)
+        self.votar(artigo, ajudou='1')
+        self.client.logout()
+        self.client.force_login(usuario)
+
+        self.votar(artigo, ajudou='0')
+
+        self.assertEqual(AvaliacaoArtigo.objects.get().usuario, usuario)
+
+    def test_artigo_com_respostas_nao_pode_ser_apagado(self):
+        artigo = _artigo()
+        self.votar(artigo, ajudou='1')
+
+        with self.assertRaises(ProtectedError):
+            artigo.delete()

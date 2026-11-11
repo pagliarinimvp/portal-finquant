@@ -1,0 +1,23 @@
+{# "Este artigo te ajudou?": só em artigo publicado. Uma resposta por artigo e visitante. #}
+<section class="card p-4 mt-3 fq-avaliacao-artigo" id="avaliacao-artigo" aria-labelledby="avaliacao-artigo-titulo">
+    {% if ja_avaliou_artigo %}
+    <p class="mb-0">Obrigado! Sua resposta sobre este artigo foi registrada.</p>
+    {% else %}
+    <p class="fq-eyebrow mb-1">Sua opinião</p>
+    <h2 class="h5 mb-3" id="avaliacao-artigo-titulo">Este artigo te ajudou?</h2>
+    <form method="post" action="{% url 'avaliacoes:artigo' artigo.slug %}">
+        {% csrf_token %}
+        <details class="mb-3">
+            <summary>Quer contar mais? (opcional)</summary>
+            <label class="form-label visually-hidden" for="avaliacao-artigo-comentario">Comentário</label>
+            <textarea class="form-control mt-2" id="avaliacao-artigo-comentario" name="comentario" rows="3" maxlength="1000"
+                      placeholder="O que ficou claro, o que faltou…"></textarea>
+        </details>
+        <div class="d-flex gap-2">
+            <button type="submit" name="ajudou" value="1" class="btn btn-outline-primary">Sim</button>
+            <button type="submit" name="ajudou" value="0" class="btn btn-outline-primary">Não</button>
+        </div>
+        <p class="small text-muted mt-3 mb-0">Resposta anônima: não escreva dados pessoais no comentário. As respostas ajudam a melhorar os artigos e entram na análise de qualidade do portal (TCC).</p>
+    </form>
+    {% endif %}
+</section>

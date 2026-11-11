@@ -17,3 +17,21 @@ def ja_avaliou(request):
     if request.user.is_authenticated:
         return Avaliacao.objects.filter(usuario=request.user).exists()
     return False
+
+
+# Ids dos artigos que o visitante já avaliou nesta sessão ("Este artigo te ajudou?").
+CHAVE_SESSAO_ARTIGOS = 'artigos_avaliados'
+
+
+def avaliou_artigo(request, artigo):
+    """Diz se quem fez a requisição já respondeu sobre este artigo (um voto por artigo)."""
+    if artigo.pk in request.session.get(CHAVE_SESSAO_ARTIGOS, []):
+        return True
+    if request.user.is_authenticated:
+        from .models import AvaliacaoArtigo
+        return AvaliacaoArtigo.objects.filter(artigo=artigo, usuario=request.user).exists()
+    return False
+
+
+def marcar_artigo_avaliado(request, artigo):
+    request.session[CHAVE_SESSAO_ARTIGOS] = request.session.get(CHAVE_SESSAO_ARTIGOS, []) + [artigo.pk]

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Avaliacao
+from .models import Avaliacao, AvaliacaoArtigo
 
 
 @admin.register(Avaliacao)
@@ -14,3 +14,15 @@ class AvaliacaoAdmin(admin.ModelAdmin):
         'conteudo_ajudou', 'faixa_renda_familiar',
     )
     readonly_fields = ('criado_em',)
+
+
+@admin.register(AvaliacaoArtigo)
+class AvaliacaoArtigoAdmin(admin.ModelAdmin):
+    list_display = ('artigo', 'ajudou', 'versao_revisada_em', 'tem_comentario', 'usuario', 'criado_em')
+    list_filter = ('ajudou', 'artigo', 'versao_revisada_em')
+    search_fields = ('comentario', 'artigo__titulo')
+    readonly_fields = ('criado_em',)
+
+    @admin.display(boolean=True, description='Comentou')
+    def tem_comentario(self, obj):
+        return bool(obj.comentario)
