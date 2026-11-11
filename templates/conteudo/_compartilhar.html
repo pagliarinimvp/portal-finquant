@@ -1,0 +1,30 @@
+{# Compartilhar: só links, sem script de terceiros (nenhum rastreador das redes carrega na página). #}
+{% with texto=artigo.titulo|urlencode:"" url=url_absoluta|urlencode:"" %}
+<section class="fq-compartilhar mt-3" aria-labelledby="compartilhar-titulo">
+    <p class="fq-eyebrow mb-2" id="compartilhar-titulo">Compartilhe</p>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-sm btn-outline-primary" href="https://wa.me/?text={{ texto }}%20{{ url }}" target="_blank" rel="noopener noreferrer nofollow">WhatsApp</a>
+        <a class="btn btn-sm btn-outline-primary" href="https://t.me/share/url?url={{ url }}&amp;text={{ texto }}" target="_blank" rel="noopener noreferrer nofollow">Telegram</a>
+        <a class="btn btn-sm btn-outline-primary" href="https://www.linkedin.com/sharing/share-offsite/?url={{ url }}" target="_blank" rel="noopener noreferrer nofollow">LinkedIn</a>
+        <a class="btn btn-sm btn-outline-primary" href="https://x.com/intent/post?text={{ texto }}&amp;url={{ url }}" target="_blank" rel="noopener noreferrer nofollow">X</a>
+        <button type="button" class="btn btn-sm btn-outline-primary" data-copiar-link="{{ url_absoluta }}" hidden>Copiar link</button>
+    </div>
+    <p class="small text-muted mt-2 mb-0" role="status" aria-live="polite" data-copiar-aviso></p>
+</section>
+{% endwith %}
+<script>
+    (function () {
+        // O botão só aparece se o navegador permite copiar (exige HTTPS ou localhost).
+        var botao = document.querySelector('[data-copiar-link]');
+        var aviso = document.querySelector('[data-copiar-aviso]');
+        if (!botao || !navigator.clipboard) return;
+        botao.hidden = false;
+        botao.addEventListener('click', function () {
+            navigator.clipboard.writeText(botao.dataset.copiarLink).then(function () {
+                aviso.textContent = 'Link copiado.';
+            }, function () {
+                aviso.textContent = 'Não deu para copiar. Copie o endereço na barra do navegador.';
+            });
+        });
+    })();
+</script>

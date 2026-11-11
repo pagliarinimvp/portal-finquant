@@ -42,6 +42,7 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body>
+    <a class="visually-hidden-focusable fq-pular" href="#conteudo">Ir para o conteúdo</a>
     <nav class="navbar navbar-dark fq-navbar">
         <div class="container d-flex align-items-center flex-wrap">
             <a class="navbar-brand fq-marca" href="{% url 'core:home' %}">
@@ -83,7 +84,7 @@
         </div>
     </nav>
 
-    <main class="container my-4">
+    <main class="container my-4" id="conteudo" tabindex="-1">
         {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>

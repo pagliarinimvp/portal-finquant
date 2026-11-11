@@ -611,3 +611,52 @@ class SubstituirArtigoTests(TestCase):
         with self.assertRaisesMessage(CommandError, 'ele mesmo'):
             call_command('exportar_artigo_migracao', 'novo', substituir='novo',
                          pasta=str(self.pasta))
+
+
+class EstruturaDoArtigoTests(TestCase):
+    """Trilha, compartilhar e "Leia também" (ideias tiradas da estrutura de um portal de notícias)."""
+
+    def setUp(self):
+        # O banco de testes já vem com os artigos criados pelas migrações de dados.
+        Artigo.objects.all().delete()
+
+    def test_trilha_aponta_para_a_categoria(self):
+        criar_artigo('a', categoria=Artigo.Categoria.RENDA_FIXA)
+        resposta = self.client.get(reverse('conteudo:detalhe', args=['a']))
+        self.assertContains(resposta, 'aria-label="Trilha de navegação"')
+        self.assertContains(resposta, '?categoria=RENDA_FIXA">Renda fixa</a>')
+
+    def test_link_ir_para_o_conteudo(self):
+        resposta = self.client.get(reverse('core:home'))
+        self.assertContains(resposta, 'href="#conteudo">Ir para o conteúdo</a>')
+        self.assertContains(resposta, 'id="conteudo"')
+
+    def test_compartilhar_leva_o_endereco_completo_codificado(self):
+        criar_artigo('a', titulo='Juros & você')
+        resposta = self.client.get(reverse('conteudo:detalhe', args=['a']))
+        self.assertContains(resposta, 'https://wa.me/?text=Juros%20%26%20voc%C3%AA%20http%3A%2F%2Ftestserver%2Fartigos%2Fa%2F')
+        self.assertContains(resposta, 'rel="noopener noreferrer nofollow"')
+
+    def test_rascunho_nao_tem_compartilhar(self):
+        criar_artigo('r', status=Artigo.Status.RASCUNHO)
+        self.client.force_login(User.objects.create_user(username='equipe', password='x', is_staff=True))
+        resposta = self.client.get(reverse('conteudo:detalhe', args=['r']))
+        self.assertNotContains(resposta, 'wa.me')
+
+    def test_leia_tambem_prefere_a_mesma_categoria_e_completa_com_outras(self):
+        atual = criar_artigo('atual', categoria=Artigo.Categoria.RENDA_FIXA)
+        mesma = criar_artigo('mesma', categoria=Artigo.Categoria.RENDA_FIXA)
+        outra1 = criar_artigo('outra1')
+        outra2 = criar_artigo('outra2')
+        criar_artigo('rascunho', status=Artigo.Status.RASCUNHO, categoria=Artigo.Categoria.RENDA_FIXA)
+        resposta = self.client.get(reverse('conteudo:detalhe', args=['atual']))
+        lista = resposta.context['leia_tambem']
+        self.assertEqual(len(lista), 3)
+        self.assertEqual(lista[0], mesma)
+        self.assertEqual(set(lista[1:]), {outra1, outra2})
+        self.assertNotIn(atual, lista)
+
+    def test_sem_outros_artigos_nao_mostra_leia_tambem(self):
+        criar_artigo('so')
+        resposta = self.client.get(reverse('conteudo:detalhe', args=['so']))
+        self.assertNotContains(resposta, 'Leia também')

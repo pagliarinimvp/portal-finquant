@@ -1,0 +1,15 @@
+{# Leia também: até 3 artigos publicados, primeiro os da mesma categoria (ArtigoDetailView._leia_tambem). #}
+{% if leia_tambem %}
+<section class="card p-4 mt-3 fq-leia-tambem" aria-labelledby="leia-tambem-titulo">
+    <h2 class="fq-eyebrow mb-3" id="leia-tambem-titulo">Leia também</h2>
+    <ul class="list-unstyled mb-0">
+        {% for outro in leia_tambem %}
+        <li>
+            {% include "conteudo/_categoria_badge.html" with categoria=outro.categoria label=outro.get_categoria_display %}
+            <a class="d-block h6 mt-2 mb-1" href="{{ outro.get_absolute_url }}">{{ outro.titulo }}</a>
+            <p class="small text-muted mb-0">{{ outro.resumo|truncatewords:25 }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}

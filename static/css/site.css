@@ -560,3 +560,27 @@ ul.fq-numeros {
 footer {
     border-top: 1px solid var(--fq-rule);
 }
+
+/* --- "Ir para o conteúdo": escondido até receber o foco do teclado (Tab), no topo da página. --- */
+.fq-pular:focus {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 1080;
+    padding: 0.5rem 0.75rem;
+    background: var(--fq-teal);
+    color: #fff;
+    text-decoration: none;
+}
+
+/* --- Página de artigo: trilha, compartilhar e "Leia também" (10/11/2026). --- */
+.fq-trilha {
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+}
+
+.fq-leia-tambem li + li {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--fq-rule);
+}

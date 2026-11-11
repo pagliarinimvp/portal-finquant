@@ -5,6 +5,13 @@
 
 {% block content %}
 <div class="fq-artigo-pagina">
+<nav aria-label="Trilha de navegação">
+    <ol class="breadcrumb fq-trilha">
+        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Início</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'conteudo:lista' %}">Artigos</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'conteudo:lista' %}?categoria={{ artigo.categoria }}">{{ artigo.get_categoria_display }}</a></li>
+    </ol>
+</nav>
 {% if artigo.status == artigo.Status.RASCUNHO %}
 <div class="fq-aviso-rascunho mb-3">Rascunho — não publicado. Visível apenas para a equipe do site.</div>
 {% endif %}
@@ -31,7 +38,11 @@
     <div class="fq-artigo-corpo">{{ artigo.corpo|corpo_seguro }}</div>
 </article>
 
-{% if artigo.status == artigo.Status.PUBLICADO %}{% include "avaliacoes/_avaliacao_artigo.html" %}{% endif %}
+{% if artigo.status == artigo.Status.PUBLICADO %}
+{% include "conteudo/_compartilhar.html" %}
+{% include "avaliacoes/_avaliacao_artigo.html" %}
+{% endif %}
+{% include "conteudo/_leia_tambem.html" %}
 
 <a href="{% url 'conteudo:lista' %}" class="btn btn-link mt-3">&larr; Voltar para artigos</a>
 </div>

@@ -43,3 +43,8 @@ Bloco schema.org `Article` no `artigo_detail.html` (headline, description, image
 **Sugestão:** https://www.notion.so/414d653a12cb81ac9886e6e66ad9507c · **Registrado em:** 10/11/2026 · **Origem:** Manual
 
 O `corpo_seguro` remove sem avisar tags, classes e atributos fora da lista. O `manage.py importar_artigo` passaria a comparar o corpo antes e depois do sanitizador e listar o que seria cortado, para a skill `formatar-artigo` corrigir antes de criar o rascunho.
+
+## Caixa "Sobre o autor" no fim dos artigos
+**Sugestão:** https://www.notion.so/415d653a12cb8184b266dab5b87fd1ee · **Registrado em:** 10/11/2026 · **Origem:** Manual
+
+Uma caixa no fim de cada artigo com foto ou ícone, duas linhas de apresentação do autor (vindo de negócios e finanças) e o LinkedIn. Autor identificado dá credibilidade ao leitor e ao Google. Ideia tirada da estrutura de um artigo do Tecnoblog (10/11/2026), junto com o compartilhar, o "Leia também" e a trilha, que foram feitos.

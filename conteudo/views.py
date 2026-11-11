@@ -47,8 +47,20 @@ class ArtigoDetailView(DetailView):
         contexto['seo_titulo'] = self.object.titulo
         contexto['seo_descricao'] = self.object.resumo
         contexto['ja_avaliou_artigo'] = avaliou_artigo(self.request, self.object)
+        contexto['url_absoluta'] = self.request.build_absolute_uri(self.object.get_absolute_url())
+        contexto['leia_tambem'] = self._leia_tambem(self.object)
         url_capa = capa_url(self.object.capa)
         if url_capa:
             contexto['seo_imagem'] = self.request.build_absolute_uri(url_capa)
             contexto['seo_imagem_alt'] = self.object.capa_alt
         return contexto
+
+    @staticmethod
+    def _leia_tambem(artigo, quantidade=3):
+        """Até 3 artigos publicados: primeiro os da mesma categoria, depois os mais recentes."""
+        publicados = Artigo.objects.filter(status=Artigo.Status.PUBLICADO).exclude(pk=artigo.pk)
+        escolhidos = list(publicados.filter(categoria=artigo.categoria)[:quantidade])
+        if len(escolhidos) < quantidade:
+            outros = publicados.exclude(pk__in=[a.pk for a in escolhidos]).exclude(categoria=artigo.categoria)
+            escolhidos += list(outros[:quantidade - len(escolhidos)])
+        return escolhidos
