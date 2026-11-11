@@ -1,3 +1,4 @@
+import importlib
 import importlib.util
 import json
 import tempfile
@@ -186,23 +187,38 @@ class CamposNovosTests(TestCase):
         self.assertEqual(artigo.capa_credito, '')
         self.assertFalse(artigo.com_apoio_ia)
 
-    def test_artigo_exportado_com_ia_nao_quebra_o_teste_da_0006(self):
-        # Simula a migração de um artigo novo feito pela skill (com_apoio_ia=True).
-        criar_artigo('exportado-pela-skill')
-        Artigo.objects.filter(slug='exportado-pela-skill').update(com_apoio_ia=True)
+    @staticmethod
+    def _rodar_0006():
+        # Desde 10/11/2026 as migrações 0008-0011 põem a versão nova (feita com IA) nos
+        # artigos de exemplo, então o estado final do banco já não mostra o que a 0006
+        # fez. O teste roda a função da 0006 num estado controlado.
+        modulo = importlib.import_module('conteudo.migrations.0006_artigo_capa_e_apoio_ia')
+        Artigo.objects.update(com_apoio_ia=False)
+        modulo.marcar_galipolo(django_apps, None)
 
-        self.test_migracao_marca_o_artigo_do_galipolo_como_feito_com_ia()
+    def test_artigo_exportado_com_ia_nao_quebra_o_teste_da_0006(self):
+        # Um artigo exportado pela skill (com_apoio_ia=True) continua marcado.
+        criar_artigo('exportado-pela-skill')
+        self._rodar_0006()
+        Artigo.objects.filter(slug='exportado-pela-skill').update(com_apoio_ia=True)
+        self.assertTrue(Artigo.objects.get(slug='exportado-pela-skill').com_apoio_ia)
+        self.assertFalse(Artigo.objects.filter(slug__in=SLUGS_DA_0002, com_apoio_ia=True).exists())
 
     def test_migracao_marca_o_artigo_do_galipolo_como_feito_com_ia(self):
-        # A 0004 cria o rascunho feito pela skill; a 0006 o marca.
-        galipolo = Artigo.objects.get(slug=SLUG_GALIPOLO)
+        self._rodar_0006()
 
-        self.assertTrue(galipolo.com_apoio_ia)
-        # Só os artigos que já existiam antes da 0006 (os de exemplo da 0002);
-        # os exportados depois pela skill vêm com a nota, de propósito.
+        self.assertTrue(Artigo.objects.get(slug=SLUG_GALIPOLO).com_apoio_ia)
+        # Só o do Galípolo; os de exemplo da 0002 não foram feitos com IA.
         exemplos = Artigo.objects.filter(slug__in=SLUGS_DA_0002)
         self.assertTrue(exemplos.exists())
         self.assertFalse(exemplos.filter(com_apoio_ia=True).exists())
+
+    def test_migracoes_0008_a_0011_poem_a_versao_nova_nos_mesmos_enderecos(self):
+        for slug in SLUGS_DA_0002 + [SLUG_GALIPOLO]:
+            artigo = Artigo.objects.get(slug=slug)
+            self.assertEqual(artigo.revisado_em.isoformat(), '2026-11-10')
+            self.assertTrue(artigo.capa.startswith('img/artigos/'))
+            self.assertTrue(artigo.com_apoio_ia)
 
 
 class QuadrosNoCorpoTests(TestCase):
@@ -337,6 +353,7 @@ class PaginaDoArtigoTests(TestCase):
         self.assertIn('Portal FinQuant', resposta.context['seo_imagem_alt'])
 
     def test_lista_mostra_miniatura_so_com_capa(self):
+        Artigo.objects.all().delete()  # os artigos das migrações de dados já têm capa
         criar_artigo('a')
         criar_artigo('b')
         Artigo.objects.filter(slug='a').update(capa='img/previa.png', capa_alt='Capa A')
