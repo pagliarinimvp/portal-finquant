@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Sobre — Portal FinQuant{% endblock %}
+
+{% block content %}
+<div class="row align-items-center p-4 p-md-5 mb-5 bg-body-tertiary rounded-3">
+    <div class="col-md-7">
+        <span class="fq-eyebrow">Sobre</span>
+        <h1 class="display-6 mt-2">O que é o Portal FinQuant</h1>
+        <p class="lead mb-0">
+            Um portal educativo que explica finanças e investimentos em linguagem simples, para quem está
+            começando. Aqui não se vende produto financeiro nem se recomenda investimento: o objetivo é
+            ajudar você a entender os números antes de decidir.
+        </p>
+    </div>
+    <div class="col-md-5 d-none d-md-block">
+        {% include "ilustracoes/livro.svg" %}
+    </div>
+</div>
+
+<span class="fq-eyebrow">Motivação</span>
+<h2 class="h4 mb-2">Por que o portal existe</h2>
+<div class="fq-regua"></div>
+<p class="mb-4 fq-sobre-texto">
+    Informação de qualidade sobre dinheiro e investimentos costuma vir em linguagem técnica, ou misturada
+    com a venda de algum produto. Poucos sites explicam o assunto de forma simples e sem interesse comercial.
+    E a falta dessa informação aparece nos números do Brasil:
+</p>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5 justify-content-center">
+    <div class="col">
+        <div class="card h-100 fq-sobre-dado">
+            <div class="card-body">
+                <p class="fq-sobre-numero fq-numeros">82%</p>
+                <p class="card-text">das famílias brasileiras estavam endividadas em julho de 2026, recorde da série. O cartão de crédito aparece em 85% delas.</p>
+                <p class="small text-muted mb-0">Fonte: <a href="https://portaldocomercio.org.br/diario-executivo/cnc-endividamento-das-familias-sobe-para-82-mas-inadimplencia-cai/" target="_blank" rel="noopener">CNC, Pesquisa de Endividamento e Inadimplência do Consumidor (Peic)</a>.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 fq-sobre-dado">
+            <div class="card-body">
+                <p class="fq-sobre-numero fq-numeros">84,2 milhões</p>
+                <p class="card-text">de brasileiros estavam inadimplentes em setembro de 2026, o maior número já registrado.</p>
+                <p class="small text-muted mb-0">Fonte: <a href="https://www.serasa.com.br/limpa-nome-online/blog/mapa-da-inadimplencia-e-renogociacao-de-dividas-no-brasil/" target="_blank" rel="noopener">Serasa, Mapa da Inadimplência e Renegociação de Dívidas</a>.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 fq-sobre-dado">
+            <div class="card-body">
+                <p class="fq-sobre-numero fq-numeros">45%</p>
+                <p class="card-text">dos estudantes brasileiros de 15 anos ficaram abaixo do nível básico de educação financeira. Nos países da OCDE, a média é de 18%.</p>
+                <p class="small text-muted mb-0">Fonte: <a href="https://www.oecd.org/en/publications/pisa-2022-results-volume-iv-factsheets_34d60137-en/brazil_1c815ef9-en.html" target="_blank" rel="noopener">OCDE, PISA 2022 (letramento financeiro)</a>.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 fq-sobre-dado">
+            <div class="card-body">
+                <p class="fq-sobre-numero fq-numeros">36%</p>
+                <p class="card-text">dos brasileiros investiam em 2025, e a poupança seguia como o produto mais usado.</p>
+                <p class="small text-muted mb-0">Fonte: <a href="https://www.anbima.com.br/pt_br/noticias/anbima-lanca-a-nona-edicao-do-raio-x-do-investidor-brasileiro-36-da-populacao-aplica-em-produtos-financeiros.htm" target="_blank" rel="noopener">Anbima, Raio X do Investidor Brasileiro (9ª edição)</a>.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 fq-sobre-dado">
+            <div class="card-body">
+                <p class="fq-sobre-numero fq-numeros">97%</p>
+                <p class="card-text">das pessoas que começaram a fazer day trade em minicontratos de Ibovespa entre 2013 e 2015 e insistiram por pelo menos 300 pregões perderam dinheiro. O dado é do day trade, não da bolsa como um todo.</p>
+                <p class="small text-muted mb-0">Fonte: <a href="https://econpapers.repec.org/RePEc:fgv:eesptd:525" target="_blank" rel="noopener">Chague, De-Losso e Giovannetti, <em>Day trading for a living?</em> (FGV EESP, 2020)</a>.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<p class="mb-5 fq-sobre-texto">
+    Dívida cara, pouca reserva e decisões tomadas sem entender o risco andam juntas. O Portal FinQuant
+    nasceu para mostrar, com contas que você pode conferir, como juros, prazos e estratégias de investimento
+    funcionam de verdade.
+</p>
+
+<span class="fq-eyebrow">Conteúdo</span>
+<h2 class="h4 mb-2">O que você encontra aqui</h2>
+<div class="fq-regua"></div>
+<div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3 class="h5 card-title">Análise de ações</h3>
+                <p class="card-text text-muted">
+                    Teste uma regra de médias móveis em ações do Ibovespa, com dados reais, e compare com a Selic,
+                    com comprar e segurar e com o próprio Ibovespa.
+                </p>
+                <a href="{% url 'estudo_caso:index' %}" class="btn btn-sm btn-outline-primary">Fazer uma análise</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3 class="h5 card-title">Artigos</h3>
+                <p class="card-text text-muted">
+                    Textos curtos sobre renda fixa, ações e finanças quantitativas, com fontes e exemplos
+                    do dia a dia.
+                </p>
+                <a href="{% url 'conteudo:lista' %}" class="btn btn-sm btn-outline-primary">Ler os artigos</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3 class="h5 card-title">Simuladores</h3>
+                <p class="card-text text-muted">
+                    Juros compostos, dívida no rotativo do cartão e meta financeira, cada um com a fórmula
+                    explicada passo a passo.
+                </p>
+                <a href="{% url 'simuladores:index' %}" class="btn btn-sm btn-outline-primary">Simular</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<span class="fq-eyebrow">Autor</span>
+<h2 class="h4 mb-2">Quem faz o portal</h2>
+<div class="fq-regua"></div>
+<div class="fq-sobre-texto mb-4">
+    <p>
+        O Portal FinQuant é o Trabalho de Conclusão de Curso de <strong>Marcos Vinicius Pagliarini</strong>,
+        formando em Análise e Desenvolvimento de Sistemas na UNISINOS e estudante de Contabilidade. O projeto
+        junta as duas formações: a contabilidade e as finanças no conteúdo, a programação nas ferramentas.
+    </p>
+    <p class="mb-0">
+        <a href="https://www.linkedin.com/in/pagliarinimvp/" target="_blank" rel="noopener">Perfil no LinkedIn</a>
+        &middot;
+        <a href="{% url 'avaliacoes:avaliar' %}">Avalie o site</a>
+    </p>
+</div>
+<p class="small text-muted mb-0">
+    Números das pesquisas conferidos em 11/11/2026.
+</p>
+{% endblock %}

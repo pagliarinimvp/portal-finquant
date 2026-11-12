@@ -74,6 +74,7 @@
                         <li><a class="dropdown-item" href="{% url 'conteudo:lista' %}">Artigos</a></li>
                         <li><a class="dropdown-item" href="{% url 'simuladores:index' %}">Simuladores</a></li>
                         <li><a class="dropdown-item" href="{% url 'estudo_caso:index' %}">Análise de ações</a></li>
+                        <li><a class="dropdown-item" href="{% url 'core:sobre' %}">Sobre o portal</a></li>
                         <li><a class="dropdown-item" href="{% url 'avaliacoes:avaliar' %}">Avalie o site</a></li>
                     </ul>
                 </div>
@@ -97,7 +98,7 @@
         <div class="container">
             <div class="fq-regua"></div>
             <small class="d-block">Portal FinQuant &mdash; Trabalho de Conclusão de Curso</small>
-            <small class="d-block mt-1"><a class="fq-rodape-avaliar" href="{% url 'avaliacoes:avaliar' %}">Avalie o site</a></small>
+            <small class="d-block mt-1"><a class="fq-rodape-avaliar" href="{% url 'core:sobre' %}">Sobre o portal</a> &middot; <a class="fq-rodape-avaliar" href="{% url 'avaliacoes:avaliar' %}">Avalie o site</a></small>
             <small class="d-block mt-1">Conteúdo educacional. Não é recomendação de investimento: avalie sua situação ou procure um profissional certificado antes de decidir.</small>
         </div>
     </footer>

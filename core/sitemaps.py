@@ -9,7 +9,7 @@ class PaginasFixasSitemap(Sitemap):
 
     def items(self):
         return [
-            'core:home', 'conteudo:lista', 'simuladores:index',
+            'core:home', 'core:sobre', 'conteudo:lista', 'simuladores:index',
             'simuladores:juros_compostos', 'simuladores:divida_cartao',
             'simuladores:meta_financeira', 'estudo_caso:index',
         ]

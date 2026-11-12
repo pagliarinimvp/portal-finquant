@@ -110,3 +110,23 @@ class VersaoEstaticoTests(TestCase):
     def test_com_sufixo_em_desenvolvimento(self):
         html = self.client.get(reverse('core:home')).content.decode()
         self.assertIn('site.css?v=', html)
+
+
+class SobreTests(TestCase):
+    def test_sobre_abre_com_os_blocos_e_os_links(self):
+        response = self.client.get(reverse('core:sobre'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Por que o portal existe')
+        self.assertContains(response, 'O que você encontra aqui')
+        self.assertContains(response, 'Marcos Vinicius Pagliarini')
+        self.assertContains(response, 'https://www.linkedin.com/in/pagliarinimvp/')
+        for rota in ('estudo_caso:index', 'conteudo:lista', 'simuladores:index'):
+            self.assertContains(response, f'href="{reverse(rota)}"')
+
+    def test_sobre_tem_titulo_proprio_e_link_no_menu(self):
+        response = self.client.get(reverse('core:home'))
+        self.assertContains(response, f'href="{reverse("core:sobre")}"')
+
+        response = self.client.get(reverse('core:sobre'))
+        self.assertContains(response, '<title>Sobre — Portal FinQuant</title>', html=False)

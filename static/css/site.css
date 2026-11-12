@@ -685,3 +685,16 @@ footer {
 .fq-ver-todos:focus-visible {
     text-decoration: underline;
 }
+
+/* Página Sobre: números das pesquisas em destaque */
+.fq-sobre-texto {
+    max-width: 46rem;
+}
+
+.fq-sobre-numero {
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--fq-teal);
+    margin-bottom: 0.5rem;
+}

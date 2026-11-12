@@ -57,6 +57,11 @@ PAGINAS = {
         'Teste uma regra de médias móveis em ações do Ibovespa e compare o resultado com a '
         'Selic, com comprar e segurar e com o próprio Ibovespa.',
     ),
+    'core:sobre': (
+        'Sobre — Portal FinQuant',
+        'O que é o Portal FinQuant, por que ele existe e o que você encontra nele: artigos, '
+        'simuladores e uma análise de ações, em linguagem simples.',
+    ),
     'avaliacoes:avaliar': (
         'Avalie o Portal FinQuant',
         'Conte o que você achou do Portal FinQuant: a sua avaliação ajuda a melhorar o projeto.',

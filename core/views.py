@@ -19,6 +19,10 @@ class HomeView(TemplateView):
         return context
 
 
+class SobreView(TemplateView):
+    template_name = 'core/sobre.html'
+
+
 def saude(request):
     # Rota para o monitor externo que mantém o Render acordado. Não pode tocar no
     # banco: um ping a cada 10 minutos deixaria o Neon ligado o mês inteiro,
