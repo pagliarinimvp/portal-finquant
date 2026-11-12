@@ -687,10 +687,6 @@ footer {
 }
 
 /* Página Sobre: números das pesquisas em destaque */
-.fq-sobre-texto {
-    max-width: 46rem;
-}
-
 .fq-sobre-numero {
     font-size: 2rem;
     font-weight: 600;
