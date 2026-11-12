@@ -7,10 +7,17 @@
     <div class="col-md-7">
         <span class="fq-eyebrow">Sobre</span>
         <h1 class="display-6 mt-2">O que é o Portal FinQuant</h1>
-        <p class="lead mb-0">
+        <p class="lead">
             Um portal educativo que explica finanças e investimentos em linguagem simples, para quem está
             começando. Aqui não se vende produto financeiro nem se recomenda investimento: o objetivo é
             ajudar você a entender os números antes de decidir.
+        </p>
+        <p class="mb-0">
+            "Finanças quantitativas" é o uso de números, dados e estatística para entender o dinheiro: quanto
+            uma dívida cresce, quanto um investimento rende, se uma estratégia na bolsa funcionou de verdade ou
+            foi sorte. O portal pega essas ferramentas, que costumam ficar restritas a especialistas, e as
+            coloca ao alcance de qualquer pessoa, com explicações passo a passo e contas que você mesmo pode
+            refazer.
         </p>
     </div>
     <div class="col-md-5 d-none d-md-block">
@@ -21,11 +28,20 @@
 <span class="fq-eyebrow">Motivação</span>
 <h2 class="h4 mb-2">Por que o portal existe</h2>
 <div class="fq-regua"></div>
-<p class="mb-4 fq-sobre-texto">
-    Informação de qualidade sobre dinheiro e investimentos costuma vir em linguagem técnica, ou misturada
-    com a venda de algum produto. Poucos sites explicam o assunto de forma simples e sem interesse comercial.
-    E a falta dessa informação aparece nos números do Brasil:
-</p>
+<div class="mb-4 fq-sobre-texto">
+    <p>
+        Todo mundo precisa tomar decisões sobre dinheiro: parcelar ou pagar à vista, quanto guardar por mês,
+        onde deixar a reserva, se vale a pena entrar na bolsa. Mesmo assim, a informação de qualidade sobre o
+        assunto costuma vir em linguagem técnica, cheia de siglas, ou misturada com a venda de algum produto,
+        de quem ganha quando você investe ou se endivida.
+    </p>
+    <p class="mb-0">
+        Poucos sites explicam finanças de forma simples, com fontes e sem interesse comercial. O resultado
+        aparece nos números do Brasil: muita gente endividada, pouca gente investindo e muitos jovens sem a
+        base para lidar com o próprio dinheiro. Cada número abaixo tem a fonte ao lado e uma parte do portal
+        que ajuda a lidar com ele.
+    </p>
+</div>
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5 justify-content-center">
     <div class="col">
         <div class="card h-100 fq-sobre-dado">
@@ -33,6 +49,7 @@
                 <p class="fq-sobre-numero fq-numeros">82%</p>
                 <p class="card-text">das famílias brasileiras estavam endividadas em julho de 2026, recorde da série. O cartão de crédito aparece em 85% delas.</p>
                 <p class="small text-muted mb-0">Fonte: <a href="https://portaldocomercio.org.br/diario-executivo/cnc-endividamento-das-familias-sobe-para-82-mas-inadimplencia-cai/" target="_blank" rel="noopener">CNC, Pesquisa de Endividamento e Inadimplência do Consumidor (Peic)</a>.</p>
+                <p class="small mt-2 mb-0"><strong>No portal:</strong> o <a href="{% url 'simuladores:divida_cartao' %}">simulador de dívida no cartão</a> mostra mês a mês como o rotativo cresce e quanto de juros você paga.</p>
             </div>
         </div>
     </div>
@@ -42,6 +59,7 @@
                 <p class="fq-sobre-numero fq-numeros">84,2 milhões</p>
                 <p class="card-text">de brasileiros estavam inadimplentes em setembro de 2026, o maior número já registrado.</p>
                 <p class="small text-muted mb-0">Fonte: <a href="https://www.serasa.com.br/limpa-nome-online/blog/mapa-da-inadimplencia-e-renogociacao-de-dividas-no-brasil/" target="_blank" rel="noopener">Serasa, Mapa da Inadimplência e Renegociação de Dívidas</a>.</p>
+                <p class="small mt-2 mb-0"><strong>No portal:</strong> a <a href="{% url 'simuladores:meta_financeira' %}">calculadora de meta financeira</a> ajuda a planejar quanto guardar por mês para montar uma reserva e não depender de crédito.</p>
             </div>
         </div>
     </div>
@@ -51,6 +69,7 @@
                 <p class="fq-sobre-numero fq-numeros">45%</p>
                 <p class="card-text">dos estudantes brasileiros de 15 anos ficaram abaixo do nível básico de educação financeira. Nos países da OCDE, a média é de 18%.</p>
                 <p class="small text-muted mb-0">Fonte: <a href="https://www.oecd.org/en/publications/pisa-2022-results-volume-iv-factsheets_34d60137-en/brazil_1c815ef9-en.html" target="_blank" rel="noopener">OCDE, PISA 2022 (letramento financeiro)</a>.</p>
+                <p class="small mt-2 mb-0"><strong>No portal:</strong> os <a href="{% url 'conteudo:lista' %}">artigos</a> explicam do básico, como juros e inflação, até renda fixa, ações e estatística, sem pressupor que você já saiba.</p>
             </div>
         </div>
     </div>
@@ -60,6 +79,7 @@
                 <p class="fq-sobre-numero fq-numeros">36%</p>
                 <p class="card-text">dos brasileiros investiam em 2025, e a poupança seguia como o produto mais usado.</p>
                 <p class="small text-muted mb-0">Fonte: <a href="https://www.anbima.com.br/pt_br/noticias/anbima-lanca-a-nona-edicao-do-raio-x-do-investidor-brasileiro-36-da-populacao-aplica-em-produtos-financeiros.htm" target="_blank" rel="noopener">Anbima, Raio X do Investidor Brasileiro (9ª edição)</a>.</p>
+                <p class="small mt-2 mb-0"><strong>No portal:</strong> o <a href="{% url 'simuladores:juros_compostos' %}">simulador de juros compostos</a> mostra o efeito do tempo e dos aportes, para comparar a poupança com outras taxas.</p>
             </div>
         </div>
     </div>
@@ -69,15 +89,57 @@
                 <p class="fq-sobre-numero fq-numeros">97%</p>
                 <p class="card-text">das pessoas que começaram a fazer day trade em minicontratos de Ibovespa entre 2013 e 2015 e insistiram por pelo menos 300 pregões perderam dinheiro. O dado é do day trade, não da bolsa como um todo.</p>
                 <p class="small text-muted mb-0">Fonte: <a href="https://econpapers.repec.org/RePEc:fgv:eesptd:525" target="_blank" rel="noopener">Chague, De-Losso e Giovannetti, <em>Day trading for a living?</em> (FGV EESP, 2020)</a>.</p>
+                <p class="small mt-2 mb-0"><strong>No portal:</strong> a <a href="{% url 'estudo_caso:index' %}">análise de ações</a> testa uma estratégia com dados reais e mostra se ela ganhou da Selic ou se o resultado pode ter sido sorte.</p>
             </div>
         </div>
     </div>
 </div>
-<p class="mb-5 fq-sobre-texto">
-    Dívida cara, pouca reserva e decisões tomadas sem entender o risco andam juntas. O Portal FinQuant
-    nasceu para mostrar, com contas que você pode conferir, como juros, prazos e estratégias de investimento
-    funcionam de verdade.
-</p>
+<div class="mb-5 fq-sobre-texto">
+    <p>
+        Dívida cara, pouca reserva e decisões tomadas sem entender o risco andam juntas. Quem não sabe quanto
+        o rotativo do cartão cobra tende a ficar nele mais tempo, e quem não conhece os números da bolsa fica
+        mais exposto a promessas de ganho fácil.
+    </p>
+    <p class="mb-0">
+        O Portal FinQuant nasceu para mostrar, com contas que você pode conferir, como juros, prazos e
+        estratégias de investimento funcionam de verdade. A ideia não é dizer o que fazer com o seu dinheiro,
+        e sim dar a você as ferramentas para decidir com mais clareza.
+    </p>
+</div>
+
+<span class="fq-eyebrow">Princípios</span>
+<h2 class="h4 mb-2">Como o portal funciona</h2>
+<div class="fq-regua"></div>
+<div class="row row-cols-1 row-cols-md-2 g-4 mb-5">
+    <div class="col">
+        <h3 class="h6">Linguagem simples</h3>
+        <p class="text-muted mb-0">
+            Os textos são escritos para quem está começando. Termos técnicos aparecem só quando necessários e
+            vêm explicados, com exemplos do dia a dia.
+        </p>
+    </div>
+    <div class="col">
+        <h3 class="h6">Contas que você confere</h3>
+        <p class="text-muted mb-0">
+            Cada simulador tem o painel "Como calculamos isso?", com a fórmula e um exemplo pequeno que dá para
+            refazer numa calculadora comum. Nada fica escondido numa caixa-preta.
+        </p>
+    </div>
+    <div class="col">
+        <h3 class="h6">Dados reais e fontes citadas</h3>
+        <p class="text-muted mb-0">
+            A análise de ações usa preços históricos de ações do Ibovespa e a Selic, atualizados toda semana,
+            e mostra de onde vem cada dado. Os artigos citam as fontes que usaram.
+        </p>
+    </div>
+    <div class="col">
+        <h3 class="h6">Sem venda e sem recomendação</h3>
+        <p class="text-muted mb-0">
+            O portal não tem anúncio, não indica corretora nem vende curso. O conteúdo é educativo: ajuda a
+            entender os números, mas a decisão é sempre sua.
+        </p>
+    </div>
+</div>
 
 <span class="fq-eyebrow">Conteúdo</span>
 <h2 class="h4 mb-2">O que você encontra aqui</h2>
@@ -88,8 +150,10 @@
             <div class="card-body">
                 <h3 class="h5 card-title">Análise de ações</h3>
                 <p class="card-text text-muted">
-                    Teste uma regra de médias móveis em ações do Ibovespa, com dados reais, e compare com a Selic,
-                    com comprar e segurar e com o próprio Ibovespa.
+                    A principal ferramenta do portal. Você escolhe ações do Ibovespa, ou deixa o portal escolher, e
+                    testa uma regra de médias móveis com preços reais. O resultado é comparado com a Selic, com
+                    comprar e segurar e com o próprio Ibovespa, e testes estatísticos mostram se a diferença pode
+                    ter sido acaso. No fim, dá para baixar um resumo em PDF.
                 </p>
                 <a href="{% url 'estudo_caso:index' %}" class="btn btn-sm btn-outline-primary">Fazer uma análise</a>
             </div>
@@ -100,8 +164,9 @@
             <div class="card-body">
                 <h3 class="h5 card-title">Artigos</h3>
                 <p class="card-text text-muted">
-                    Textos curtos sobre renda fixa, ações e finanças quantitativas, com fontes e exemplos
-                    do dia a dia.
+                    Textos em quatro temas: fundamentos, renda fixa, renda variável e análise quantitativa. Os
+                    artigos trazem resumo de 30 segundos, quadros "Na prática" e glossário, citam as fontes e,
+                    quando faz sentido, levam você a refazer a conta num simulador.
                 </p>
                 <a href="{% url 'conteudo:lista' %}" class="btn btn-sm btn-outline-primary">Ler os artigos</a>
             </div>
@@ -112,8 +177,9 @@
             <div class="card-body">
                 <h3 class="h5 card-title">Simuladores</h3>
                 <p class="card-text text-muted">
-                    Juros compostos, dívida no rotativo do cartão e meta financeira, cada um com a fórmula
-                    explicada passo a passo.
+                    Três calculadoras para decisões do dia a dia: quanto um investimento rende com juros
+                    compostos, em quanto tempo uma dívida no rotativo do cartão é quitada e quanto guardar por mês
+                    para chegar a uma meta. Todas mostram a evolução mês a mês, com gráfico e a fórmula explicada.
                 </p>
                 <a href="{% url 'simuladores:index' %}" class="btn btn-sm btn-outline-primary">Simular</a>
             </div>
@@ -127,8 +193,13 @@
 <div class="fq-sobre-texto mb-4">
     <p>
         O Portal FinQuant é o Trabalho de Conclusão de Curso de <strong>Marcos Vinicius Pagliarini</strong>,
-        formando em Análise e Desenvolvimento de Sistemas na UNISINOS e estudante de Contabilidade. O projeto
-        junta as duas formações: a contabilidade e as finanças no conteúdo, a programação nas ferramentas.
+        formando em Análise e Desenvolvimento de Sistemas na UNISINOS, com
+        orientação do Prof. Dr. Roberto Zanoni.
+    </p>
+    <p>
+        Por ser um projeto acadêmico, o portal também é objeto de estudo: as avaliações deixadas pelos
+        visitantes entram na análise de qualidade do trabalho. Se você usou o site, a sua opinião ajuda a
+        entender o que funciona e o que precisa melhorar.
     </p>
     <p class="mb-0">
         <a href="https://www.linkedin.com/in/pagliarinimvp/" target="_blank" rel="noopener">Perfil no LinkedIn</a>
